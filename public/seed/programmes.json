@@ -1,0 +1,883 @@
+[
+ {
+  "key": "ppl",
+  "name": "Push / Pull / Legs",
+  "level": "beginner",
+  "progression": "double",
+  "daysPerWeekOptions": [
+   3,
+   6
+  ],
+  "description": "Three sessions that split the body into pushing, pulling and legs. Run each once a week, or twice for a six-day week. Add weight only after every set reaches the top of its rep range.",
+  "days": [
+   {
+    "name": "Push day",
+    "exercises": [
+     {
+      "exercise": "Barbell Bench Press - Medium Grip",
+      "tier": "main",
+      "sets": 4,
+      "reps": [
+       6,
+       8
+      ]
+     },
+     {
+      "exercise": "Standing Military Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       10
+      ]
+     },
+     {
+      "exercise": "Incline Dumbbell Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Side Lateral Raise",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       12,
+       15
+      ]
+     },
+     {
+      "exercise": "Triceps Pushdown",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       12
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Pull day",
+    "exercises": [
+     {
+      "exercise": "Barbell Deadlift",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ]
+     },
+     {
+      "exercise": "Wide-Grip Lat Pulldown",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       10
+      ],
+      "alt": "Pullups"
+     },
+     {
+      "exercise": "Seated Cable Rows",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       12
+      ]
+     },
+     {
+      "exercise": "Face Pull",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       15,
+       15
+      ]
+     },
+     {
+      "exercise": "Dumbbell Bicep Curl",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       12
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Legs day",
+    "exercises": [
+     {
+      "exercise": "Barbell Squat",
+      "tier": "main",
+      "sets": 4,
+      "reps": [
+       6,
+       8
+      ]
+     },
+     {
+      "exercise": "Romanian Deadlift",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       10
+      ]
+     },
+     {
+      "exercise": "Leg Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       12
+      ]
+     },
+     {
+      "exercise": "Seated Leg Curl",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       12
+      ]
+     },
+     {
+      "exercise": "Standing Calf Raises",
+      "tier": "main",
+      "sets": 4,
+      "reps": [
+       12,
+       15
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "key": "phul",
+  "name": "Upper / Lower",
+  "author": "Brandon Campbell",
+  "level": "intermediate",
+  "progression": "double",
+  "daysPerWeekOptions": [
+   4
+  ],
+  "description": "Four days: two upper, two lower, each pair with one heavy day and one higher-rep day. Based on Brandon Campbell's PHUL idea of training for strength and size together. Add weight once every set reaches the top of its range.",
+  "days": [
+   {
+    "name": "Upper power",
+    "exercises": [
+     {
+      "exercise": "Barbell Bench Press - Medium Grip",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       3,
+       5
+      ]
+     },
+     {
+      "exercise": "Bent Over Barbell Row",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       3,
+       5
+      ]
+     },
+     {
+      "exercise": "Standing Military Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       6,
+       8
+      ]
+     },
+     {
+      "exercise": "Wide-Grip Lat Pulldown",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       6,
+       10
+      ]
+     },
+     {
+      "exercise": "Barbell Curl",
+      "tier": "main",
+      "sets": 2,
+      "reps": [
+       6,
+       10
+      ]
+     },
+     {
+      "exercise": "EZ-Bar Skullcrusher",
+      "tier": "main",
+      "sets": 2,
+      "reps": [
+       6,
+       10
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Lower power",
+    "exercises": [
+     {
+      "exercise": "Barbell Squat",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       3,
+       5
+      ]
+     },
+     {
+      "exercise": "Barbell Deadlift",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       3,
+       5
+      ]
+     },
+     {
+      "exercise": "Leg Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       15
+      ]
+     },
+     {
+      "exercise": "Seated Leg Curl",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       6,
+       10
+      ],
+      "lift": "Seated Leg Curl|power"
+     },
+     {
+      "exercise": "Standing Calf Raises",
+      "tier": "main",
+      "sets": 4,
+      "reps": [
+       6,
+       10
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Upper hypertrophy",
+    "exercises": [
+     {
+      "exercise": "Incline Dumbbell Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Dumbbell Flyes",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Seated Cable Rows",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "One-Arm Dumbbell Row",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Side Lateral Raise",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       15
+      ]
+     },
+     {
+      "exercise": "Incline Dumbbell Curl",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Triceps Pushdown",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Lower hypertrophy",
+    "exercises": [
+     {
+      "exercise": "Front Squat (Clean Grip)",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Barbell Walking Lunge",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ],
+      "note": "Reps each leg"
+     },
+     {
+      "exercise": "Leg Extensions",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       15
+      ]
+     },
+     {
+      "exercise": "Seated Leg Curl",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       15
+      ],
+      "lift": "Seated Leg Curl|hypertrophy"
+     },
+     {
+      "exercise": "Seated Calf Raise",
+      "tier": "main",
+      "sets": 4,
+      "reps": [
+       8,
+       12
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "key": "full-body-beginner",
+  "name": "Full body beginner",
+  "level": "beginner",
+  "progression": "linear",
+  "daysPerWeekOptions": [
+   3
+  ],
+  "description": "Three full-body sessions a week, alternating workout A and workout B. Few lifts, low reps and a small weight jump every session you complete. Three missed sessions on a lift trigger a 10% lighter reset.",
+  "days": [
+   {
+    "name": "Workout A",
+    "exercises": [
+     {
+      "exercise": "Barbell Squat",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "incrementKg": 2.5
+     },
+     {
+      "exercise": "Barbell Bench Press - Medium Grip",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "incrementKg": 2.5
+     },
+     {
+      "exercise": "Bent Over Barbell Row",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "incrementKg": 2.5
+     },
+     {
+      "exercise": "Chin-Up",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       1,
+       1
+      ],
+      "amrap": true,
+      "note": "As many reps as you can each set"
+     }
+    ]
+   },
+   {
+    "name": "Workout B",
+    "exercises": [
+     {
+      "exercise": "Barbell Squat",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "incrementKg": 2.5
+     },
+     {
+      "exercise": "Standing Military Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "incrementKg": 2.5
+     },
+     {
+      "exercise": "Barbell Deadlift",
+      "tier": "main",
+      "sets": 1,
+      "reps": [
+       5,
+       5
+      ],
+      "incrementKg": 5
+     },
+     {
+      "exercise": "Chin-Up",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       1,
+       1
+      ],
+      "amrap": true,
+      "note": "As many reps as you can each set"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "key": "gzclp",
+  "name": "GZCLP",
+  "author": "Cody Lefever",
+  "level": "intermediate",
+  "progression": "gzclp",
+  "daysPerWeekOptions": [
+   4
+  ],
+  "description": "Cody Lefever's linear programme in four days. Each day has a heavy lift (T1), a lighter volume lift (T2) and a high-rep accessory (T3). When a lift stalls it moves to a new rep scheme before the weight is reset.",
+  "days": [
+   {
+    "name": "Day 1",
+    "exercises": [
+     {
+      "exercise": "Barbell Squat",
+      "tier": "t1",
+      "sets": 5,
+      "reps": [
+       3,
+       3
+      ],
+      "amrap": true
+     },
+     {
+      "exercise": "Barbell Bench Press - Medium Grip",
+      "tier": "t2",
+      "sets": 3,
+      "reps": [
+       10,
+       10
+      ]
+     },
+     {
+      "exercise": "Wide-Grip Lat Pulldown",
+      "tier": "t3",
+      "sets": 3,
+      "reps": [
+       15,
+       15
+      ],
+      "amrap": true
+     }
+    ]
+   },
+   {
+    "name": "Day 2",
+    "exercises": [
+     {
+      "exercise": "Standing Military Press",
+      "tier": "t1",
+      "sets": 5,
+      "reps": [
+       3,
+       3
+      ],
+      "amrap": true
+     },
+     {
+      "exercise": "Barbell Deadlift",
+      "tier": "t2",
+      "sets": 3,
+      "reps": [
+       10,
+       10
+      ]
+     },
+     {
+      "exercise": "One-Arm Dumbbell Row",
+      "tier": "t3",
+      "sets": 3,
+      "reps": [
+       15,
+       15
+      ],
+      "amrap": true
+     }
+    ]
+   },
+   {
+    "name": "Day 3",
+    "exercises": [
+     {
+      "exercise": "Barbell Bench Press - Medium Grip",
+      "tier": "t1",
+      "sets": 5,
+      "reps": [
+       3,
+       3
+      ],
+      "amrap": true
+     },
+     {
+      "exercise": "Barbell Squat",
+      "tier": "t2",
+      "sets": 3,
+      "reps": [
+       10,
+       10
+      ]
+     },
+     {
+      "exercise": "Wide-Grip Lat Pulldown",
+      "tier": "t3",
+      "sets": 3,
+      "reps": [
+       15,
+       15
+      ],
+      "amrap": true
+     }
+    ]
+   },
+   {
+    "name": "Day 4",
+    "exercises": [
+     {
+      "exercise": "Barbell Deadlift",
+      "tier": "t1",
+      "sets": 5,
+      "reps": [
+       3,
+       3
+      ],
+      "amrap": true
+     },
+     {
+      "exercise": "Standing Military Press",
+      "tier": "t2",
+      "sets": 3,
+      "reps": [
+       10,
+       10
+      ]
+     },
+     {
+      "exercise": "One-Arm Dumbbell Row",
+      "tier": "t3",
+      "sets": 3,
+      "reps": [
+       15,
+       15
+      ],
+      "amrap": true
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "key": "531-beginners",
+  "name": "5/3/1 for Beginners",
+  "author": "Jim Wendler",
+  "level": "intermediate",
+  "progression": "wendler531",
+  "daysPerWeekOptions": [
+   3
+  ],
+  "description": "Jim Wendler's 5/3/1 laid out over three days. Each lift is trained from a training max over a three-week wave of rising weights, followed by 5×5 back-off sets, with assistance work you choose.",
+  "cycle": {
+   "weeks": [
+    {
+     "percents": [
+      65,
+      75,
+      85
+     ],
+     "reps": [
+      5,
+      5,
+      5
+     ],
+     "fslPercent": 65
+    },
+    {
+     "percents": [
+      70,
+      80,
+      90
+     ],
+     "reps": [
+      3,
+      3,
+      3
+     ],
+     "fslPercent": 70
+    },
+    {
+     "percents": [
+      75,
+      85,
+      95
+     ],
+     "reps": [
+      5,
+      3,
+      1
+     ],
+     "fslPercent": 75
+    }
+   ]
+  },
+  "days": [
+   {
+    "name": "Day 1",
+    "exercises": [
+     {
+      "exercise": "Barbell Squat",
+      "tier": "m531",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "lift": "Barbell Squat"
+     },
+     {
+      "exercise": "Barbell Bench Press - Medium Grip",
+      "tier": "m531",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "lift": "Barbell Bench Press - Medium Grip"
+     },
+     {
+      "exercise": "Pushups",
+      "tier": "assist",
+      "sets": 5,
+      "reps": [
+       10,
+       20
+      ],
+      "note": "Push: aim for 50–100 reps in total. Swap for any pressing move."
+     },
+     {
+      "exercise": "Chin-Up",
+      "tier": "assist",
+      "sets": 5,
+      "reps": [
+       10,
+       20
+      ],
+      "note": "Pull: aim for 50–100 reps in total. Swap for any rowing or pulling move."
+     },
+     {
+      "exercise": "Barbell Walking Lunge",
+      "tier": "assist",
+      "sets": 5,
+      "reps": [
+       10,
+       20
+      ],
+      "note": "Single leg or core: aim for 50–100 reps in total. Swap for any single-leg or core move."
+     }
+    ]
+   },
+   {
+    "name": "Day 2",
+    "exercises": [
+     {
+      "exercise": "Barbell Deadlift",
+      "tier": "m531",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "lift": "Barbell Deadlift"
+     },
+     {
+      "exercise": "Standing Military Press",
+      "tier": "m531",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "lift": "Standing Military Press"
+     },
+     {
+      "exercise": "Pushups",
+      "tier": "assist",
+      "sets": 5,
+      "reps": [
+       10,
+       20
+      ],
+      "note": "Push: aim for 50–100 reps in total. Swap for any pressing move."
+     },
+     {
+      "exercise": "Chin-Up",
+      "tier": "assist",
+      "sets": 5,
+      "reps": [
+       10,
+       20
+      ],
+      "note": "Pull: aim for 50–100 reps in total. Swap for any rowing or pulling move."
+     },
+     {
+      "exercise": "Barbell Walking Lunge",
+      "tier": "assist",
+      "sets": 5,
+      "reps": [
+       10,
+       20
+      ],
+      "note": "Single leg or core: aim for 50–100 reps in total. Swap for any single-leg or core move."
+     }
+    ]
+   },
+   {
+    "name": "Day 3",
+    "exercises": [
+     {
+      "exercise": "Barbell Bench Press - Medium Grip",
+      "tier": "m531",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "lift": "Barbell Bench Press - Medium Grip"
+     },
+     {
+      "exercise": "Barbell Squat",
+      "tier": "m531",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ],
+      "lift": "Barbell Squat"
+     },
+     {
+      "exercise": "Pushups",
+      "tier": "assist",
+      "sets": 5,
+      "reps": [
+       10,
+       20
+      ],
+      "note": "Push: aim for 50–100 reps in total. Swap for any pressing move."
+     },
+     {
+      "exercise": "Chin-Up",
+      "tier": "assist",
+      "sets": 5,
+      "reps": [
+       10,
+       20
+      ],
+      "note": "Pull: aim for 50–100 reps in total. Swap for any rowing or pulling move."
+     },
+     {
+      "exercise": "Barbell Walking Lunge",
+      "tier": "assist",
+      "sets": 5,
+      "reps": [
+       10,
+       20
+      ],
+      "note": "Single leg or core: aim for 50–100 reps in total. Swap for any single-leg or core move."
+     }
+    ]
+   }
+  ]
+ }
+]

@@ -25,6 +25,11 @@
   "equipment": "dumbbell"
  },
  {
+  "name": "Barbell Bench Press - Medium Grip",
+  "primary_muscle": "chest",
+  "equipment": "barbell"
+ },
+ {
   "name": "Barbell Curl",
   "primary_muscle": "biceps",
   "equipment": "barbell"
@@ -66,6 +71,11 @@
  },
  {
   "name": "Barbell Step Ups",
+  "primary_muscle": "quadriceps",
+  "equipment": "barbell"
+ },
+ {
+  "name": "Barbell Walking Lunge",
   "primary_muscle": "quadriceps",
   "equipment": "barbell"
  },
@@ -235,8 +245,18 @@
   "equipment": "dumbbell"
  },
  {
+  "name": "Dumbbell Bicep Curl",
+  "primary_muscle": "biceps",
+  "equipment": "dumbbell"
+ },
+ {
   "name": "Dumbbell Clean",
   "primary_muscle": "hamstrings",
+  "equipment": "dumbbell"
+ },
+ {
+  "name": "Dumbbell Flyes",
+  "primary_muscle": "chest",
   "equipment": "dumbbell"
  },
  {
@@ -290,6 +310,11 @@
   "equipment": "cable"
  },
  {
+  "name": "EZ-Bar Skullcrusher",
+  "primary_muscle": "triceps",
+  "equipment": "e-z curl bar"
+ },
+ {
   "name": "Face Pull",
   "primary_muscle": "shoulders",
   "equipment": "cable"
@@ -303,6 +328,11 @@
   "name": "Flutter Kicks",
   "primary_muscle": "glutes",
   "equipment": "body only"
+ },
+ {
+  "name": "Front Squat (Clean Grip)",
+  "primary_muscle": "quadriceps",
+  "equipment": "barbell"
  },
  {
   "name": "Glute Kickback",
@@ -328,6 +358,16 @@
   "name": "Hyperextensions With No Hyperextension Bench",
   "primary_muscle": "lower back",
   "equipment": "body only"
+ },
+ {
+  "name": "Incline Dumbbell Curl",
+  "primary_muscle": "biceps",
+  "equipment": "dumbbell"
+ },
+ {
+  "name": "Incline Dumbbell Press",
+  "primary_muscle": "chest",
+  "equipment": "dumbbell"
  },
  {
   "name": "Incline Push-Up",
@@ -368,6 +408,11 @@
   "name": "Kneeling High Pulley Row",
   "primary_muscle": "lats",
   "equipment": "cable"
+ },
+ {
+  "name": "Leg Extensions",
+  "primary_muscle": "quadriceps",
+  "equipment": "machine"
  },
  {
   "name": "Leg Lift",
@@ -585,6 +630,11 @@
   "equipment": "cable"
  },
  {
+  "name": "Side Lateral Raise",
+  "primary_muscle": "shoulders",
+  "equipment": "dumbbell"
+ },
+ {
   "name": "Single Leg Glute Bridge",
   "primary_muscle": "glutes",
   "equipment": "body only"
@@ -670,6 +720,11 @@
   "equipment": "dumbbell"
  },
  {
+  "name": "Standing Military Press",
+  "primary_muscle": "shoulders",
+  "equipment": "barbell"
+ },
+ {
   "name": "Step-up with Knee Raise",
   "primary_muscle": "glutes",
   "equipment": "body only"
@@ -703,6 +758,11 @@
   "name": "Thigh Adductor",
   "primary_muscle": "adductors",
   "equipment": "machine"
+ },
+ {
+  "name": "Triceps Pushdown",
+  "primary_muscle": "triceps",
+  "equipment": "cable"
  },
  {
   "name": "Upright Barbell Row",
