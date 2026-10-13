@@ -27,10 +27,13 @@ export function BottomNav({ onAdd }: { onAdd: () => void }) {
   const train = settings.optionalPillars.includes('train')
   return (
     <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-30 border-t border-fog bg-surface pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex h-16 max-w-lg items-center px-2">
-        <Item to="/" end label="Today" icon={House} />
-        <Item to="/money" label="Money" icon={Wallet} />
-        <div className="flex flex-1 justify-center">
+      {/* Three columns so the Add button sits at the exact centre whatever pillars are on. */}
+      <div className="mx-auto grid h-16 max-w-lg grid-cols-[1fr_auto_1fr] items-center px-2">
+        <div className="flex h-full items-center">
+          <Item to="/" end label="Today" icon={House} />
+          <Item to="/money" label="Money" icon={Wallet} />
+        </div>
+        <div className="flex w-20 justify-center">
           <button
             aria-label="Add"
             onClick={onAdd}
@@ -39,9 +42,11 @@ export function BottomNav({ onAdd }: { onAdd: () => void }) {
             <Plus aria-hidden="true" size={28} strokeWidth={2.5} />
           </button>
         </div>
-        {food ? <Item to="/food" label="Food" icon={Apple} /> : null}
-        {train ? <Item to="/train" label="Train" icon={Dumbbell} /> : null}
-        <Item to="/more" label="More" icon={Ellipsis} />
+        <div className="flex h-full items-center">
+          {food ? <Item to="/food" label="Food" icon={Apple} /> : null}
+          {train ? <Item to="/train" label="Train" icon={Dumbbell} /> : null}
+          <Item to="/more" label="More" icon={Ellipsis} />
+        </div>
       </div>
     </nav>
   )
