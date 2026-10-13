@@ -1,0 +1,86 @@
+import type { SqlExecutor } from '../db/executor'
+import { newId, nowIso } from '../db/ids'
+import type { Food } from '../db/types'
+import { toFood } from './seed'
+
+export type BarcodeResult =
+  | { status: 'found'; food: Food }
+  | { status: 'incomplete'; draft: Partial<Food> & { barcode: string } }
+  | { status: 'not_found' | 'offline'; draft: { barcode: string } }
+
+const num = (v: unknown): number | undefined => {
+  const n = typeof v === 'string' ? Number(v) : v
+  return typeof n === 'number' && Number.isFinite(n) ? n : undefined
+}
+
+/** Maps an Open Food Facts product response. Anything missing a nutrient is `incomplete`, never a zero. */
+export function mapOffProduct(json: unknown, barcode: string): BarcodeResult {
+  const product = (json as { status?: number; product?: Record<string, unknown> } | null)?.product
+  if (!product || (json as { status?: number }).status === 0) return { status: 'not_found', draft: { barcode } }
+  const n = (product.nutriments ?? {}) as Record<string, unknown>
+  const kj = num(n['energy-kj_100g'])
+  const kcal = num(n['energy-kcal_100g']) ?? (kj === undefined ? undefined : Math.round(kj / 4.184))
+  const protein = num(n.proteins_100g)
+  const carbs = num(n.carbohydrates_100g)
+  const fat = num(n.fat_100g)
+  const name = typeof product.product_name === 'string' ? product.product_name.trim() : ''
+  const brand = typeof product.brands === 'string' && product.brands ? product.brands.split(',')[0].trim() : null
+  const servingG = num(product.serving_quantity) ?? null
+  const servingLabel = typeof product.serving_size === 'string' ? product.serving_size : null
+
+  if (name && kcal !== undefined && protein !== undefined && carbs !== undefined && fat !== undefined) {
+    const now = nowIso()
+    return {
+      status: 'found',
+      food: {
+        id: newId(), createdAt: now, updatedAt: now, deletedAt: null, source: 'off', barcode, name, brand,
+        kcal100g: kcal, protein100g: protein, carbs100g: carbs, fat100g: fat, servingG, servingLabel,
+      },
+    }
+  }
+  const draft: Partial<Food> & { barcode: string } = { barcode }
+  if (name) draft.name = name
+  if (brand) draft.brand = brand
+  if (kcal !== undefined) draft.kcal100g = kcal
+  if (protein !== undefined) draft.protein100g = protein
+  if (carbs !== undefined) draft.carbs100g = carbs
+  if (fat !== undefined) draft.fat100g = fat
+  if (servingG !== null) draft.servingG = servingG
+  return { status: 'incomplete', draft }
+}
+
+export async function lookupBarcode(db: SqlExecutor, barcode: string, fetchFn: typeof fetch = fetch): Promise<BarcodeResult> {
+  const cached = await db.all<Parameters<typeof toFood>[0]>(
+    `SELECT * FROM foods WHERE barcode = ? AND deleted_at IS NULL ORDER BY CASE source WHEN 'user' THEN 0 ELSE 1 END LIMIT 1`,
+    [barcode],
+  )
+  if (cached[0]) return { status: 'found', food: toFood(cached[0]) }
+
+  const url =
+    `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json` +
+    `?fields=product_name,brands,nutriments,serving_quantity,serving_size&app_name=Tally&app_version=0.1`
+  let res: Response
+  try {
+    res = await fetchFn(url)
+  } catch {
+    return { status: 'offline', draft: { barcode } }
+  }
+  if (res.status === 404) return { status: 'not_found', draft: { barcode } }
+  if (!res.ok) return { status: 'offline', draft: { barcode } }
+  let json: unknown
+  try {
+    json = await res.json()
+  } catch {
+    return { status: 'offline', draft: { barcode } }
+  }
+  const result = mapOffProduct(json, barcode)
+  if (result.status === 'found') {
+    const f = result.food
+    await db.run(
+      `INSERT INTO foods (id, created_at, updated_at, source, barcode, name, brand, kcal_100g, protein_100g, carbs_100g, fat_100g, serving_g, serving_label)
+       VALUES (?,?,?,'off',?,?,?,?,?,?,?,?,?)`,
+      [f.id, f.createdAt, f.updatedAt, barcode, f.name, f.brand, f.kcal100g, f.protein100g, f.carbs100g, f.fat100g, f.servingG, f.servingLabel],
+    )
+  }
+  return result
+}
