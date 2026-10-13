@@ -1,5 +1,6 @@
 import type { SqlExecutor } from '../db/executor'
 import type { Sex } from '../db/types'
+import type { DateFormat } from '../domain/dates'
 import { daysBetween } from '../domain/dates'
 
 export type Settings = {
@@ -15,10 +16,18 @@ export type Settings = {
   proteinTarget?: number
   lastBackupAt?: string
   theme?: 'light' | 'dark'
+  displayName?: string
+  avatarIcon: string
+  avatarColour: string
+  /** Mirrors the monthly income rule's pay day (the rule is the source of truth). */
+  payDay?: number
+  restSeconds: number
+  dateFormat: DateFormat
 }
 
 const DEFAULTS: Settings = {
   onboarded: false, optionalPillars: [], healthConsent: false, hideCalories: false, weightUnit: 'kg', sex: 'unspecified',
+  avatarIcon: 'user', avatarColour: 'pond', restSeconds: 90, dateFormat: 'long',
 }
 
 const KEY = 'app'

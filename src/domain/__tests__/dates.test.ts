@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addMonths, addMonthsAnchored, localDate, monthRange, nextMonthlyOccurrence, weekStart, yearRange } from '../dates'
+import { addMonths, addMonthsAnchored, formatDate, monthLabel, localDate, monthRange, nextMonthlyOccurrence, weekStart, yearRange } from '../dates'
 
 describe('dates', () => {
   it('weekStart gives Monday', () => {
@@ -33,5 +33,15 @@ describe('dates', () => {
     expect(addMonthsAnchored('2026-01-31', 1, 31)).toBe('2026-02-28')
     expect(addMonthsAnchored('2026-02-28', 1, 31)).toBe('2026-03-31')
     expect(addMonthsAnchored('2026-02-28', 12, 29)).toBe('2027-02-28')
+  })
+  it('formats dates in the chosen style', () => {
+    expect(formatDate('2026-10-12', 'long')).toBe('12 Oct 2026')
+    expect(formatDate('2026-10-12', 'numeric')).toBe('12/10/2026')
+    expect(formatDate('2026-01-05', 'numeric')).toBe('05/01/2026')
+    expect(formatDate('2026-01-05', 'long')).toBe('5 Jan 2026')
+  })
+  it('labels months by short name', () => {
+    expect(monthLabel('2026-10')).toBe('Oct')
+    expect(monthLabel('2027-01')).toBe('Jan')
   })
 })

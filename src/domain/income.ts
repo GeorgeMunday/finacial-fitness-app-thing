@@ -45,11 +45,11 @@ export async function saveMonthlyIncome(db: SqlExecutor, i: { amountPence: numbe
       ])
     }
   })
-  await updateSettings(db, { monthlyIncomePence: i.amountPence })
+  await updateSettings(db, { monthlyIncomePence: i.amountPence, payDay: i.payDay })
 }
 
 export async function stopMonthlyIncome(db: SqlExecutor): Promise<void> {
   const existing = await findRule(db)
   if (existing) await deleteRecurring(db, existing.id)
-  await updateSettings(db, { monthlyIncomePence: undefined })
+  await updateSettings(db, { monthlyIncomePence: undefined, payDay: undefined })
 }

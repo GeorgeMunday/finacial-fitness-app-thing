@@ -70,3 +70,17 @@ export function nextMonthlyOccurrence(today: string, day: number): string {
   const thisMonth = addMonthsAnchored(today, 0, day)
   return thisMonth >= today ? thisMonth : addMonthsAnchored(today, 1, day)
 }
+
+export type DateFormat = 'long' | 'numeric'
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/** "12 Oct 2026" (long) or "12/10/2026" (numeric, UK day-first). */
+export function formatDate(logDate: string, format: DateFormat): string {
+  const { y, m, d } = parse(logDate)
+  return format === 'numeric' ? `${pad(d)}/${pad(m)}/${y}` : `${d} ${MONTHS[m - 1]} ${y}`
+}
+
+/** "Oct" for "2026-10". */
+export function monthLabel(month: string): string {
+  return MONTHS[Number(month.slice(5, 7)) - 1]
+}

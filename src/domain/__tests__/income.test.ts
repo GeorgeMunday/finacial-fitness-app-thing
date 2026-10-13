@@ -11,6 +11,7 @@ describe('monthly income', () => {
     expect(await listRecurring(db)).toEqual([expect.objectContaining({ kind: 'income', amountPence: 200000, nextDate: '2026-10-25', cadence: 'monthly' })])
     expect(await getMonthlyIncome(db)).toEqual({ amountPence: 200000, payDay: 25 })
     expect((await getSettings(db)).monthlyIncomePence).toBe(200000)
+    expect((await getSettings(db)).payDay).toBe(25)
   })
   it('changing only the amount keeps the next pay date and never duplicates the rule', async () => {
     const db = await freshDb()
@@ -35,5 +36,6 @@ describe('monthly income', () => {
     expect(await listRecurring(db)).toHaveLength(0)
     expect(await getMonthlyIncome(db)).toBeNull()
     expect((await getSettings(db)).monthlyIncomePence).toBeUndefined()
+    expect((await getSettings(db)).payDay).toBeUndefined()
   })
 })
