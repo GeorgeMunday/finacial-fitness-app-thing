@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '../../components/ui/Button'
 import { useToast } from '../../components/ui/Toast'
 import { useAsync } from '../../hooks/useAsync'
-import { listBudgets, listCategories, parsePence, setBudget } from '../../domain/money'
+import { deleteBudget, listBudgets, listCategories, parsePence, setBudget } from '../../domain/money'
 import { useDb } from '../../state/DbProvider'
 
 type Draft = Record<string, string> // `${categoryId}:${period}` → text
@@ -30,7 +30,7 @@ export default function Budgets() {
   return (
     <div className="flex flex-col gap-3">
       <h1 className="font-display text-xl font-semibold">Budgets</h1>
-      <p className="text-slate">Set a weekly or monthly limit for the categories you want to keep an eye on.</p>
+      <p className="text-slate">Set a weekly or monthly limit for the categories you want to keep an eye on. Clear a field to remove that budget.</p>
       {data.cats.map((c) => (
         <div key={c.id} className="flex items-end justify-between gap-3 border-b border-fog py-2">
           <span className="min-w-0 flex-1 truncate">{c.name}</span>
@@ -46,6 +46,8 @@ export default function Budgets() {
             const pence = parsePence(text)
             const [categoryId, period] = key.split(':') as [string, 'week' | 'month']
             if (pence !== null) await setBudget(db, categoryId, period, pence)
+            // An emptied field removes that budget.
+            else if (text.trim() === '' && data.budgets.some((b) => b.categoryId === categoryId && b.period === period)) await deleteBudget(db, categoryId, period)
           }
           toast.show('Budgets saved')
         }}

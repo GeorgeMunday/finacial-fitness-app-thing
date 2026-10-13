@@ -1,9 +1,9 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { freshDb, renderApp } from '../../../test/renderApp'
-import { createGoal } from '../../domain/savings'
+import { contribute, createGoal } from '../../domain/savings'
 import Money from '../Money'
 
 const app = () => (
@@ -53,5 +53,24 @@ describe('goals', () => {
     expect(await screen.findByText('Holiday')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Archive goal' }))
     await waitFor(async () => expect((await db.all<{ archived_at: string | null }>('SELECT archived_at FROM savings_goals'))[0].archived_at).not.toBeNull())
+  })
+  it('withdrawals are capped at what is saved in this period', async () => {
+    const db = await freshDb()
+    const id = await createGoal(db, { name: 'Holiday', period: 'year', targetPence: 120000 })
+    await contribute(db, id, 6000)
+    const user = userEvent.setup()
+    renderApp(app(), db, `/money/goals/${id}`)
+    await user.click(await screen.findByRole('button', { name: 'Withdraw' }))
+    const dialog = screen.getByRole('dialog')
+    await user.type(within(dialog).getByLabelText('Amount'), '70')
+    expect(within(dialog).getByRole('button', { name: 'Withdraw' })).toBeDisabled()
+    expect(within(dialog).getByText(/You can withdraw up to £60.00/)).toBeInTheDocument()
+    await user.clear(within(dialog).getByLabelText('Amount'))
+    await user.type(within(dialog).getByLabelText('Amount'), '60')
+    await user.click(within(dialog).getByRole('button', { name: 'Withdraw' }))
+    await waitFor(async () => {
+      const rows = await db.all<{ s: number }>('SELECT SUM(amount_pence) AS s FROM savings_contributions')
+      expect(rows[0].s).toBe(0)
+    })
   })
 })

@@ -222,3 +222,8 @@ export async function deleteRecurring(db: SqlExecutor, id: string): Promise<void
 export async function listCategories(db: SqlExecutor): Promise<{ id: string; name: string; kind: CategoryKind }[]> {
   return db.all('SELECT id, name, kind FROM categories WHERE deleted_at IS NULL ORDER BY rowid')
 }
+
+export async function deleteBudget(db: SqlExecutor, categoryId: string, period: 'week' | 'month'): Promise<void> {
+  const now = nowIso()
+  await db.run('UPDATE budgets SET deleted_at = ?, updated_at = ? WHERE category_id = ? AND period = ? AND deleted_at IS NULL', [now, now, categoryId, period])
+}

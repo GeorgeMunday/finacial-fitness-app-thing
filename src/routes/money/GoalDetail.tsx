@@ -35,7 +35,7 @@ export default function GoalDetail() {
       <p><Amount pence={p.savedPence} size="title" /> <span className="text-slate">of {formatPence(p.targetPence)}, {formatPence(p.remainingPence)} to go</span></p>
       <div className="flex gap-2">
         <Button onClick={() => setMode('add')}>Save to goal</Button>
-        <Button variant="secondary" onClick={() => setMode('withdraw')}>Withdraw</Button>
+        <Button variant="secondary" disabled={p.savedPence === 0} onClick={() => setMode('withdraw')}>Withdraw</Button>
       </div>
       <section>
         <h2 className="font-semibold">Contributions</h2>
@@ -71,7 +71,7 @@ export default function GoalDetail() {
       >
         Archive goal
       </Button>
-      <SaveToGoalSheet goal={mode ? { id, name: p.goal.name } : null} mode={mode ?? 'add'} onClose={() => setMode(null)} onDone={reload} />
+      <SaveToGoalSheet goal={mode ? { id, name: p.goal.name } : null} mode={mode ?? 'add'} maxWithdrawPence={p.savedPence} onClose={() => setMode(null)} onDone={reload} />
     </div>
   )
 }
