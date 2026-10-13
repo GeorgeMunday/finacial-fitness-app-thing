@@ -34,7 +34,11 @@ async function open(): Promise<{ db: Db; persistent: boolean }> {
 const ready = open()
 const post = (m: WorkerReady | WorkerResponse) => self.postMessage(m)
 
-ready.then(({ persistent }) => post({ ready: true, persistent }))
+ready.then(
+  ({ persistent }) => post({ ready: true, persistent }),
+  // e.g. the wasm file is missing after a deploy: tell the page instead of leaving it waiting forever.
+  (e: unknown) => post({ ready: false, error: `Tally couldn't start its database: ${e instanceof Error ? e.message : String(e)}` }),
+)
 
 self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
   const { id, op, sql, params } = e.data

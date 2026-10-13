@@ -3,12 +3,32 @@ import type { WorkerReady, WorkerRequest, WorkerResponse } from './protocol'
 
 export type WorkerLike = Pick<Worker, 'postMessage' | 'terminate'> & {
   onmessage: ((e: MessageEvent | { data: unknown }) => void) | null
+  onerror: ((e: unknown) => void) | null
+  onmessageerror: ((e: unknown) => void) | null
 }
 export type WorkerExecutor = SqlExecutor & { persistent: boolean; close(): void }
 
-export function createWorkerExecutor(worker: Worker): Promise<WorkerExecutor> {
+/** Long enough for a slow phone to compile the wasm and wait out the OPFS retry, short enough not to look frozen. */
+const START_TIMEOUT_MS = 20_000
+
+export function createWorkerExecutor(worker: Worker, opts: { timeoutMs?: number } = {}): Promise<WorkerExecutor> {
   const w = worker as unknown as WorkerLike
-  return new Promise((resolveReady) => {
+  return new Promise((resolveReady, rejectReady) => {
+    let started = false
+    const fail = (message: string) => {
+      clearTimeout(timer)
+      const err = new Error(message)
+      if (!started) {
+        worker.terminate()
+        rejectReady(err)
+      }
+      // A worker that dies later takes its in-flight calls with it.
+      for (const p of pending.values()) p.reject(err)
+      pending.clear()
+    }
+    const timer = setTimeout(() => fail("Tally's database didn't start in time."), opts.timeoutMs ?? START_TIMEOUT_MS)
+    w.onerror = () => fail("Tally couldn't start its database in this browser.")
+    w.onmessageerror = () => fail("Tally couldn't read a reply from its database.")
     let nextId = 1
     const pending = new Map<number, { resolve: (rows?: unknown[]) => void; reject: (e: Error) => void }>()
     let persistent = false
@@ -60,6 +80,9 @@ export function createWorkerExecutor(worker: Worker): Promise<WorkerExecutor> {
     w.onmessage = (e) => {
       const data = e.data as WorkerReady | WorkerResponse
       if ('ready' in data) {
+        if (!data.ready) return fail(data.error)
+        started = true
+        clearTimeout(timer)
         persistent = data.persistent
         w.onmessage = (ev) => {
           const r = ev.data as WorkerResponse

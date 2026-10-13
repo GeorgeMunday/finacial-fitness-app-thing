@@ -1,10 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createWorkerExecutor } from '../workerExecutor'
 import type { WorkerRequest, WorkerResponse } from '../protocol'
 
 class FakeWorker {
   sent: WorkerRequest[] = []
   onmessage: ((e: { data: unknown }) => void) | null = null
+  onerror: ((e: unknown) => void) | null = null
+  onmessageerror: ((e: unknown) => void) | null = null
+  terminated = false
   respond: (r: WorkerRequest) => WorkerResponse | null
   constructor(respond: (r: WorkerRequest) => WorkerResponse | null) {
     this.respond = respond
@@ -14,7 +17,9 @@ class FakeWorker {
     const res = this.respond(r)
     if (res) queueMicrotask(() => this.onmessage?.({ data: res }))
   }
-  terminate() {}
+  terminate() {
+    this.terminated = true
+  }
   ready(persistent = true) {
     this.onmessage?.({ data: { ready: true, persistent } })
   }
@@ -69,5 +74,33 @@ describe('worker protocol', () => {
     const db = await p
     await expect(db.transaction(async () => { throw new Error('nope') })).rejects.toThrow('nope')
     expect(w.sent.map((s) => s.sql)).toEqual(['BEGIN', 'ROLLBACK'])
+  })
+})
+
+describe('worker startup failures', () => {
+  it('rejects when the worker reports it could not start SQLite', async () => {
+    const w = new FakeWorker(() => null)
+    const p = createWorkerExecutor(w as unknown as Worker)
+    w.onmessage?.({ data: { ready: false, error: 'wasm failed to load' } })
+    await expect(p).rejects.toThrow('wasm failed to load')
+    expect(w.terminated).toBe(true)
+  })
+  it('rejects when the worker script itself fails to load', async () => {
+    const w = new FakeWorker(() => null)
+    const p = createWorkerExecutor(w as unknown as Worker)
+    w.onerror?.({ message: 'SyntaxError: import' })
+    await expect(p).rejects.toThrow(/couldn't start/i)
+  })
+  it('rejects if the worker never says it is ready', async () => {
+    vi.useFakeTimers()
+    try {
+      const w = new FakeWorker(() => null)
+      const p = createWorkerExecutor(w as unknown as Worker, { timeoutMs: 20_000 })
+      const caught = p.catch((e: Error) => e)
+      await vi.advanceTimersByTimeAsync(20_001)
+      expect(await caught).toBeInstanceOf(Error)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

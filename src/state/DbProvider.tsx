@@ -42,7 +42,14 @@ export function DbProvider({ children }: { children: ReactNode }) {
     }
   }, [])
   if (state.kind === 'busy') return <p className="p-4">Tally is open in another tab.</p>
-  if (state.kind === 'error') return <p className="p-4">Tally couldn't open its database: {state.message}</p>
+  if (state.kind === 'error')
+    return (
+      <main role="alert" className="mx-auto flex max-w-lg flex-col gap-3 px-5 py-10">
+        <h1 className="font-display text-xl font-semibold">Tally couldn't start</h1>
+        <p>{state.message}</p>
+        <p>Reload the page to try again. If this keeps happening, try an up-to-date Chrome, Edge, Firefox or Safari.</p>
+      </main>
+    )
   if (state.kind === 'loading') return null
   return <DbContext.Provider value={state.value}>{children}</DbContext.Provider>
 }
