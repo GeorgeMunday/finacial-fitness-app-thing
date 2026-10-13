@@ -82,6 +82,22 @@ On Android Chrome (menu → Install app or Add to Home screen) and on the iOS Ho
 - [ ] Fully close the app, reopen it while still offline: everything you logged is still there.
 - [ ] Turn the network back on: nothing is lost or duplicated, and recurring payments due today appear once (not twice).
 
+## 6. Programmes and recipes
+
+With Food and Train on, on a phone:
+
+- [ ] Train → Choose a programme → Push / Pull / Legs → "I don't know, start light" → Start this programme. Train shows "Next: Push day".
+- [ ] Start Push day: sets are pre-filled with the suggested weights. Log a set in one tap; the rest timer starts. Swap one exercise, skip one set, add an extra set.
+- [ ] Finish the workout: a toast says what to lift next time, and Train now shows "Next: Pull day".
+- [ ] Start Day 1 of GZCLP, log 4 of the 5 squat sets and finish: "Count this as a missed session?" appears. "Don't count" leaves the weight and rep scheme alone.
+- [ ] Start 5/3/1 with your real training maxes: check week 1 shows 65/75/85% of each, rounded to 2.5 kg (or 5 lb if you use pounds).
+- [ ] Open a programme and tap Copy and edit: your routines appear on Train and can be edited and deleted (with Undo).
+- [ ] Food → Recipes: filter by Quick, sort by Protein. Open a recipe and tap Log a portion: it shows in today's food with its protein, and Undo removes it.
+- [ ] Edit prices on a recipe: change one price and save. The cost per portion changes, and a portion you logged earlier does not.
+- [ ] Turn on Hide calorie numbers in your profile: no kcal shows on the recipe list, a recipe page or Plan my week.
+- [ ] Plan my week: pick two recipes that share an ingredient. The shopping list has one line for it. Add as expense opens Add expense with the total and Groceries filled in; change the amount and save.
+- [ ] Offline (installed app): the recipe and programme lists still open.
+
 ## Reporting
 
 For each failure, note the device, OS and browser versions, the step, what you saw (a screenshot helps) and what you expected.

@@ -29,7 +29,7 @@ export default function PlanWeek() {
         {recipes.map((r) => (
           <li key={r.id} className="flex min-h-16 items-center gap-3 border-b border-fog py-3">
             <div className="min-w-0 flex-1">
-              <div className="truncate">{r.name}</div>
+              <div>{r.name}</div>
               <div className="text-sm text-slate">{[`${r.nutrition.proteinG} g protein`, r.cost.complete ? `${formatPence(r.cost.perPortionPence)} a portion` : 'Cost incomplete'].join(' · ')}</div>
             </div>
             <Button variant="secondary" aria-label={`Fewer portions of ${r.name}`} disabled={!(picks[r.id] > 0)} onClick={() => set(r.id, (picks[r.id] ?? 0) - 1)}><Minus aria-hidden="true" size={18} /></Button>
