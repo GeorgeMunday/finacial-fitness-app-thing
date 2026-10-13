@@ -7,6 +7,7 @@ import { localDate } from '../../domain/dates'
 import { createUserFood, logFood } from '../../domain/food'
 import { getSettings } from '../../state/settings'
 import Food from '../Food'
+import { lookupBarcode } from '../../domain/openFoodFacts'
 import More from '../More'
 
 vi.mock('../../domain/openFoodFacts', () => ({
@@ -51,6 +52,20 @@ describe('food screens', () => {
     await user.click(screen.getByRole('button', { name: 'Look up' }))
     expect(await screen.findByLabelText('Food name')).toBeInTheDocument()
     expect(screen.getByLabelText('Barcode')).toHaveValue('5012345678900')
+  })
+  it('shows that a lookup is in progress, and recovers if it fails', async () => {
+    const db = await freshDb({ onboarded: true, optionalPillars: ['food'], healthConsent: true })
+    let fail!: (e: Error) => void
+    vi.mocked(lookupBarcode).mockImplementationOnce(() => new Promise((_res, rej) => (fail = rej)))
+    const user = userEvent.setup()
+    renderApp(app(), db, '/food/scan')
+    await user.type(await screen.findByLabelText('Barcode'), '5012345678900')
+    await user.click(screen.getByRole('button', { name: 'Look up' }))
+    expect(await screen.findByText(/Looking up 5012345678900/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Look up' })).toBeDisabled()
+    fail(new Error('database busy'))
+    expect(await screen.findByText(/Couldn't look that barcode up/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Look up' })).toBeEnabled()
   })
   it('shows Open Food Facts attribution on search and detail', async () => {
     const db = await freshDb({ onboarded: true, optionalPillars: ['food'], healthConsent: true })

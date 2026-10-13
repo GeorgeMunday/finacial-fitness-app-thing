@@ -12,11 +12,22 @@ export default function Scan() {
   const slot = params.get('slot') ?? ''
   const video = useRef<HTMLVideoElement>(null)
   const [manual, setManual] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [busy, setBusy] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  async function handle(code: string) {
-    setBusy(true)
-    const r = await lookupBarcode(db, code.trim())
+  async function handle(raw: string) {
+    const code = raw.trim()
+    setBusy(code)
+    setError(null)
+    let r: Awaited<ReturnType<typeof lookupBarcode>>
+    try {
+      r = await lookupBarcode(db, code)
+    } catch {
+      setError("Couldn't look that barcode up. Try again, or create the food yourself.")
+      return
+    } finally {
+      setBusy(null)
+    }
     if (r.status === 'found') return navigate(`/food/${r.food.id}?slot=${slot}`, { replace: true })
     const q = new URLSearchParams({ barcode: r.draft.barcode, slot })
     if (r.status === 'incomplete') {
@@ -33,7 +44,7 @@ export default function Scan() {
   }
 
   const scanner = useBarcodeScanner(video, (c) => void handle(c))
-  const camera = scanner.status === 'starting' || scanner.status === 'scanning'
+  const camera = !busy && (scanner.status === 'starting' || scanner.status === 'scanning')
   const validManual = /^\d{8,14}$/.test(manual.trim())
   return (
     <div className="flex flex-col gap-4">
@@ -46,7 +57,9 @@ export default function Scan() {
         Barcode
         <input className="min-h-11 rounded-xl border border-fog bg-surface px-3" inputMode="numeric" value={manual} onChange={(e) => setManual(e.target.value)} />
       </label>
-      <Button variant="secondary" disabled={!validManual || busy} onClick={() => void handle(manual)}>Look up</Button>
+      <Button variant="secondary" disabled={!validManual || busy !== null} onClick={() => void handle(manual)}>Look up</Button>
+      {busy ? <p role="status">Looking up {busy}…</p> : null}
+      {error ? <p className="text-amber-ink">{error}</p> : null}
       <p className="text-sm text-slate">Looking up a barcode asks Open Food Facts. Nothing else leaves your device.</p>
     </div>
   )

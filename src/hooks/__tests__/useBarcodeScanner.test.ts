@@ -39,4 +39,31 @@ describe('useBarcodeScanner', () => {
     await new Promise((r) => setTimeout(r, 400))
     expect(onCode).toHaveBeenCalledTimes(1)
   })
+  it('turns the camera off if the screen closes while permission is pending', async () => {
+    const stop = vi.fn()
+    let grant!: (s: unknown) => void
+    setMedia(vi.fn(() => new Promise((res) => (grant = res))))
+    const { result, unmount } = renderHook(() => useBarcodeScanner(videoRef(), vi.fn(), { createDetector: async () => ({ detect: async () => [] }) }))
+    let started!: Promise<void>
+    act(() => { started = result.current.start() })
+    unmount()
+    grant({ getTracks: () => [{ stop }] })
+    await started
+    expect(stop).toHaveBeenCalled()
+  })
+  it('turns the camera off if the screen closes while the decoder loads', async () => {
+    const stop = vi.fn()
+    setMedia(vi.fn(async () => ({ getTracks: () => [{ stop }] })))
+    let ready!: (d: { detect: () => Promise<{ rawValue: string }[]> }) => void
+    const onCode = vi.fn()
+    const { result, unmount } = renderHook(() => useBarcodeScanner(videoRef(), onCode, { createDetector: () => new Promise((r) => (ready = r)) }))
+    let started!: Promise<void>
+    act(() => { started = result.current.start() })
+    await waitFor(() => expect(ready).toBeDefined())
+    unmount()
+    ready({ detect: async () => [{ rawValue: '1' }] })
+    await started
+    expect(stop).toHaveBeenCalled()
+    expect(onCode).not.toHaveBeenCalled()
+  })
 })
