@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { importAll } from '../domain/backup'
+import { loadSeed, seedAll } from '../domain/seed'
+import { getSettings } from '../state/settings'
 import { emitChange } from '../state/changes'
 import { useDb } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
@@ -49,6 +51,8 @@ export function RestoreFromBackup({ label = 'Restore from backup', variant = 'se
                 await importAll(db, pending)
                 setPending(null)
                 await update({}) // re-read the restored settings
+                // An older backup lacks newer bundled foods, exercises and programmes; add them back (best effort).
+                if ((await getSettings(db)).optionalPillars.length > 0) await loadSeed().then((d) => seedAll(db, d)).catch((e) => console.warn('Seed failed', e))
                 emitChange()
                 navigate('/', { replace: true })
               } catch (err) {

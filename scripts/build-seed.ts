@@ -1,10 +1,11 @@
-// Run by hand:  node scripts/build-seed.ts --exercises path/to/exercises.json [--cofid path/to/cofid.csv]
+// Run by hand:  node scripts/build-seed.ts --exercises path/to/exercises.json [--programmes public/seed/programmes.json] [--cofid path/to/cofid.csv]
+// --programmes adds every exercise the programmes use to exercises.json (exits 1 naming any not found in free-exercise-db).
 // Writes public/seed/exercises.json and, when --cofid is given, public/seed/cofid.json.
 // exercises.json comes from github.com/yuhonas/free-exercise-db (Unlicense): dist/exercises.json.
 // cofid.csv is the CoFID labelling dataset download from fnnbri.quadram.ac.uk (CC BY-NC-SA 4.0, non-commercial).
 // public/seed/starter.json is Tally's own hand-written list of typical values. It is not CoFID and is never labelled as such.
 import { readFileSync, writeFileSync } from 'node:fs'
-import { convertCofidCsv } from './seedConvert.ts'
+import { convertCofidCsv, requiredExerciseNames } from './seedConvert.ts'
 
 const args = new Map<string, string>()
 for (let i = 2; i < process.argv.length; i += 2) args.set(process.argv[i].replace(/^--/, ''), process.argv[i + 1])
@@ -13,7 +14,7 @@ const OUT = new URL('../public/seed/', import.meta.url)
 
 type RawExercise = { name: string; equipment: string | null; primaryMuscles: string[]; category: string; mechanic: string | null; level: string }
 
-function buildExercises(path: string) {
+function buildExercises(path: string, programmesPath?: string) {
   const raw = JSON.parse(readFileSync(path, 'utf8')) as RawExercise[]
   const wanted = new Set(['barbell', 'dumbbell', 'machine', 'cable', 'body only'])
   const pool = raw
@@ -32,6 +33,21 @@ function buildExercises(path: string) {
       if (next && picked.length < 150) picked.push(next)
     }
   }
+  if (programmesPath) {
+    const need = requiredExerciseNames(JSON.parse(readFileSync(programmesPath, 'utf8')))
+    const have = new Set(picked.map((e) => e.name))
+    const missing: string[] = []
+    for (const n of need) {
+      if (have.has(n)) continue
+      const e = raw.find((x) => x.name === n)
+      if (e) picked.push(e)
+      else missing.push(n)
+    }
+    if (missing.length) {
+      console.error(`Not found in free-exercise-db: ${missing.join(', ')}`)
+      process.exit(1)
+    }
+  }
   return picked
     .map((e) => ({ name: e.name, primary_muscle: e.primaryMuscles[0] ?? 'other', equipment: e.equipment ?? 'other' }))
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -39,7 +55,7 @@ function buildExercises(path: string) {
 
 const ex = args.get('exercises')
 if (ex) {
-  const list = buildExercises(ex)
+  const list = buildExercises(ex, args.get('programmes'))
   writeFileSync(new URL('exercises.json', OUT), JSON.stringify(list, null, 1))
   console.log(`Wrote ${list.length} exercises to public/seed/exercises.json.`)
 }

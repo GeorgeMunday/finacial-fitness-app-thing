@@ -5,17 +5,22 @@ import type { Food } from '../db/types'
 export type SeedFood = { name: string; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number }
 export type SeedExercise = { name: string; primary_muscle: string; equipment: string }
 /** `starter` is Tally's own short list of typical values, not CoFID; `cofid` is the real dataset once it is bundled. */
-export type SeedData = { starter: SeedFood[]; cofid: SeedFood[]; exercises: SeedExercise[] }
+export type SeedData = { starter: SeedFood[]; cofid: SeedFood[]; exercises: SeedExercise[]; programmes: unknown[]; recipes: unknown | null }
 
-/** Inserts bundled foods and exercises the first time they're needed. Idempotent per source. */
-export async function seedIfEmpty(db: SqlExecutor, data: SeedData): Promise<{ foods: number; exercises: number }> {
-  const out = { foods: 0, exercises: 0 }
+/**
+ * Adds bundled foods, exercises, programmes and recipes that aren't there yet. Additive: rows are matched by
+ * (source, name) for foods, name for exercises and key for programmes and recipes; existing rows are never
+ * updated or removed, so people who already seeded get new content without duplicates.
+ */
+export async function seedAll(db: SqlExecutor, data: SeedData): Promise<{ foods: number; exercises: number; programmes: number; recipes: number }> {
+  const out = { foods: 0, exercises: 0, programmes: 0, recipes: 0 }
   await db.transaction(async (tx) => {
-    const has = async (sql: string) => (await tx.all<{ n: number }>(sql))[0].n > 0
     const now = nowIso()
     for (const source of ['starter', 'cofid'] as const) {
-      if (await has(`SELECT COUNT(*) AS n FROM foods WHERE source = '${source}'`)) continue
+      const have = new Set((await tx.all<{ name: string }>('SELECT name FROM foods WHERE source = ?', [source])).map((r) => r.name))
       for (const x of data[source]) {
+        if (have.has(x.name)) continue
+        have.add(x.name)
         await tx.run(
           `INSERT INTO foods (id, created_at, updated_at, source, name, kcal_100g, protein_100g, carbs_100g, fat_100g)
            VALUES (?,?,?,?,?,?,?,?,?)`,
@@ -24,14 +29,15 @@ export async function seedIfEmpty(db: SqlExecutor, data: SeedData): Promise<{ fo
         out.foods++
       }
     }
-    if (!(await has("SELECT COUNT(*) AS n FROM exercises WHERE source = 'seed'"))) {
-      for (const x of data.exercises) {
-        await tx.run(
-          `INSERT INTO exercises (id, created_at, updated_at, source, name, primary_muscle, equipment) VALUES (?,?,?,'seed',?,?,?)`,
-          [newId(), now, now, x.name, x.primary_muscle, x.equipment],
-        )
-        out.exercises++
-      }
+    const haveEx = new Set((await tx.all<{ name: string }>("SELECT name FROM exercises WHERE source = 'seed'")).map((r) => r.name))
+    for (const x of data.exercises) {
+      if (haveEx.has(x.name)) continue
+      haveEx.add(x.name)
+      await tx.run(
+        `INSERT INTO exercises (id, created_at, updated_at, source, name, primary_muscle, equipment) VALUES (?,?,?,'seed',?,?,?)`,
+        [newId(), now, now, x.name, x.primary_muscle, x.equipment],
+      )
+      out.exercises++
     }
   })
   return out
@@ -51,12 +57,14 @@ export async function loadSeed(fetchFn: typeof fetch = fetch): Promise<SeedData>
       throw e
     }
   }
-  const [starter, cofid, exercises] = await Promise.all([
+  const [starter, cofid, exercises, programmes, recipes] = await Promise.all([
     get<SeedFood[]>('/seed/starter.json'),
     get<SeedFood[]>('/seed/cofid.json', true), // only present once the real CoFID file has been converted with scripts/build-seed.ts
     get<SeedExercise[]>('/seed/exercises.json'),
+    get<unknown[]>('/seed/programmes.json', true),
+    get<unknown>('/seed/recipes.json', true),
   ])
-  return { starter: starter ?? [], cofid: cofid ?? [], exercises: exercises ?? [] }
+  return { starter: starter ?? [], cofid: cofid ?? [], exercises: exercises ?? [], programmes: programmes ?? [], recipes: recipes ?? null }
 }
 
 type FoodRow = {

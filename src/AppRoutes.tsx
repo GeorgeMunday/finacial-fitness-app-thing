@@ -6,7 +6,7 @@ import { QuickLogSheet } from './components/QuickLogSheet'
 import { StorageBanner } from './components/StorageBanner'
 import { localDate } from './domain/dates'
 import { postDueRecurring } from './domain/money'
-import { loadSeed, seedIfEmpty } from './domain/seed'
+import { loadSeed, seedAll } from './domain/seed'
 import Food from './routes/Food'
 import Money from './routes/Money'
 import More from './routes/More'
@@ -34,7 +34,7 @@ function Shell() {
   const wantsSeed = settings.optionalPillars.length > 0
   useEffect(() => {
     // Food and exercise data are only fetched once an optional pillar is on, so money-only users never download them.
-    if (wantsSeed) void loadSeed().then((data) => seedIfEmpty(db, data)).catch((e) => console.warn('Seed failed', e))
+    if (wantsSeed) void loadSeed().then((data) => seedAll(db, data)).catch((e) => console.warn('Seed failed', e))
   }, [db, wantsSeed])
 
   if (!settings.onboarded) return <Navigate to="/onboarding" replace />

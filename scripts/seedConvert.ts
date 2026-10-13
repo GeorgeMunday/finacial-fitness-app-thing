@@ -79,3 +79,15 @@ export function convertCofidCsv(text: string): { foods: SeedFood[]; skipped: num
   if (!foods.length) throw new Error(`CoFID CSV has no foods with complete nutrients (${skipped} rows skipped).`)
   return { foods, skipped }
 }
+
+type ProgrammeLike = { days: { exercises: { exercise: string; alt?: string | null }[] }[] }
+
+/** Every exercise name (main or alternative) the programmes use, once each, sorted. */
+export function requiredExerciseNames(programmes: ProgrammeLike[]): string[] {
+  const names = new Set<string>()
+  for (const p of programmes) for (const d of p.days) for (const e of d.exercises) {
+    names.add(e.exercise)
+    if (e.alt) names.add(e.alt)
+  }
+  return [...names].sort((a, b) => a.localeCompare(b))
+}

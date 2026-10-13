@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { convertCofidCsv, parseCsv } from '../seedConvert.ts'
+import { convertCofidCsv, parseCsv, requiredExerciseNames } from '../seedConvert.ts'
 
 const header = 'Food Code,Food Name,"Energy (kcal) (kcal)",Protein (g),Carbohydrate (g),Fat (g)'
 
@@ -32,5 +32,15 @@ describe('convertCofidCsv', () => {
   })
   it('fails when there are no rows', () => {
     expect(() => convertCofidCsv(header + '\n')).toThrow(/no foods/i)
+  })
+})
+
+describe('requiredExerciseNames', () => {
+  it('lists each main and alternative exercise once, sorted', () => {
+    const programmes = [
+      { days: [{ exercises: [{ exercise: 'Squat', alt: null }, { exercise: 'Lat Pulldown', alt: 'Pullups' }] }] },
+      { days: [{ exercises: [{ exercise: 'Squat' }, { exercise: 'Bench' }] }] },
+    ]
+    expect(requiredExerciseNames(programmes)).toEqual(['Bench', 'Lat Pulldown', 'Pullups', 'Squat'])
   })
 })
