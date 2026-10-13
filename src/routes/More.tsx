@@ -3,6 +3,7 @@ import { Chip } from '../components/ui/Chip'
 import { Sheet } from '../components/ui/Sheet'
 import { DataSection } from '../components/DataSection'
 import { ProfileHeader } from '../components/profile/ProfileHeader'
+import { ProgressSection } from '../components/profile/ProgressSection'
 import { IncomeSection } from '../components/IncomeSection'
 import { useStorageStatus } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
@@ -44,6 +45,7 @@ export default function More() {
   return (
     <div className="flex flex-col gap-8">
       <ProfileHeader />
+      <ProgressSection />
       <section aria-labelledby="pillars" className="flex flex-col gap-2">
         <h2 id="pillars" className="font-semibold">Optional sections</h2>
         <div className="flex gap-2">

@@ -3,6 +3,8 @@
 :root {
   --chalk: #F2F5F3; --surface: #FFFFFF; --ink: #1B2A2F; --slate: #5C6B70; --fog: #D5DDDA;
   --pond: #0F6E6A; --on-pond: #FFFFFF; --marigold: #E9A23B; --on-marigold: #1B2A2F; --amber-ink: #7A4B00; --danger: #A3261E;
+  /* Chart series, checked with the dataviz palette validator (lightness band, chroma, CVD, contrast) for each mode. */
+  --chart-spent: #159A92; --chart-saved: #E9A23B;
   --font-display: 'Bricolage Grotesque Variable', 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
   --font-body: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
   color-scheme: light;
@@ -11,12 +13,14 @@
   :root:not([data-theme='light']) {
     --chalk: #0F1A1D; --surface: #172427; --ink: #E6EEEC; --slate: #9DB0B4; --fog: #2A3A3E;
     --pond: #3FB8AE; --on-pond: #0F1A1D; --marigold: #F0B85A; --on-marigold: #0F1A1D; --amber-ink: #F5C77A; --danger: #F2867D;
+    --chart-spent: #159A92; --chart-saved: #C48426;
     color-scheme: dark;
   }
 }
 :root[data-theme='dark'] {
   --chalk: #0F1A1D; --surface: #172427; --ink: #E6EEEC; --slate: #9DB0B4; --fog: #2A3A3E;
   --pond: #3FB8AE; --on-pond: #0F1A1D; --marigold: #F0B85A; --on-marigold: #0F1A1D; --amber-ink: #F5C77A; --danger: #F2867D;
+  --chart-spent: #159A92; --chart-saved: #C48426;
   color-scheme: dark;
 }
 
