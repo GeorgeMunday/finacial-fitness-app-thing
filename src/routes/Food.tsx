@@ -11,6 +11,7 @@ import { useDb } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
 import FoodDetail from './food/FoodDetail'
 import NewFood from './food/NewFood'
+import PlanWeek from './food/PlanWeek'
 import RecipeDetail from './food/RecipeDetail'
 import RecipeEdit from './food/RecipeEdit'
 import Recipes from './food/Recipes'
@@ -108,6 +109,7 @@ export default function Food() {
       <Route path="search" element={<Search />} />
       <Route path="scan" element={<Scan />} />
       <Route path="new" element={<NewFood />} />
+      <Route path="plan" element={<PlanWeek />} />
       <Route path="recipes" element={<Recipes />} />
       <Route path="recipes/new" element={<RecipeEdit />} />
       <Route path="recipes/:id" element={<RecipeDetail />} />

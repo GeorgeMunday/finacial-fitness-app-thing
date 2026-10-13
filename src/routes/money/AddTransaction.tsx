@@ -13,15 +13,21 @@ export default function AddTransaction() {
   const navigate = useNavigate()
   const location = useLocation()
   const toast = useToast()
-  const kind = useSearchParams()[0].get('kind') === 'income' ? 'income' : 'expense'
-  const [value, setValue] = useState('')
+  const params = useSearchParams()[0]
+  const kind = params.get('kind') === 'income' ? 'income' : 'expense'
+  // Plan my week opens this with the shopping total and Groceries filled in; anything invalid in the address is ignored.
+  const presetPence = parsePence(params.get('amount') ?? '')
+  const presetCategory = params.get('category')
+  const [value, setValue] = useState(kind === 'expense' && presetPence !== null ? (presetPence / 100).toFixed(2) : '')
   const [categoryId, setCategoryId] = useState<string>()
-  const [showAll, setShowAll] = useState(false)
+  const [showAll, setShowAll] = useState(kind === 'expense' && !!presetCategory)
   const { data: recent } = useAsync(() => recentCategories(db, 6), [db])
   const { data: all } = useAsync(() => listCategories(db), [db])
   useEffect(() => {
-    if (recent && !categoryId) setCategoryId(recent[0]?.id)
-  }, [recent, categoryId])
+    if (!recent || !all || categoryId) return
+    const preset = kind === 'expense' && all.find((c) => c.id === presetCategory && c.kind !== 'income')
+    setCategoryId(preset ? preset.id : recent[0]?.id)
+  }, [recent, all, categoryId, presetCategory, kind])
   const pence = parsePence(value)
   const valid = pence !== null && (kind === 'income' || !!categoryId)
   const label = kind === 'income' ? 'Save income' : 'Save expense'
