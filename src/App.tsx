@@ -1,122 +1,81 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { BottomNav } from './components/BottomNav'
+import { InstallPrompt } from './components/InstallPrompt'
+import { QuickLogSheet } from './components/QuickLogSheet'
+import { StorageBanner } from './components/StorageBanner'
+import { ToastProvider } from './components/ui/Toast'
+import { localDate } from './domain/dates'
+import { postDueRecurring } from './domain/money'
+import Food from './routes/Food'
+import Money from './routes/Money'
+import More from './routes/More'
+import Today from './routes/Today'
+import Train from './routes/Train'
+import OnboardingFlow from './routes/onboarding/OnboardingFlow'
+import Styleguide from './routes/dev/Styleguide'
+import { DbProvider, useDb, useStorageStatus } from './state/DbProvider'
+import { SettingsProvider, useSettings } from './state/SettingsProvider'
 
-function App() {
-  const [count, setCount] = useState(0)
+function Shell() {
+  const { settings } = useSettings()
+  const db = useDb()
+  const { persistent } = useStorageStatus()
+  const [quick, setQuick] = useState(false)
 
+  useEffect(() => {
+    const post = () => void postDueRecurring(db, localDate())
+    post()
+    const onVis = () => document.visibilityState === 'visible' && post()
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [db])
+
+  if (!settings.onboarded) return <Navigate to="/onboarding" replace />
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      <StorageBanner persistent={persistent} />
+      <InstallPrompt />
+      <div className="mx-auto max-w-lg px-4 pb-28 pt-6">
+        <Outlet />
+      </div>
+      <BottomNav onAdd={() => setQuick(true)} />
+      <QuickLogSheet open={quick} onClose={() => setQuick(false)} />
     </>
   )
 }
 
-export default App
+function Theme() {
+  const { settings } = useSettings()
+  useEffect(() => {
+    if (settings.theme) document.documentElement.dataset.theme = settings.theme
+    else delete document.documentElement.dataset.theme
+  }, [settings.theme])
+  return null
+}
+
+export default function App() {
+  return (
+    <DbProvider>
+      <SettingsProvider>
+        <ToastProvider>
+          <Theme />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/onboarding/*" element={<OnboardingFlow />} />
+              {import.meta.env.DEV ? <Route path="/dev/styleguide" element={<Styleguide />} /> : null}
+              <Route element={<Shell />}>
+                <Route index element={<Today />} />
+                <Route path="money/*" element={<Money />} />
+                <Route path="food/*" element={<Food />} />
+                <Route path="train/*" element={<Train />} />
+                <Route path="more" element={<More />} />
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
+      </SettingsProvider>
+    </DbProvider>
+  )
+}
