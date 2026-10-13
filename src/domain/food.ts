@@ -115,3 +115,22 @@ export async function deleteLog(db: SqlExecutor, id: string): Promise<void> {
 export async function restoreLog(db: SqlExecutor, id: string): Promise<void> {
   await db.run('UPDATE food_logs SET deleted_at = NULL, updated_at = ? WHERE id = ?', [nowIso(), id])
 }
+
+export async function dayLogsNamed(db: SqlExecutor, logDate: string): Promise<(FoodLog & { name: string })[]> {
+  const logs = await dayLogs(db, logDate)
+  const names = new Map<string, string>()
+  for (const id of new Set(logs.map((l) => l.foodId).filter((x): x is string => !!x))) {
+    const f = await getFood(db, id)
+    if (f) names.set(id, f.brand ? `${f.name} (${f.brand})` : f.name)
+  }
+  return logs.map((l) => ({ ...l, name: l.foodId ? (names.get(l.foodId) ?? 'Food') : 'Quick add' }))
+}
+
+/** Daily kcal totals for days with any food logged, oldest first. */
+export async function dailyKcal(db: SqlExecutor, from: string, to: string): Promise<{ logDate: string; kcal: number }[]> {
+  return db.all(
+    `SELECT log_date AS logDate, SUM(kcal) AS kcal FROM food_logs WHERE deleted_at IS NULL AND log_date BETWEEN ? AND ?
+     GROUP BY log_date ORDER BY log_date`,
+    [from, to],
+  )
+}
