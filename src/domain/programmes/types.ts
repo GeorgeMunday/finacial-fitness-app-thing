@@ -70,3 +70,31 @@ export type SeedProgramme = {
   days: { name: string; exercises: SeedDayExercise[] }[]
   cycle?: { weeks: SeedCycleWeek[] }
 }
+
+export type PlannedSet = { reps: number; minReps: number; maxReps: number; weightKg: number; amrap: boolean }
+export type PlannedExercise = {
+  dayExerciseId: string
+  exerciseId: string
+  altExerciseId: string | null
+  name: string
+  tier: Tier
+  liftKey: string
+  sets: PlannedSet[]
+  note: string | null
+}
+export type NextWorkout = {
+  programmeId: string
+  programmeName: string
+  dayId: string
+  dayName: string
+  dayNumber: number
+  daysInRotation: number
+  plannedPerWeek: number
+  doneThisWeek: number
+  doneToday: boolean
+  cycleWeek: number | null
+  openWorkoutId: string | null
+}
+
+export type ProgressionResult = 'progressed' | 'held' | 'incomplete' | 'not_done' | 'stage_change' | 'deload' | 'reset' | 'retest' | 'cycle_up'
+export type ProgressionOutcome = { liftKey: string; exerciseId: string; name: string; result: ProgressionResult; fromKg: number; toKg: number; note?: string }

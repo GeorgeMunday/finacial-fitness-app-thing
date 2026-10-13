@@ -1,15 +1,9 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { memoryExecutor } from '../../../test/memoryExecutor'
+import { realSeed } from '../../../test/realSeed'
 import type { SqlExecutor } from '../../db/executor'
 import { migrate } from '../../db/migrations'
-import { seedAll, type SeedData } from '../seed'
-
-const file = <T,>(name: string) => JSON.parse(readFileSync(resolve(process.cwd(), 'public/seed', name), 'utf8')) as T
-export const realSeed = (): SeedData => ({
-  starter: file('starter.json'), cofid: [], exercises: file('exercises.json'), programmes: file('programmes.json'), recipes: null,
-})
+import { seedAll } from '../seed'
 
 let db: SqlExecutor
 beforeEach(async () => {
