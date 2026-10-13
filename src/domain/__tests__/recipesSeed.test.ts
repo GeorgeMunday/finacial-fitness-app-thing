@@ -13,6 +13,9 @@ const NAMES = [
   'Chicken tikka-style curry with Greek yoghurt and rice', 'Tuna pasta bake', 'Turkey meatballs in tomato sauce',
   'Egg, ham and spinach muffins', 'Overnight oats with Greek yoghurt and whey', 'Tuna, sweetcorn and cottage cheese jacket potato',
   'Chicken and veg egg-fried rice', 'Scrambled eggs and beans on toast', 'Greek yoghurt protein pot',
+  // Added after the brief's first 12.
+  'Chicken and chickpea curry', "Turkey and lentil shepherd's pie", 'Chicken burrito bowls', 'Spiced chicken wrap',
+  'Tuna, chickpea and pepper salad', 'Banana protein pancakes', 'Peanut butter protein porridge', 'Turkey and veg noodle stir-fry',
 ]
 const BANNED = /\b(clean|guilt[- ]free|cheat|junk|sinful|naughty)\b/i
 
@@ -23,7 +26,7 @@ beforeEach(async () => {
 const tally = () => listRecipes(db, { source: 'tally' })
 
 describe('seeded recipes', () => {
-  it('has exactly the 12 recipes from the brief', async () => {
+  it('has the brief\'s 12 recipes and 8 more', async () => {
     expect((await tally()).map((r) => r.name).sort()).toEqual([...NAMES].sort())
   })
   it('every recipe has at least 30 g protein per portion', async () => {
@@ -49,9 +52,9 @@ describe('seeded recipes', () => {
       expect(r.tags.includes('batch') !== r.tags.includes('quick'), r.name).toBe(true)
     }
   })
-  it('8 are batch and 4 are quick', async () => {
-    expect((await tally()).filter((r) => r.tags.includes('batch'))).toHaveLength(8)
-    expect((await tally()).filter((r) => r.tags.includes('quick'))).toHaveLength(4)
+  it('11 are batch and 9 are quick', async () => {
+    expect((await tally()).filter((r) => r.tags.includes('batch'))).toHaveLength(11)
+    expect((await tally()).filter((r) => r.tags.includes('quick'))).toHaveLength(9)
   })
   it('every recipe has steps, grams, times, allowed tags and a fridge time', async () => {
     for (const r of await tally()) {
@@ -111,18 +114,27 @@ describe('seeding again', () => {
     const rows = await db.all("SELECT id FROM product_prices WHERE food_id = ?", [foodId])
     expect(rows).toHaveLength(2)
   })
+  it('someone who seeded the first 12 gets the new 8 once', async () => {
+    const seed = realSeed()
+    const file = seed.recipes as { recipes: { key: string }[] }
+    const fresh = await freshDb()
+    await seedAll(fresh, { ...seed, recipes: { ...file, recipes: file.recipes.slice(0, 12) } })
+    expect(await listRecipes(fresh, { source: 'tally' })).toHaveLength(12)
+    expect((await seedAll(fresh, seed)).recipes).toBe(8)
+    expect(await listRecipes(fresh, { source: 'tally' })).toHaveLength(20)
+  })
   it("leaves the user's own recipes alone", async () => {
     const [r] = await tally()
     const mine = await createRecipe(db, { name: 'Mine', description: null, servings: 1, prepMinutes: null, cookMinutes: null, steps: [], tags: [], fridgeDays: null, items: [{ foodId: r.items[0].foodId, grams: 10 }] })
     await seedAll(db, realSeed())
     expect(await getRecipe(db, mine)).toMatchObject({ name: 'Mine', source: 'user' })
   })
-  it('a backup made before this release, restored and re-seeded, has the 12 recipes', async () => {
+  it('a backup made before this release, restored and re-seeded, has all the recipes', async () => {
     const old = await freshDb()
     const backup = JSON.parse(JSON.stringify(await exportAll(old)))
     await importAll(db, backup) // wipes the seeded recipes, like restoring an old backup
     expect(await tally()).toEqual([])
     await seedAll(db, realSeed())
-    expect(await tally()).toHaveLength(12)
+    expect(await tally()).toHaveLength(20)
   })
 })

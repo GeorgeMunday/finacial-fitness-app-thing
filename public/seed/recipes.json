@@ -175,6 +175,36 @@
    "food": "Butter",
    "packG": 250,
    "pricePence": 200
+  },
+  {
+   "food": "Tortilla wrap, plain",
+   "packG": 496,
+   "pricePence": 120
+  },
+  {
+   "food": "Frozen peas",
+   "packG": 900,
+   "pricePence": 110
+  },
+  {
+   "food": "Egg noodles, dried",
+   "packG": 250,
+   "pricePence": 85
+  },
+  {
+   "food": "Banana",
+   "packG": 500,
+   "pricePence": 90
+  },
+  {
+   "food": "Peanut butter",
+   "packG": 340,
+   "pricePence": 150
+  },
+  {
+   "food": "Chickpeas, canned",
+   "packG": 240,
+   "pricePence": 55
   }
  ],
  "recipes": [
@@ -763,6 +793,393 @@
     "Stir the whey into the yoghurt until there are no lumps.",
     "Scatter the berries on top and leave for 5 minutes so they soften.",
     "Sprinkle over the oats."
+   ]
+  },
+  {
+   "key": "chicken-chickpea-curry",
+   "name": "Chicken and chickpea curry",
+   "description": "A hearty curry where chickpeas and spinach bulk out the chicken thighs.",
+   "servings": 4,
+   "prepMinutes": 15,
+   "cookMinutes": 35,
+   "fridgeDays": 3,
+   "tags": [
+    "batch",
+    "dinner",
+    "freezer-friendly"
+   ],
+   "ingredients": [
+    {
+     "food": "Chicken thigh fillet, raw",
+     "grams": 600
+    },
+    {
+     "food": "Chickpeas, canned",
+     "grams": 480
+    },
+    {
+     "food": "Chopped tomatoes, canned",
+     "grams": 400
+    },
+    {
+     "food": "Tikka curry paste",
+     "grams": 80
+    },
+    {
+     "food": "Onion",
+     "grams": 200
+    },
+    {
+     "food": "Spinach, frozen",
+     "grams": 200
+    },
+    {
+     "food": "Rice, dry",
+     "grams": 240
+    },
+    {
+     "food": "Garlic",
+     "grams": 10
+    },
+    {
+     "food": "Olive oil",
+     "grams": 10
+    }
+   ],
+   "steps": [
+    "Soften the chopped onion and garlic in the oil for 5 minutes.",
+    "Add the diced chicken and the curry paste and cook for 5 minutes, stirring.",
+    "Tip in the tomatoes, the drained chickpeas and 150 ml water. Simmer for 20 minutes, then stir in the spinach for the last 5.",
+    "Cook the rice following the packet.",
+    "Divide the curry and rice between four boxes."
+   ]
+  },
+  {
+   "key": "turkey-lentil-shepherds-pie",
+   "name": "Turkey and lentil shepherd's pie",
+   "description": "Lean turkey and lentils under a cheesy mashed potato lid. Freezes well in portions.",
+   "servings": 4,
+   "prepMinutes": 20,
+   "cookMinutes": 45,
+   "fridgeDays": 4,
+   "tags": [
+    "batch",
+    "dinner",
+    "freezer-friendly"
+   ],
+   "ingredients": [
+    {
+     "food": "Turkey mince, 5% fat, raw",
+     "grams": 500
+    },
+    {
+     "food": "Red lentils, dry",
+     "grams": 100
+    },
+    {
+     "food": "Onion",
+     "grams": 150
+    },
+    {
+     "food": "Carrot",
+     "grams": 200
+    },
+    {
+     "food": "Frozen peas",
+     "grams": 200
+    },
+    {
+     "food": "Chopped tomatoes, canned",
+     "grams": 400
+    },
+    {
+     "food": "Potato, baking, raw",
+     "grams": 900
+    },
+    {
+     "food": "Milk, semi-skimmed",
+     "grams": 80
+    },
+    {
+     "food": "Cheddar cheese",
+     "grams": 40
+    },
+    {
+     "food": "Mixed spices",
+     "grams": 4
+    }
+   ],
+   "steps": [
+    "Peel and chop the potatoes, boil for 15 minutes until soft, then mash with the milk.",
+    "Meanwhile brown the mince with the chopped onion and grated carrot.",
+    "Add the lentils, tomatoes, spices and 300 ml water and simmer for 20 minutes, stirring in the peas at the end.",
+    "Heat the oven to 200°C (180°C fan). Spoon the filling into a dish, spread the mash on top and scatter over the grated cheese.",
+    "Bake for 20 minutes until golden, then divide into four."
+   ]
+  },
+  {
+   "key": "chicken-burrito-bowls",
+   "name": "Chicken burrito bowls",
+   "description": "Spiced chicken, beans, rice and sweetcorn, topped with a spoonful of yoghurt instead of soured cream.",
+   "servings": 4,
+   "prepMinutes": 15,
+   "cookMinutes": 25,
+   "fridgeDays": 3,
+   "tags": [
+    "batch",
+    "lunch",
+    "dinner"
+   ],
+   "ingredients": [
+    {
+     "food": "Chicken breast, raw",
+     "grams": 560
+    },
+    {
+     "food": "Kidney beans, canned",
+     "grams": 240
+    },
+    {
+     "food": "Rice, dry",
+     "grams": 240
+    },
+    {
+     "food": "Sweetcorn, canned",
+     "grams": 200
+    },
+    {
+     "food": "Peppers",
+     "grams": 300
+    },
+    {
+     "food": "Greek yoghurt, 0% fat",
+     "grams": 200
+    },
+    {
+     "food": "Mixed spices",
+     "grams": 10
+    },
+    {
+     "food": "Olive oil",
+     "grams": 10
+    }
+   ],
+   "steps": [
+    "Cook the rice following the packet.",
+    "Slice the chicken and peppers, toss with the spices and fry in the oil for 8 to 10 minutes until the chicken is cooked through.",
+    "Warm the drained beans and sweetcorn in the same pan for 2 minutes.",
+    "Share the rice, chicken, peppers, beans and sweetcorn between four boxes.",
+    "Add a spoonful of yoghurt to each just before eating."
+   ]
+  },
+  {
+   "key": "spiced-chicken-wrap",
+   "name": "Spiced chicken wrap",
+   "description": "A warm wrap of spiced chicken and peppers with a cool yoghurt sauce.",
+   "servings": 1,
+   "prepMinutes": 5,
+   "cookMinutes": 8,
+   "fridgeDays": 1,
+   "tags": [
+    "quick",
+    "lunch"
+   ],
+   "ingredients": [
+    {
+     "food": "Chicken breast, raw",
+     "grams": 150
+    },
+    {
+     "food": "Tortilla wrap, plain",
+     "grams": 62
+    },
+    {
+     "food": "Greek yoghurt, 0% fat",
+     "grams": 50
+    },
+    {
+     "food": "Peppers",
+     "grams": 60
+    },
+    {
+     "food": "Mixed spices",
+     "grams": 2
+    },
+    {
+     "food": "Olive oil",
+     "grams": 5
+    }
+   ],
+   "steps": [
+    "Slice the chicken and pepper thinly and toss with the spices.",
+    "Fry in the oil for 6 to 8 minutes until the chicken is cooked through.",
+    "Warm the wrap, spread on the yoghurt, add the filling and roll it up."
+   ]
+  },
+  {
+   "key": "tuna-chickpea-salad",
+   "name": "Tuna, chickpea and pepper salad",
+   "description": "A no-cook lunch you can throw together in a box.",
+   "servings": 1,
+   "prepMinutes": 5,
+   "cookMinutes": 0,
+   "fridgeDays": 1,
+   "tags": [
+    "quick",
+    "lunch"
+   ],
+   "ingredients": [
+    {
+     "food": "Tuna, canned in brine",
+     "grams": 112
+    },
+    {
+     "food": "Chickpeas, canned",
+     "grams": 120
+    },
+    {
+     "food": "Peppers",
+     "grams": 80
+    },
+    {
+     "food": "Sweetcorn, canned",
+     "grams": 50
+    },
+    {
+     "food": "Olive oil",
+     "grams": 5
+    }
+   ],
+   "steps": [
+    "Drain the tuna, chickpeas and sweetcorn.",
+    "Chop the pepper into small pieces.",
+    "Mix everything together with the oil and a pinch of salt and pepper."
+   ]
+  },
+  {
+   "key": "banana-protein-pancakes",
+   "name": "Banana protein pancakes",
+   "description": "Thick, fluffy pancakes made in a blender from oats, egg, banana and whey.",
+   "servings": 1,
+   "prepMinutes": 5,
+   "cookMinutes": 10,
+   "fridgeDays": 1,
+   "tags": [
+    "quick",
+    "breakfast"
+   ],
+   "ingredients": [
+    {
+     "food": "Oats, rolled",
+     "grams": 40
+    },
+    {
+     "food": "Egg, raw",
+     "grams": 110
+    },
+    {
+     "food": "Whey protein powder",
+     "grams": 25
+    },
+    {
+     "food": "Banana",
+     "grams": 60
+    },
+    {
+     "food": "Milk, semi-skimmed",
+     "grams": 50
+    },
+    {
+     "food": "Olive oil",
+     "grams": 3
+    }
+   ],
+   "steps": [
+    "Blend the oats, eggs, whey, banana and milk until smooth.",
+    "Heat a non-stick pan with the oil and cook small pancakes for 1 to 2 minutes each side.",
+    "Stack them up and eat warm."
+   ]
+  },
+  {
+   "key": "peanut-butter-protein-porridge",
+   "name": "Peanut butter protein porridge",
+   "description": "Creamy porridge with whey stirred in at the end and a spoon of peanut butter on top.",
+   "servings": 1,
+   "prepMinutes": 5,
+   "cookMinutes": 3,
+   "fridgeDays": 1,
+   "tags": [
+    "quick",
+    "breakfast"
+   ],
+   "ingredients": [
+    {
+     "food": "Oats, rolled",
+     "grams": 60
+    },
+    {
+     "food": "Milk, semi-skimmed",
+     "grams": 250
+    },
+    {
+     "food": "Whey protein powder",
+     "grams": 25
+    },
+    {
+     "food": "Peanut butter",
+     "grams": 15
+    }
+   ],
+   "steps": [
+    "Microwave the oats and milk in a large bowl for 2 to 3 minutes, stirring halfway.",
+    "Let it stand for a minute, then stir in the whey until smooth.",
+    "Top with the peanut butter."
+   ]
+  },
+  {
+   "key": "turkey-noodle-stir-fry",
+   "name": "Turkey and veg noodle stir-fry",
+   "description": "A fast noodle stir-fry with lean turkey mince and frozen vegetables.",
+   "servings": 1,
+   "prepMinutes": 5,
+   "cookMinutes": 10,
+   "fridgeDays": 1,
+   "tags": [
+    "quick",
+    "lunch",
+    "dinner"
+   ],
+   "ingredients": [
+    {
+     "food": "Turkey mince, 5% fat, raw",
+     "grams": 150
+    },
+    {
+     "food": "Egg noodles, dried",
+     "grams": 60
+    },
+    {
+     "food": "Frozen mixed vegetables",
+     "grams": 120
+    },
+    {
+     "food": "Soy sauce",
+     "grams": 15
+    },
+    {
+     "food": "Garlic",
+     "grams": 5
+    },
+    {
+     "food": "Olive oil",
+     "grams": 5
+    }
+   ],
+   "steps": [
+    "Cook the noodles following the packet and drain.",
+    "Fry the mince and crushed garlic in the oil for 5 minutes, breaking it up.",
+    "Add the frozen vegetables and stir-fry for 3 minutes.",
+    "Toss in the noodles and soy sauce and stir-fry for 1 more minute."
    ]
   }
  ]

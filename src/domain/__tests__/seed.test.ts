@@ -108,8 +108,9 @@ describe('bundled starter list', () => {
     'Chicken thigh fillet, raw', 'Turkey mince, 5% fat, raw', 'Red lentils, dry', 'Chopped tomatoes, canned', 'Rice, dry',
     'Rice, microwave pouch', 'Pasta, dry', 'Cottage cheese', 'Egg, raw', 'Ham, cooked', 'Spinach, frozen', 'Potato, baking, raw',
     'Sweetcorn, canned', 'Frozen mixed berries', 'Peppers', 'Garlic', 'Mixed spices', 'Tikka curry paste', 'Soy sauce', 'Frozen mixed vegetables',
+    'Tortilla wrap, plain', 'Frozen peas', 'Egg noodles, dried',
   ]
-  it('has the 20 recipe ingredients with plausible values', () => {
+  it('has the recipe ingredients with plausible values', () => {
     for (const n of NEW) {
       const f = starter.find((x) => x.name === n)
       expect(f, n).toBeTruthy()

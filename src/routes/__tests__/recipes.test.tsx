@@ -30,17 +30,17 @@ const byKey = async (db: Awaited<ReturnType<typeof setup>>, key: string) => {
 const names = () => within(screen.getByRole('list', { name: 'Recipes' })).getAllByRole('listitem').map((li) => li.querySelector('a > span')!.textContent!)
 
 describe('recipe list', () => {
-  it('shows 12 recipes and filters by Quick and Breakfast', async () => {
+  it('shows 20 recipes and filters by Quick and Breakfast', async () => {
     const db = await setup()
     const user = userEvent.setup()
     renderApp(app(), db, '/food/recipes')
-    expect(await within(await screen.findByRole('list', { name: 'Recipes' })).findAllByRole('listitem')).toHaveLength(12)
+    expect(await within(await screen.findByRole('list', { name: 'Recipes' })).findAllByRole('listitem')).toHaveLength(20)
     await user.click(screen.getByRole('button', { name: 'Quick' }))
-    expect(within(screen.getByRole('list', { name: 'Recipes' })).getAllByRole('listitem')).toHaveLength(4)
+    expect(within(screen.getByRole('list', { name: 'Recipes' })).getAllByRole('listitem')).toHaveLength(9)
     await user.click(screen.getByRole('button', { name: 'Breakfast' }))
-    expect(within(screen.getByRole('list', { name: 'Recipes' })).getAllByRole('listitem')).toHaveLength(4)
+    expect(within(screen.getByRole('list', { name: 'Recipes' })).getAllByRole('listitem')).toHaveLength(6)
     await user.click(screen.getByRole('button', { name: 'Batch' }))
-    expect(within(screen.getByRole('list', { name: 'Recipes' })).getAllByRole('listitem')).toHaveLength(8)
+    expect(within(screen.getByRole('list', { name: 'Recipes' })).getAllByRole('listitem')).toHaveLength(11)
   })
   it('sorts by cost, protein and time', async () => {
     const db = await setup()
@@ -48,9 +48,9 @@ describe('recipe list', () => {
     renderApp(app(), db, '/food/recipes')
     await screen.findByRole('list', { name: 'Recipes' })
     await user.click(screen.getByRole('button', { name: 'Cost' }))
-    expect(names()[0]).toBe('Scrambled eggs and beans on toast')
+    expect(names()[0]).toBe('Peanut butter protein porridge')
     await user.click(screen.getByRole('button', { name: 'Protein' }))
-    expect(names()[0]).toBe('Turkey meatballs in tomato sauce')
+    expect(names()[0]).toBe('Chicken burrito bowls')
     await user.click(screen.getByRole('button', { name: 'Time' }))
     expect(names()[0]).toBe('Greek yoghurt protein pot')
   })

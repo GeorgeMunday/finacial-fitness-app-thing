@@ -235,8 +235,8 @@ export default function Workout() {
             </Button>
             {!b.rows.some((r) => r.done) ? (
               <>
-                <Button variant="quiet" aria-label={`Replace ${b.name}`} onClick={() => setSwapping(bi)}>Replace exercise</Button>
-                <Button variant="quiet" aria-label={`Remove ${b.name}`} onClick={() => remove(bi)}>Remove exercise</Button>
+                <Button variant="quiet" aria-label={`Replace ${b.name}`} onClick={() => setSwapping(bi)}>Replace</Button>
+                <Button variant="quiet" aria-label={`Remove ${b.name}`} onClick={() => remove(bi)}>Remove</Button>
               </>
             ) : null}
           </div>

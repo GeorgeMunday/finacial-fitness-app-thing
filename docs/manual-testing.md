@@ -91,6 +91,8 @@ With Food and Train on, on a phone:
 - [ ] Finish the workout: a toast says what to lift next time, and Train now shows "Next: Pull day".
 - [ ] Start Day 1 of GZCLP, log 4 of the 5 squat sets and finish: "Count this as a missed session?" appears. "Don't count" leaves the weight and rep scheme alone.
 - [ ] Start 5/3/1 with your real training maxes: check week 1 shows 65/75/85% of each, rounded to 2.5 kg (or 5 lb if you use pounds).
+- [ ] In any workout (programme, routine or empty), tap Remove on an exercise: it disappears and Undo brings it back. Tap Replace, pick another exercise and log a set: it is saved under the new exercise. Neither changes the routine or programme itself.
+- [ ] Start Bodyweight at home: it starts without asking for any weights.
 - [ ] Open a programme and tap Copy and edit: your routines appear on Train and can be edited and deleted (with Undo).
 - [ ] Food → Recipes: filter by Quick, sort by Protein. Open a recipe and tap Log a portion: it shows in today's food with its protein, and Undo removes it.
 - [ ] Edit prices on a recipe: change one price and save. The cost per portion changes, and a portion you logged earlier does not.
