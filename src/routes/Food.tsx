@@ -11,6 +11,9 @@ import { useDb } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
 import FoodDetail from './food/FoodDetail'
 import NewFood from './food/NewFood'
+import RecipeDetail from './food/RecipeDetail'
+import RecipeEdit from './food/RecipeEdit'
+import Recipes from './food/Recipes'
 import Scan from './food/Scan'
 import Search from './food/Search'
 import { SLOTS } from './food/slots'
@@ -48,6 +51,10 @@ function FoodDay() {
           <p className="text-sm text-slate">{settings.proteinTarget ? `of ${settings.proteinTarget} g protein` : 'protein'}</p>
         </div>
       </section>
+      <div className="flex flex-wrap gap-2">
+        <Link to="/food/recipes" className="flex min-h-11 items-center rounded-xl border border-fog bg-surface px-4">Recipes</Link>
+        <Link to="/food/plan" className="flex min-h-11 items-center rounded-xl border border-fog bg-surface px-4">Plan my week</Link>
+      </div>
       {lowIntakeStreak(data.recent, settings.sex) ? <p className="rounded-xl bg-surface p-3">{SUPPORT_MESSAGE}</p> : null}
       {SLOTS.map(({ slot, label: slotLabel }) => {
         const items = logs.filter((l) => l.slot === slot)
@@ -101,6 +108,10 @@ export default function Food() {
       <Route path="search" element={<Search />} />
       <Route path="scan" element={<Scan />} />
       <Route path="new" element={<NewFood />} />
+      <Route path="recipes" element={<Recipes />} />
+      <Route path="recipes/new" element={<RecipeEdit />} />
+      <Route path="recipes/:id" element={<RecipeDetail />} />
+      <Route path="recipes/:id/edit" element={<RecipeEdit />} />
       <Route path=":foodId" element={<FoodDetail />} />
     </Routes>
   )
