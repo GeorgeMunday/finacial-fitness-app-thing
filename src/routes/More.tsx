@@ -1,9 +1,9 @@
 import { Chip } from '../components/ui/Chip'
 import { Sheet } from '../components/ui/Sheet'
 import { DataSection } from '../components/DataSection'
+import { IncomeSection } from '../components/IncomeSection'
 import { useStorageStatus } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
-import { formatPence, parsePence } from '../domain/money'
 import { useState } from 'react'
 import { clampTarget, KCAL_FLOOR } from '../domain/safety'
 import type { Sex } from '../db/types'
@@ -13,8 +13,6 @@ const yesNo = (v: boolean | null) => (v === null ? 'Not supported' : v ? 'Yes' :
 export default function More() {
   const { settings, update } = useSettings()
   const storage = useStorageStatus()
-  const [income, setIncome] = useState(settings.monthlyIncomePence ? (settings.monthlyIncomePence / 100).toFixed(2) : '')
-  const incomePence = parsePence(income)
   const [kcal, setKcal] = useState(settings.kcalTarget ? String(settings.kcalTarget) : '')
   const [protein, setProtein] = useState(settings.proteinTarget ? String(settings.proteinTarget) : '')
   const [clampNote, setClampNote] = useState<string | null>(null)
@@ -71,21 +69,7 @@ export default function More() {
           {clampNote ? <p className="text-sm">{clampNote}</p> : null}
         </section>
       ) : null}
-      <section aria-labelledby="income" className="flex flex-col gap-2">
-        <h2 id="income" className="font-semibold">Monthly income</h2>
-        <input
-          aria-label="Monthly income" inputMode="decimal" value={income} onChange={(e) => setIncome(e.target.value)}
-          className="min-h-11 rounded-xl border border-fog bg-surface px-3"
-        />
-        <button
-          disabled={incomePence === null}
-          className="min-h-11 self-start rounded-xl bg-pond px-4 text-on-pond disabled:opacity-50"
-          onClick={() => incomePence !== null && update({ monthlyIncomePence: incomePence })}
-        >
-          Save income
-        </button>
-        {settings.monthlyIncomePence ? <p className="text-sm text-slate">Currently {formatPence(settings.monthlyIncomePence)}</p> : null}
-      </section>
+      <IncomeSection />
       <section aria-labelledby="prefs" className="flex flex-col gap-2">
         <h2 id="prefs" className="font-semibold">Preferences</h2>
         <label className="flex min-h-11 items-center gap-3">

@@ -5,6 +5,8 @@ import { freshDb, renderApp } from '../../../test/renderApp'
 import { createUserFood, logFood } from '../../domain/food'
 import { getSettings } from '../../state/settings'
 import More from '../More'
+import { getMonthlyIncome, saveMonthlyIncome } from '../../domain/income'
+import { localDate } from '../../domain/dates'
 
 describe('More consent', () => {
   it('turning Food on asks for consent naming only food logs and body weight', async () => {
@@ -15,6 +17,32 @@ describe('More consent', () => {
     const dialog = screen.getByRole('dialog', { name: 'Your health data' })
     expect(dialog).toHaveTextContent(/food logs and body weight/)
     expect(dialog).not.toHaveTextContent(/workout/i)
+  })
+})
+
+describe('More monthly income', () => {
+  it('edits the recurring income rule, and can stop it', async () => {
+    const db = await freshDb({ onboarded: true })
+    await saveMonthlyIncome(db, { amountPence: 200000, payDay: 1, today: localDate() })
+    const user = userEvent.setup()
+    renderApp(<More />, db, '/more')
+    const amount = await screen.findByLabelText('Monthly income')
+    await waitFor(() => expect(amount).toHaveValue('2000.00'))
+    await user.clear(amount)
+    await user.type(amount, '2100')
+    await user.selectOptions(screen.getByLabelText("Day of the month you're paid"), '25')
+    await user.click(screen.getByRole('button', { name: 'Save income' }))
+    await waitFor(async () => expect(await getMonthlyIncome(db)).toEqual({ amountPence: 210000, payDay: 25 }))
+    await user.click(screen.getByRole('button', { name: 'Stop monthly income' }))
+    await waitFor(async () => expect(await getMonthlyIncome(db)).toBeNull())
+  })
+  it('sets up income for someone who skipped it in onboarding', async () => {
+    const db = await freshDb({ onboarded: true })
+    const user = userEvent.setup()
+    renderApp(<More />, db, '/more')
+    await user.type(await screen.findByLabelText('Monthly income'), '1500')
+    await user.click(screen.getByRole('button', { name: 'Save income' }))
+    await waitFor(async () => expect(await getMonthlyIncome(db)).toEqual({ amountPence: 150000, payDay: 1 }))
   })
 })
 

@@ -2,8 +2,9 @@ import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { Chip } from '../../components/ui/Chip'
-import { localDate, nextMonthlyOccurrence } from '../../domain/dates'
-import { addRecurringRule, parsePence } from '../../domain/money'
+import { localDate } from '../../domain/dates'
+import { saveMonthlyIncome } from '../../domain/income'
+import { parsePence } from '../../domain/money'
 import { createGoal } from '../../domain/savings'
 import type { GoalPeriod } from '../../db/types'
 import { useDb } from '../../state/DbProvider'
@@ -109,12 +110,8 @@ export default function OnboardingFlow() {
         <Button
           disabled={incomePence === null}
           onClick={async () => {
-            const pence = incomePence!
-            await update({ monthlyIncomePence: pence })
-            await addRecurringRule(db, {
-              kind: 'income', name: 'Monthly income', amountPence: pence, categoryId: 'cat-income', cadence: 'monthly',
-              nextDate: nextMonthlyOccurrence(localDate(), payDay), anchorDay: payDay,
-            })
+            await saveMonthlyIncome(db, { amountPence: incomePence!, payDay, today: localDate() })
+            await update({})
             setStep('goal')
           }}
         >
