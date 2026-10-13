@@ -58,8 +58,10 @@ Important: on iOS, a Home Screen app has **separate storage** from Safari tabs. 
 - [ ] In Chrome, log a few expenses, one income, a savings goal with a contribution, and (with Food on) a food log. Note the Money screen totals and the goal's "£X to go".
 - [ ] More → Download backup. A file named `tally-backup-YYYY-MM-DD.json` downloads, and More now shows "Last backup" with today's date.
 - [ ] Move the file to the Safari device (AirDrop, Files or email).
+- [ ] Also try Download backup inside the installed iOS app: note whether a file is saved (or a share sheet appears). Downloads from Home Screen apps are unreliable on iOS, so this may fail.
 - [ ] In Safari (or the installed iOS app), More → Restore from backup → choose the file → Replace my data. The app reloads.
 - [ ] Money totals, transactions, the goal and its progress, and the food log match what you noted in Chrome.
+- [ ] Clear the site's data (or use a fresh browser profile), open Tally: the first onboarding screen offers "Restore from a backup", and restoring there takes you straight to Today with your data.
 - [ ] Try restoring any other JSON file: you get a message saying it isn't a Tally backup, and your data is unchanged.
 
 ## 5. Offline use of the installed app
