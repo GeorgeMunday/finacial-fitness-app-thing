@@ -1,6 +1,7 @@
 import type { SqlExecutor } from '../../db/executor'
 import { newId, nowIso } from '../../db/ids'
 import { getSettings } from '../../state/settings'
+import { personalRecords } from '../training'
 import { toProgress } from './catalog'
 import { isLowerBody, roundKg } from './rounding'
 import type { LiftState } from './types'
@@ -45,9 +46,18 @@ export async function programmeLifts(db: SqlExecutor, programmeId: string): Prom
   return out
 }
 
-/** Weight to start a lift at when the user gave none: where it was last time, else a light default. */
-async function fallbackKg(_db: SqlExecutor, lift: StartLift & { equipment: string | null }): Promise<number> {
-  return lift.kind === 'trainingMax' ? defaultTrainingMaxKg(lift.name) : defaultStartKg(lift.name, lift.equipment)
+/** 90% of the best estimated one-rep max from logged working sets, rounded; null if the lift was never logged. */
+export async function estimateTrainingMax(db: SqlExecutor, exerciseId: string): Promise<number | null> {
+  const { bestEst1rmKg } = await personalRecords(db, exerciseId)
+  if (!(bestEst1rmKg > 0)) return null
+  const { weightUnit } = await getSettings(db)
+  return roundKg(0.9 * bestEst1rmKg, weightUnit)
+}
+
+/** Weight to start a lift at when the user gave none: a training max estimated from their logs, else a light default. */
+async function fallbackKg(db: SqlExecutor, lift: StartLift & { equipment: string | null }): Promise<number> {
+  if (lift.kind === 'trainingMax') return (await estimateTrainingMax(db, lift.exerciseId)) ?? defaultTrainingMaxKg(lift.name)
+  return defaultStartKg(lift.name, lift.equipment)
 }
 
 /**

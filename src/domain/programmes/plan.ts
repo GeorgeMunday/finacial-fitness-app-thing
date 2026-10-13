@@ -4,6 +4,7 @@ import { getSettings } from '../../state/settings'
 import { addDays, weekStart } from '../dates'
 import { activeProgramme, toProgress } from './catalog'
 import { KINDS } from './kinds'
+import { previousSets } from '../training'
 import { isLowerBody } from './rounding'
 import { defaultStartKg, defaultTrainingMaxKg } from './start'
 import type { DayExercise, LiftState, NextWorkout, PlannedExercise, Tier } from './types'
@@ -82,6 +83,11 @@ export async function suggestWeights(db: SqlExecutor, programmeDayId: string): P
       state = { weightKg: kg, stage: 1, stageStartKg: kg, fails: 0, ...(prog.progression === 'wendler531' ? { trainingMaxKg: kg } : {}) }
     }
     const sets = kind.prescribe(row, state, { unit, lower, cycleWeek })
+    if (row.tier === 'assist') {
+      // Assistance work is picked by the user, so start it from what they last lifted for it.
+      const last = (await previousSets(db, row.exerciseId)).at(-1)
+      for (const s of sets) s.weightKg = last?.weightKg ?? 0
+    }
     const prev = out[out.length - 1]
     if (prev && prev.exerciseId === row.exerciseId && prev.tier === row.tier && prev.liftKey === row.liftKey) {
       prev.sets.push(...sets)
