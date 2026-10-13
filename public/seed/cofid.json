@@ -1,0 +1,387 @@
+[
+ {
+  "name": "Oats, rolled",
+  "kcal_100g": 372.0,
+  "protein_100g": 11.0,
+  "carbs_100g": 60.0,
+  "fat_100g": 8.0
+ },
+ {
+  "name": "Porridge, made with water",
+  "kcal_100g": 46.0,
+  "protein_100g": 1.5,
+  "carbs_100g": 8.0,
+  "fat_100g": 1.0
+ },
+ {
+  "name": "Bread, white",
+  "kcal_100g": 235.0,
+  "protein_100g": 8.0,
+  "carbs_100g": 46.0,
+  "fat_100g": 1.6
+ },
+ {
+  "name": "Bread, wholemeal",
+  "kcal_100g": 225.0,
+  "protein_100g": 9.5,
+  "carbs_100g": 40.0,
+  "fat_100g": 2.9
+ },
+ {
+  "name": "Cornflakes",
+  "kcal_100g": 370.0,
+  "protein_100g": 7.0,
+  "carbs_100g": 84.0,
+  "fat_100g": 1.0
+ },
+ {
+  "name": "Wheat biscuit cereal",
+  "kcal_100g": 360.0,
+  "protein_100g": 11.0,
+  "carbs_100g": 69.0,
+  "fat_100g": 2.0
+ },
+ {
+  "name": "Banana",
+  "kcal_100g": 95.0,
+  "protein_100g": 1.2,
+  "carbs_100g": 23.0,
+  "fat_100g": 0.3
+ },
+ {
+  "name": "Apple",
+  "kcal_100g": 52.0,
+  "protein_100g": 0.4,
+  "carbs_100g": 12.0,
+  "fat_100g": 0.1
+ },
+ {
+  "name": "Orange",
+  "kcal_100g": 37.0,
+  "protein_100g": 1.1,
+  "carbs_100g": 8.5,
+  "fat_100g": 0.1
+ },
+ {
+  "name": "Strawberries",
+  "kcal_100g": 27.0,
+  "protein_100g": 0.8,
+  "carbs_100g": 6.0,
+  "fat_100g": 0.1
+ },
+ {
+  "name": "Blueberries",
+  "kcal_100g": 57.0,
+  "protein_100g": 0.7,
+  "carbs_100g": 14.0,
+  "fat_100g": 0.3
+ },
+ {
+  "name": "Grapes",
+  "kcal_100g": 69.0,
+  "protein_100g": 0.7,
+  "carbs_100g": 18.0,
+  "fat_100g": 0.1
+ },
+ {
+  "name": "Avocado",
+  "kcal_100g": 190.0,
+  "protein_100g": 1.9,
+  "carbs_100g": 1.9,
+  "fat_100g": 19.0
+ },
+ {
+  "name": "Tomato",
+  "kcal_100g": 18.0,
+  "protein_100g": 0.9,
+  "carbs_100g": 3.1,
+  "fat_100g": 0.2
+ },
+ {
+  "name": "Cucumber",
+  "kcal_100g": 12.0,
+  "protein_100g": 0.6,
+  "carbs_100g": 1.5,
+  "fat_100g": 0.1
+ },
+ {
+  "name": "Carrot",
+  "kcal_100g": 35.0,
+  "protein_100g": 0.6,
+  "carbs_100g": 7.9,
+  "fat_100g": 0.3
+ },
+ {
+  "name": "Broccoli, boiled",
+  "kcal_100g": 33.0,
+  "protein_100g": 4.4,
+  "carbs_100g": 1.8,
+  "fat_100g": 0.9
+ },
+ {
+  "name": "Spinach",
+  "kcal_100g": 25.0,
+  "protein_100g": 2.8,
+  "carbs_100g": 1.6,
+  "fat_100g": 0.8
+ },
+ {
+  "name": "Onion",
+  "kcal_100g": 36.0,
+  "protein_100g": 1.2,
+  "carbs_100g": 7.9,
+  "fat_100g": 0.2
+ },
+ {
+  "name": "Potato, boiled",
+  "kcal_100g": 72.0,
+  "protein_100g": 1.8,
+  "carbs_100g": 17.0,
+  "fat_100g": 0.1
+ },
+ {
+  "name": "Sweet potato, baked",
+  "kcal_100g": 90.0,
+  "protein_100g": 2.0,
+  "carbs_100g": 20.7,
+  "fat_100g": 0.2
+ },
+ {
+  "name": "Rice, white, boiled",
+  "kcal_100g": 130.0,
+  "protein_100g": 2.7,
+  "carbs_100g": 28.0,
+  "fat_100g": 0.3
+ },
+ {
+  "name": "Pasta, boiled",
+  "kcal_100g": 150.0,
+  "protein_100g": 5.5,
+  "carbs_100g": 30.0,
+  "fat_100g": 0.8
+ },
+ {
+  "name": "Egg, boiled",
+  "kcal_100g": 155.0,
+  "protein_100g": 12.6,
+  "carbs_100g": 1.1,
+  "fat_100g": 10.6
+ },
+ {
+  "name": "Milk, whole",
+  "kcal_100g": 63.0,
+  "protein_100g": 3.4,
+  "carbs_100g": 4.5,
+  "fat_100g": 3.6
+ },
+ {
+  "name": "Milk, semi-skimmed",
+  "kcal_100g": 47.0,
+  "protein_100g": 3.6,
+  "carbs_100g": 4.7,
+  "fat_100g": 1.7
+ },
+ {
+  "name": "Milk, skimmed",
+  "kcal_100g": 34.0,
+  "protein_100g": 3.5,
+  "carbs_100g": 4.7,
+  "fat_100g": 0.1
+ },
+ {
+  "name": "Cheddar cheese",
+  "kcal_100g": 416.0,
+  "protein_100g": 25.4,
+  "carbs_100g": 0.1,
+  "fat_100g": 34.9
+ },
+ {
+  "name": "Greek yoghurt, 0% fat",
+  "kcal_100g": 57.0,
+  "protein_100g": 10.0,
+  "carbs_100g": 4.0,
+  "fat_100g": 0.2
+ },
+ {
+  "name": "Yoghurt, natural",
+  "kcal_100g": 79.0,
+  "protein_100g": 5.7,
+  "carbs_100g": 7.8,
+  "fat_100g": 3.0
+ },
+ {
+  "name": "Butter",
+  "kcal_100g": 737.0,
+  "protein_100g": 0.5,
+  "carbs_100g": 0.5,
+  "fat_100g": 81.7
+ },
+ {
+  "name": "Olive oil",
+  "kcal_100g": 899.0,
+  "protein_100g": 0.0,
+  "carbs_100g": 0.0,
+  "fat_100g": 99.9
+ },
+ {
+  "name": "Chicken breast, raw",
+  "kcal_100g": 106.0,
+  "protein_100g": 23.0,
+  "carbs_100g": 0.0,
+  "fat_100g": 1.1
+ },
+ {
+  "name": "Chicken breast, cooked",
+  "kcal_100g": 165.0,
+  "protein_100g": 31.0,
+  "carbs_100g": 0.0,
+  "fat_100g": 3.6
+ },
+ {
+  "name": "Beef mince, 5% fat, raw",
+  "kcal_100g": 120.0,
+  "protein_100g": 21.0,
+  "carbs_100g": 0.0,
+  "fat_100g": 5.0
+ },
+ {
+  "name": "Beef mince, 12% fat, raw",
+  "kcal_100g": 175.0,
+  "protein_100g": 19.0,
+  "carbs_100g": 0.0,
+  "fat_100g": 12.0
+ },
+ {
+  "name": "Salmon, raw",
+  "kcal_100g": 208.0,
+  "protein_100g": 20.0,
+  "carbs_100g": 0.0,
+  "fat_100g": 13.0
+ },
+ {
+  "name": "Cod, raw",
+  "kcal_100g": 82.0,
+  "protein_100g": 18.0,
+  "carbs_100g": 0.0,
+  "fat_100g": 0.7
+ },
+ {
+  "name": "Tuna, canned in brine",
+  "kcal_100g": 116.0,
+  "protein_100g": 26.0,
+  "carbs_100g": 0.0,
+  "fat_100g": 1.0
+ },
+ {
+  "name": "Baked beans",
+  "kcal_100g": 78.0,
+  "protein_100g": 4.7,
+  "carbs_100g": 13.6,
+  "fat_100g": 0.2
+ },
+ {
+  "name": "Lentils, boiled",
+  "kcal_100g": 100.0,
+  "protein_100g": 8.0,
+  "carbs_100g": 16.0,
+  "fat_100g": 0.6
+ },
+ {
+  "name": "Chickpeas, canned",
+  "kcal_100g": 120.0,
+  "protein_100g": 7.0,
+  "carbs_100g": 16.0,
+  "fat_100g": 2.9
+ },
+ {
+  "name": "Kidney beans, canned",
+  "kcal_100g": 100.0,
+  "protein_100g": 7.0,
+  "carbs_100g": 15.0,
+  "fat_100g": 0.6
+ },
+ {
+  "name": "Peanut butter",
+  "kcal_100g": 620.0,
+  "protein_100g": 24.0,
+  "carbs_100g": 10.0,
+  "fat_100g": 51.0
+ },
+ {
+  "name": "Almonds",
+  "kcal_100g": 612.0,
+  "protein_100g": 21.0,
+  "carbs_100g": 6.9,
+  "fat_100g": 55.8
+ },
+ {
+  "name": "Hummus",
+  "kcal_100g": 230.0,
+  "protein_100g": 7.0,
+  "carbs_100g": 9.0,
+  "fat_100g": 17.0
+ },
+ {
+  "name": "Digestive biscuit",
+  "kcal_100g": 480.0,
+  "protein_100g": 6.5,
+  "carbs_100g": 62.0,
+  "fat_100g": 22.0
+ },
+ {
+  "name": "Milk chocolate",
+  "kcal_100g": 530.0,
+  "protein_100g": 7.5,
+  "carbs_100g": 57.0,
+  "fat_100g": 30.0
+ },
+ {
+  "name": "Crisps, ready salted",
+  "kcal_100g": 530.0,
+  "protein_100g": 6.0,
+  "carbs_100g": 50.0,
+  "fat_100g": 33.0
+ },
+ {
+  "name": "Pizza, margherita",
+  "kcal_100g": 250.0,
+  "protein_100g": 11.0,
+  "carbs_100g": 32.0,
+  "fat_100g": 9.0
+ },
+ {
+  "name": "Chips, oven",
+  "kcal_100g": 160.0,
+  "protein_100g": 3.0,
+  "carbs_100g": 28.0,
+  "fat_100g": 4.5
+ },
+ {
+  "name": "Cola",
+  "kcal_100g": 42.0,
+  "protein_100g": 0.0,
+  "carbs_100g": 10.6,
+  "fat_100g": 0.0
+ },
+ {
+  "name": "Orange juice",
+  "kcal_100g": 40.0,
+  "protein_100g": 0.6,
+  "carbs_100g": 9.0,
+  "fat_100g": 0.1
+ },
+ {
+  "name": "Lager",
+  "kcal_100g": 43.0,
+  "protein_100g": 0.3,
+  "carbs_100g": 3.0,
+  "fat_100g": 0.0
+ },
+ {
+  "name": "Whey protein powder",
+  "kcal_100g": 400.0,
+  "protein_100g": 80.0,
+  "carbs_100g": 7.0,
+  "fat_100g": 6.0
+ }
+]
