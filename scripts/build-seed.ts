@@ -2,7 +2,9 @@
 // Writes public/seed/exercises.json and, when --cofid is given, public/seed/cofid.json.
 // exercises.json comes from github.com/yuhonas/free-exercise-db (Unlicense): dist/exercises.json.
 // cofid.csv is the CoFID labelling dataset download from fnnbri.quadram.ac.uk (CC BY-NC-SA 4.0, non-commercial).
+// public/seed/starter.json is Tally's own hand-written list of typical values. It is not CoFID and is never labelled as such.
 import { readFileSync, writeFileSync } from 'node:fs'
+import { convertCofidCsv } from './seedConvert.ts'
 
 const args = new Map<string, string>()
 for (let i = 2; i < process.argv.length; i += 2) args.set(process.argv[i].replace(/^--/, ''), process.argv[i + 1])
@@ -35,62 +37,21 @@ function buildExercises(path: string) {
     .sort((a, b) => a.name.localeCompare(b.name))
 }
 
-function parseCsv(text: string): string[][] {
-  const rows: string[][] = []
-  let row: string[] = []
-  let cell = ''
-  let quoted = false
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i]
-    if (quoted) {
-      if (c === '"' && text[i + 1] === '"') (cell += '"'), i++
-      else if (c === '"') quoted = false
-      else cell += c
-    } else if (c === '"') quoted = true
-    else if (c === ',') (row.push(cell), (cell = ''))
-    else if (c === '\n' || c === '\r') {
-      if (c === '\r' && text[i + 1] === '\n') i++
-      row.push(cell)
-      cell = ''
-      if (row.some((x) => x !== '')) rows.push(row)
-      row = []
-    } else cell += c
-  }
-  if (cell || row.length) rows.push([...row, cell])
-  return rows
-}
-
-function buildFoods(path: string) {
-  const [header, ...rows] = parseCsv(readFileSync(path, 'utf8'))
-  const col = (re: RegExp) => {
-    const i = header.findIndex((h) => re.test(h))
-    if (i < 0) throw new Error(`CoFID column not found: ${re}`)
-    return i
-  }
-  const name = col(/^food name$/i), kcal = col(/energy.*kcal/i), protein = col(/^protein/i), carbs = col(/^carbohydrate/i), fat = col(/^fat/i)
-  const num = (s: string) => {
-    const n = Number(s)
-    return Number.isFinite(n) ? n : null
-  }
-  const out = []
-  for (const r of rows) {
-    const v = [kcal, protein, carbs, fat].map((i) => num(r[i]))
-    if (!r[name] || v.some((x) => x === null)) continue // skip foods with missing nutrients, never store zero-kcal guesses
-    out.push({ name: r[name].trim(), kcal_100g: v[0]!, protein_100g: v[1]!, carbs_100g: v[2]!, fat_100g: v[3]! })
-  }
-  return out
-}
-
 const ex = args.get('exercises')
 if (ex) {
   const list = buildExercises(ex)
   writeFileSync(new URL('exercises.json', OUT), JSON.stringify(list, null, 1))
-  console.log(`exercises.json: ${list.length}`)
+  console.log(`Wrote ${list.length} exercises to public/seed/exercises.json.`)
 }
 const cofid = args.get('cofid')
 if (cofid) {
-  const list = buildFoods(cofid)
-  writeFileSync(new URL('cofid.json', OUT), JSON.stringify(list))
-  console.log(`cofid.json: ${list.length}`)
+  try {
+    const { foods, skipped } = convertCofidCsv(readFileSync(cofid, 'utf8'))
+    writeFileSync(new URL('cofid.json', OUT), JSON.stringify(foods))
+    console.log(`Wrote ${foods.length} foods to public/seed/cofid.json (skipped ${skipped} with missing nutrients).`)
+  } catch (e) {
+    console.error(e instanceof Error ? e.message : e)
+    process.exit(1)
+  }
 }
 if (!ex && !cofid) console.log('Usage: node scripts/build-seed.ts --exercises <json> [--cofid <csv>]')

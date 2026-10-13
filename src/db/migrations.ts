@@ -43,6 +43,18 @@ INSERT INTO categories (id, created_at, updated_at, name, kind) VALUES
 ('cat-income', '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', 'Income', 'income'),
 ('cat-other', '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', 'Other', 'other');
 `,
+  // v2: before this version every 'cofid' row came from the hand-written starter list (real CoFID was never
+  // bundled), so relabel those rows 'starter'. SQLite can't alter a CHECK constraint, so foods is rebuilt.
+  // Also stores the pay/anchor day on recurring rules so monthly dates clamp (31 → 28 → 31) instead of drifting.
+  `
+CREATE TABLE foods_v2 (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT, source TEXT NOT NULL CHECK (source IN ('user','off','cofid','starter')), barcode TEXT, name TEXT NOT NULL, brand TEXT, kcal_100g REAL NOT NULL, protein_100g REAL NOT NULL, carbs_100g REAL NOT NULL, fat_100g REAL NOT NULL, serving_g REAL, serving_label TEXT);
+INSERT INTO foods_v2 SELECT id, created_at, updated_at, deleted_at, CASE source WHEN 'cofid' THEN 'starter' ELSE source END, barcode, name, brand, kcal_100g, protein_100g, carbs_100g, fat_100g, serving_g, serving_label FROM foods;
+DROP TABLE foods;
+ALTER TABLE foods_v2 RENAME TO foods;
+CREATE INDEX idx_foods_barcode ON foods(barcode);
+ALTER TABLE recurring_rules ADD COLUMN anchor_day INTEGER;
+UPDATE recurring_rules SET anchor_day = CAST(substr(next_date, 9, 2) AS INTEGER);
+`,
 ]
 
 

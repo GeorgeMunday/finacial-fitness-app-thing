@@ -5,7 +5,7 @@ export type CategoryKind =
 export type GoalPeriod = 'month' | 'year' | 'once'
 export type Slot = 'breakfast' | 'lunch' | 'dinner' | 'snack'
 export type Sex = 'female' | 'male' | 'unspecified'
-export type FoodSource = 'user' | 'off' | 'cofid'
+export type FoodSource = 'user' | 'off' | 'cofid' | 'starter'
 
 export type Base = { id: string; createdAt: string; updatedAt: string; deletedAt: string | null }
 
