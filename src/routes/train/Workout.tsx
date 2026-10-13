@@ -48,11 +48,31 @@ export default function Workout() {
   const [blocks, setBlocks] = useState<Block[]>([])
   useEffect(() => setBlocks(data?.blocks ?? []), [data])
   const [adding, setAdding] = useState('')
+  const [saving, setSaving] = useState<Set<string>>(new Set())
   const { data: matches } = useAsync(() => (adding.trim() ? searchExercises(db, adding.trim(), 8) : Promise.resolve([])), [db, adding])
   useWakeLock(!!data && !data.workout.endedAt)
 
   if (data === undefined) return null
   if (data === null) return <p>That workout couldn't be found.</p>
+
+  /** A set is ticked only once it is stored; a failed save stays unticked with a Retry. */
+  async function saveSet(bi: number, ri: number, exerciseId: string, row: Row) {
+    const key = `${bi}:${ri}`
+    setSaving((cur) => new Set(cur).add(key))
+    try {
+      await logSet(db, { workoutId: id, exerciseId, reps: row.reps, weightKg: toKg(row.weight, unit) })
+      patch(bi, ri, { done: true })
+      timer.start()
+    } catch {
+      toast.show("Couldn't save that set. Nothing was logged.", { action: { label: 'Retry', run: () => saveSet(bi, ri, exerciseId, row) } })
+    } finally {
+      setSaving((cur) => {
+        const next = new Set(cur)
+        next.delete(key)
+        return next
+      })
+    }
+  }
 
   const patch = (b: number, r: number, change: Partial<Row>) =>
     setBlocks((cur) => cur.map((bl, i) => (i !== b ? bl : { ...bl, rows: bl.rows.map((row, j) => (j === r ? { ...row, ...change } : row)) })))
@@ -79,12 +99,8 @@ export default function Workout() {
                   <Button variant="quiet" aria-label={`More reps for ${label}`} disabled={row.done} onClick={() => patch(bi, ri, { reps: row.reps + 1 })}>+</Button>
                 </div>
                 <Button
-                  variant={row.done ? 'quiet' : 'secondary'} aria-label={row.done ? `Logged ${label}` : `Log ${label}`} disabled={row.done} className="ml-auto"
-                  onClick={async () => {
-                    patch(bi, ri, { done: true })
-                    await logSet(db, { workoutId: id, exerciseId: b.exerciseId, reps: row.reps, weightKg: toKg(row.weight, unit) })
-                    timer.start()
-                  }}
+                  variant={row.done ? 'quiet' : 'secondary'} aria-label={row.done ? `Logged ${label}` : `Log ${label}`} disabled={row.done || saving.has(`${bi}:${ri}`)} className="ml-auto"
+                  onClick={() => void saveSet(bi, ri, b.exerciseId, row)}
                 >
                   ✓
                 </Button>

@@ -68,4 +68,28 @@ describe('workout screen', () => {
       expect(r.ended_at).not.toBeNull()
     })
   })
+  it('only ticks a set once it is saved, and offers Retry when saving fails', async () => {
+    const { db: inner, w } = await setup()
+    let failNext = true
+    const db = {
+      ...inner,
+      run: async (sql: string, params?: unknown[]) => {
+        if (failNext && sql.includes('INSERT INTO workout_sets')) {
+          failNext = false
+          throw new Error('disk full')
+        }
+        return inner.run(sql, params)
+      },
+    }
+    const user = userEvent.setup()
+    renderApp(app(), db, `/train/workout/${w}`)
+    await user.click(await screen.findByRole('button', { name: 'Log set 1 of Bench press' }))
+    expect(await screen.findByText(/Couldn't save that set/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Log set 1 of Bench press' })).toBeEnabled()
+    expect(screen.queryByRole('button', { name: 'Logged set 1 of Bench press' })).toBeNull()
+    expect(screen.queryByRole('timer')).toBeNull()
+    await user.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(await screen.findByRole('button', { name: 'Logged set 1 of Bench press' })).toBeInTheDocument()
+    expect(await inner.all('SELECT * FROM workout_sets WHERE workout_id = ?', [w])).toHaveLength(1)
+  })
 })

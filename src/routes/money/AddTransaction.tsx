@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { AmountKeypad } from '../../components/AmountKeypad'
 import { Button } from '../../components/ui/Button'
 import { Chip } from '../../components/ui/Chip'
@@ -11,6 +11,7 @@ import { useDb } from '../../state/DbProvider'
 export default function AddTransaction() {
   const db = useDb()
   const navigate = useNavigate()
+  const location = useLocation()
   const toast = useToast()
   const kind = useSearchParams()[0].get('kind') === 'income' ? 'income' : 'expense'
   const [value, setValue] = useState('')
@@ -30,7 +31,9 @@ export default function AddTransaction() {
     if (pence === null) return
     const id = kind === 'income' ? await addIncome(db, { amountPence: pence }) : await addExpense(db, { amountPence: pence, categoryId: categoryId! })
     toast.show(kind === 'income' ? `Income saved, ${formatPence(pence)}` : 'Expense saved', { undo: () => void deleteTransaction(db, id) })
-    navigate(-1)
+    // Opened directly (no in-app history): go to Money rather than out of the app.
+    if (location.key === 'default') navigate('/money', { replace: true })
+    else navigate(-1)
   }
 
   return (

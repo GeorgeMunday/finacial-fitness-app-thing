@@ -83,7 +83,7 @@ function MoneyHome() {
       </nav>
 
       {txs.length === 0 ? (
-        <EmptyState message="No spending yet this week" action={{ label: 'Add expense', onClick: () => navigate('/money/add?kind=expense') }} />
+        <EmptyState message="No spending yet this month" action={{ label: 'Add expense', onClick: () => navigate('/money/add?kind=expense') }} />
       ) : (
         <section aria-label="Transactions">
           {days.map((d) => (

@@ -1,13 +1,14 @@
+import { emitChange } from '../../state/changes'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 
-type ShowOpts = { undo?: () => void }
+type ShowOpts = { undo?: () => unknown; action?: { label: string; run: () => unknown } }
 type ToastApi = { show(message: string, opts?: ShowOpts): void }
 const Ctx = createContext<ToastApi>({ show: () => {} })
 
 export const useToast = (): ToastApi => useContext(Ctx)
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toast, setToast] = useState<{ message: string; undo?: () => void; key: number } | null>(null)
+  const [toast, setToast] = useState<{ message: string; label: string; run?: () => unknown; key: number } | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const keyRef = useRef(0)
 
@@ -17,7 +18,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, [])
   const show = useCallback((message: string, opts?: ShowOpts) => {
     clearTimeout(timer.current)
-    setToast({ message, undo: opts?.undo, key: ++keyRef.current })
+    const undo = opts?.undo
+    // After an Undo, tell every mounted list to re-read: the screen that made the change may be gone.
+    const run = undo ? () => Promise.resolve(undo()).then(emitChange) : opts?.action?.run
+    setToast({ message, label: undo ? 'Undo' : (opts?.action?.label ?? ''), run, key: ++keyRef.current })
     timer.current = setTimeout(() => setToast(null), 5000)
   }, [])
   useEffect(() => () => clearTimeout(timer.current), [])
@@ -30,15 +34,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toast ? (
           <div key={toast.key} className="pointer-events-auto flex items-center gap-3 rounded-xl bg-ink px-4 py-2 text-chalk shadow-lg">
             <span>{toast.message}</span>
-            {toast.undo ? (
+            {toast.run ? (
               <button
                 className="min-h-11 min-w-11 font-semibold underline"
                 onClick={() => {
-                  toast.undo?.()
                   close()
+                  void toast.run?.()
                 }}
               >
-                Undo
+                {toast.label}
               </button>
             ) : null}
           </div>

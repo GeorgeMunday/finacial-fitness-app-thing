@@ -32,7 +32,7 @@ export default function Styleguide() {
         <ListRow title="Tesco" detail="Groceries" trailing={<Amount pence={340} />} />
         <ListRow title="Train" detail="Transport" trailing={<Amount pence={1280} />} />
       </div>
-      <EmptyState message="No spending yet this week" action={{ label: 'Add expense', onClick: () => {} }} />
+      <EmptyState message="No spending yet this month" action={{ label: 'Add expense', onClick: () => {} }} />
       <Sheet open={open} onClose={() => setOpen(false)} title="Add expense"><Amount pence={340} size="title" /></Sheet>
     </main>
   )
