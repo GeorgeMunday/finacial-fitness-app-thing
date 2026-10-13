@@ -17,7 +17,7 @@ export default function Routine() {
   const [q, setQ] = useState('')
   const { data: matches } = useAsync(() => (q.trim() ? searchExercises(db, q.trim(), 8) : Promise.resolve([])), [db, q])
   const add = (exerciseId: string, n: string) => {
-    setItems((cur) => [...cur, { exerciseId, name: n, targetSets: 3, targetReps: 8 }])
+    setItems((cur) => (cur.some((it) => it.exerciseId === exerciseId) ? cur : [...cur, { exerciseId, name: n, targetSets: 3, targetReps: 8 }]))
     setQ('')
   }
   const num = (i: number, k: 'targetSets' | 'targetReps', v: string) =>

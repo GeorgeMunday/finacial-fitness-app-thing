@@ -1,3 +1,4 @@
+import { Button } from '../components/ui/Button'
 import { Chip } from '../components/ui/Chip'
 import { Sheet } from '../components/ui/Sheet'
 import { DataSection } from '../components/DataSection'
@@ -65,7 +66,7 @@ export default function More() {
             Daily protein target (g)
             <input inputMode="numeric" value={protein} onChange={(e) => setProtein(e.target.value)} className="min-h-11 rounded-xl border border-fog bg-surface px-3" />
           </label>
-          <button disabled={!targetsValid} onClick={saveTargets} className="min-h-11 self-start rounded-xl bg-pond px-4 text-on-pond disabled:opacity-50">Save targets</button>
+          <Button disabled={!targetsValid} className="self-start" onClick={saveTargets}>Save targets</Button>
           {clampNote ? <p className="text-sm">{clampNote}</p> : null}
         </section>
       ) : null}
@@ -93,16 +94,16 @@ export default function More() {
             <input type="checkbox" className="size-6" checked={consentTicked} onChange={(e) => setConsentTicked(e.target.checked)} />
             I agree Tally can store this health data on my device
           </label>
-          <button
+          <Button
             disabled={!consentTicked}
-            className="min-h-11 rounded-xl bg-pond px-4 text-on-pond disabled:opacity-50"
             onClick={async () => {
-              await update({ healthConsent: true, optionalPillars: [...settings.optionalPillars, 'food'] })
+              const pillars = settings.optionalPillars.includes('food') ? settings.optionalPillars : [...settings.optionalPillars, 'food' as const]
+              await update({ healthConsent: true, optionalPillars: pillars })
               setConsentOpen(false)
             }}
           >
             I agree
-          </button>
+          </Button>
         </div>
       </Sheet>
       <DataSection />

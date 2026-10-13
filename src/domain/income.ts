@@ -29,19 +29,22 @@ export async function getMonthlyIncome(db: SqlExecutor): Promise<{ amountPence: 
  * so a pay already posted today is never posted twice.
  */
 export async function saveMonthlyIncome(db: SqlExecutor, i: { amountPence: number; payDay: number; today: string }): Promise<void> {
-  const existing = await findRule(db)
-  if (!existing) {
-    await addRecurringRule(db, {
-      kind: 'income', name: MONTHLY_INCOME_NAME, amountPence: i.amountPence, categoryId: 'cat-income', cadence: 'monthly',
-      nextDate: nextMonthlyOccurrence(i.today, i.payDay), anchorDay: i.payDay,
-    })
-  } else {
-    const oldDay = existing.anchor_day ?? Number(existing.next_date.slice(8, 10))
-    const nextDate = oldDay === i.payDay ? existing.next_date : nextMonthlyOccurrence(addDays(i.today, 1), i.payDay)
-    await db.run('UPDATE recurring_rules SET amount_pence = ?, anchor_day = ?, next_date = ?, updated_at = ? WHERE id = ?', [
-      i.amountPence, i.payDay, nextDate, nowIso(), existing.id,
-    ])
-  }
+  // Find-then-write inside one transaction, so two saves at once can't both create a rule.
+  await db.transaction(async (tx) => {
+    const existing = await findRule(tx)
+    if (!existing) {
+      await addRecurringRule(tx, {
+        kind: 'income', name: MONTHLY_INCOME_NAME, amountPence: i.amountPence, categoryId: 'cat-income', cadence: 'monthly',
+        nextDate: nextMonthlyOccurrence(i.today, i.payDay), anchorDay: i.payDay,
+      })
+    } else {
+      const oldDay = existing.anchor_day ?? Number(existing.next_date.slice(8, 10))
+      const nextDate = oldDay === i.payDay ? existing.next_date : nextMonthlyOccurrence(addDays(i.today, 1), i.payDay)
+      await tx.run('UPDATE recurring_rules SET amount_pence = ?, anchor_day = ?, next_date = ?, updated_at = ? WHERE id = ?', [
+        i.amountPence, i.payDay, nextDate, nowIso(), existing.id,
+      ])
+    }
+  })
   await updateSettings(db, { monthlyIncomePence: i.amountPence })
 }
 
