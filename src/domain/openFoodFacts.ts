@@ -9,6 +9,7 @@ export type BarcodeResult =
   | { status: 'not_found' | 'offline'; draft: { barcode: string } }
 
 const num = (v: unknown): number | undefined => {
+  if (typeof v === 'string' && v.trim() === '') return undefined // Number('') is 0: a blank is missing, not zero
   const n = typeof v === 'string' ? Number(v) : v
   return typeof n === 'number' && Number.isFinite(n) ? n : undefined
 }
@@ -19,10 +20,13 @@ export function mapOffProduct(json: unknown, barcode: string): BarcodeResult {
   if (!product || (json as { status?: number }).status === 0) return { status: 'not_found', draft: { barcode } }
   const n = (product.nutriments ?? {}) as Record<string, unknown>
   const kj = num(n['energy-kj_100g'])
-  const kcal = num(n['energy-kcal_100g']) ?? (kj === undefined ? undefined : Math.round(kj / 4.184))
+  let kcal = num(n['energy-kcal_100g']) ?? (kj === undefined ? undefined : Math.round(kj / 4.184))
   const protein = num(n.proteins_100g)
   const carbs = num(n.carbohydrates_100g)
   const fat = num(n.fat_100g)
+  // 0 kcal alongside real macros is a data-entry gap, not a zero-calorie food: ask the user instead.
+  const macroKcal = 4 * (protein ?? 0) + 4 * (carbs ?? 0) + 9 * (fat ?? 0)
+  if (kcal === 0 && macroKcal > 20) kcal = undefined
   const name = typeof product.product_name === 'string' ? product.product_name.trim() : ''
   const brand = typeof product.brands === 'string' && product.brands ? product.brands.split(',')[0].trim() : null
   const servingG = num(product.serving_quantity) ?? null
@@ -49,6 +53,8 @@ export function mapOffProduct(json: unknown, barcode: string): BarcodeResult {
   return { status: 'incomplete', draft }
 }
 
+export const LOOKUP_TIMEOUT_MS = 8000
+
 export async function lookupBarcode(db: SqlExecutor, barcode: string, fetchFn: typeof fetch = fetch): Promise<BarcodeResult> {
   const cached = await db.all<Parameters<typeof toFood>[0]>(
     `SELECT * FROM foods WHERE barcode = ? AND deleted_at IS NULL ORDER BY CASE source WHEN 'user' THEN 0 ELSE 1 END LIMIT 1`,
@@ -59,11 +65,16 @@ export async function lookupBarcode(db: SqlExecutor, barcode: string, fetchFn: t
   const url =
     `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json` +
     `?fields=product_name,brands,nutriments,serving_quantity,serving_size&app_name=Tally&app_version=0.1`
+  // A weak signal or captive portal can leave a request hanging for minutes; give up and let the user type it in.
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), LOOKUP_TIMEOUT_MS)
   let res: Response
   try {
-    res = await fetchFn(url)
+    res = await fetchFn(url, { signal: controller.signal })
   } catch {
     return { status: 'offline', draft: { barcode } }
+  } finally {
+    clearTimeout(timer)
   }
   if (res.status === 404) return { status: 'not_found', draft: { barcode } }
   if (!res.ok) return { status: 'offline', draft: { barcode } }
