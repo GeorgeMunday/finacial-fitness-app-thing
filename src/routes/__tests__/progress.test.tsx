@@ -36,6 +36,21 @@ describe('progress section', () => {
     expect(await screen.findByText('Log a few weeks of spending to see your trend')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Add expense' })).toBeInTheDocument()
     expect(screen.queryByRole('img')).toBeNull()
+    expect(screen.queryByRole('radio', { name: '3 months' })).toBeNull()
+  })
+  it('averages per week start from the first week with activity', async () => {
+    const db = await freshDb({ onboarded: true, optionalPillars: ['train'] })
+    const squat = await customExercise(db, 'Squat')
+    for (let i = 0; i < 2; i++) {
+      const w = await startWorkout(db)
+      await logSet(db, { workoutId: w, exerciseId: squat, reps: 5, weightKg: 100 })
+      await finishWorkout(db, w)
+    }
+    const user = userEvent.setup()
+    renderApp(<ProgressSection />, db)
+    await user.click(await screen.findByRole('radio', { name: 'Training' }))
+    const stat = (await screen.findByText('Workouts per week', { selector: 'dt' })).parentElement!
+    expect(within(stat).getByText('2.0')).toBeInTheDocument()
   })
   it('shows the data as a table, with month names, and follows the range', async () => {
     const user = userEvent.setup()

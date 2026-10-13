@@ -23,7 +23,7 @@ type Props = {
 
 const W = 343
 const H = 196
-const M = { top: 10, right: 6, bottom: 26, left: 44 }
+const M = { top: 10, right: 6, bottom: 20, left: 44 }
 const PW = W - M.left - M.right
 const PH = H - M.top - M.bottom
 
@@ -53,7 +53,10 @@ export function BarChart({ labels, series, line, xAxisLabel, yAxisLabel, formatT
   const k = series.length
   const barW = Math.max(2, Math.min(18, (gw - 4) / k - 2))
   const groupW = k * barW + (k - 1) * 2
-  const every = n <= 13 ? 1 : Math.ceil(n / 7)
+  // Thin out x labels so they never collide: assume ~6 px per character plus a gap.
+  const longest = Math.max(...labels.map((l) => l.length))
+  const fits = Math.max(2, Math.floor(PW / (longest * 6 + 10)))
+  const every = Math.ceil(n / fits)
   const showLabel = (i: number) => i === n - 1 || (n - 1 - i) % every === 0
   const ticks = [0, max / 2, max]
   const legend = [...series.map((s) => ({ label: s.label, color: s.color, dashed: false })), ...(line ? [{ label: line.label, color: 'var(--slate)', dashed: true }] : [])]
@@ -92,6 +95,8 @@ export function BarChart({ labels, series, line, xAxisLabel, yAxisLabel, formatT
           </table>
         </div>
       ) : (
+        <div>
+        <p className="text-xs text-slate" aria-hidden="true">{yAxisLabel}</p>
         <svg role="img" aria-label={summary} viewBox={`0 0 ${W} ${H}`} className="tabular h-auto w-full overflow-visible" style={{ fontVariantNumeric: 'tabular-nums' }}>
           {/* recessive grid and y ticks */}
           {ticks.map((t) => (
@@ -100,7 +105,6 @@ export function BarChart({ labels, series, line, xAxisLabel, yAxisLabel, formatT
               <text x={M.left - 6} y={y(t)} dy="0.32em" textAnchor="end" fontSize="10" fill="var(--slate)">{formatTick(t)}</text>
             </g>
           ))}
-          <text x={0} y={M.top - 2} fontSize="10" fill="var(--slate)" dy="-0.2em">{yAxisLabel}</text>
           {/* selected group band */}
           <rect x={M.left + sel * gw} y={M.top} width={gw} height={PH} fill="var(--fog)" opacity="0.45" rx="4" />
           {labels.map((label, i) => {
@@ -130,7 +134,6 @@ export function BarChart({ labels, series, line, xAxisLabel, yAxisLabel, formatT
               ))}
             </>
           ) : null}
-          <text x={M.left + PW / 2} y={H - 1} textAnchor="middle" fontSize="10" fill="var(--slate)">{xAxisLabel}</text>
           {/* hit targets wider than the marks: tap or hover a group to read its values */}
           {labels.map((label, i) => (
             <rect
@@ -139,6 +142,8 @@ export function BarChart({ labels, series, line, xAxisLabel, yAxisLabel, formatT
             />
           ))}
         </svg>
+        <p className="text-center text-xs text-slate" aria-hidden="true">{xAxisLabel}</p>
+        </div>
       )}
       <button type="button" className="min-h-11 self-start text-pond underline-offset-4 hover:underline" onClick={() => setAsTable((t) => !t)}>
         {asTable ? 'Show as chart' : 'Show as table'}

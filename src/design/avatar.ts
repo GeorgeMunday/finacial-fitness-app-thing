@@ -5,7 +5,6 @@ export const AVATAR_COLOURS: AvatarColour[] = [
   { key: 'pond', label: 'Pond', light: { bg: '#0F6E6A', fg: '#FFFFFF' }, dark: { bg: '#3FB8AE', fg: '#0F1A1D' } },
   { key: 'marigold', label: 'Marigold', light: { bg: '#E9A23B', fg: '#1B2A2F' }, dark: { bg: '#F0B85A', fg: '#0F1A1D' } },
   { key: 'ink', label: 'Ink', light: { bg: '#1B2A2F', fg: '#F2F5F3' }, dark: { bg: '#E6EEEC', fg: '#0F1A1D' } },
-  { key: 'amber', label: 'Amber', light: { bg: '#7A4B00', fg: '#FFFFFF' }, dark: { bg: '#F5C77A', fg: '#0F1A1D' } },
   { key: 'fog', label: 'Fog', light: { bg: '#D5DDDA', fg: '#1B2A2F' }, dark: { bg: '#2A3A3E', fg: '#E6EEEC' } },
   { key: 'slate', label: 'Slate', light: { bg: '#5C6B70', fg: '#FFFFFF' }, dark: { bg: '#9DB0B4', fg: '#0F1A1D' } },
 ]

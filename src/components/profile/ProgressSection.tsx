@@ -20,6 +20,11 @@ const tickPounds = (p: number) => `£${Math.round(p / 100).toLocaleString('en-GB
 const longMonth = (m: string) => new Date(`${m}-15T12:00:00`).toLocaleDateString('en-GB', { month: 'long' })
 const shortDay = (d: string) => `${Number(d.slice(8, 10))} ${monthLabel(d.slice(0, 7))}`
 const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0)
+/** Periods from the first one with any activity: weeks before someone started tracking shouldn't drag averages down. */
+const fromFirst = <T,>(xs: T[], active: (x: T) => boolean) => {
+  const i = xs.findIndex(active)
+  return i < 0 ? [] : xs.slice(i)
+}
 
 function Segmented<T extends string | number>({ label, options, value, onChange }: { label: string; options: { value: T; label: string }[]; value: T; onChange: (v: T) => void }) {
   return (
@@ -55,7 +60,7 @@ function Invite({ message, action, to }: { message: string; action: string; to: 
   )
 }
 
-function MoneyProgress({ range }: { range: Range }) {
+function MoneyProgress({ range, controls }: { range: Range; controls: ReactNode }) {
   const db = useDb()
   const today = localDate()
   const { data } = useAsync(async () => ({
@@ -74,6 +79,7 @@ function MoneyProgress({ range }: { range: Range }) {
     `${longMonth(m.month)}: spent ${formatPence(m.spentPence)}, saved ${formatPence(m.savedPence)}${hasIncome ? `, income ${formatPence(m.incomePence)}` : ''}`
   return (
     <>
+      {controls}
       <BarChart
         labels={months.map((m) => monthLabel(m.month))}
         series={[
@@ -90,7 +96,7 @@ function MoneyProgress({ range }: { range: Range }) {
         }}
       />
       <dl>
-        <Stat label="Average monthly spend" value={formatPence(Math.round(avg(months.map((m) => m.spentPence))))} />
+        <Stat label="Average monthly spend" value={formatPence(Math.round(avg(fromFirst(months, (m) => m.spentPence > 0).map((m) => m.spentPence))))} />
         <Stat label="Saved this year" value={formatPence(savedThisYear)} />
         <Stat label="Savings goals on track" value={`${onTrack} of ${goals.length}`} />
       </dl>
@@ -98,7 +104,7 @@ function MoneyProgress({ range }: { range: Range }) {
   )
 }
 
-function FoodProgress({ range }: { range: Range }) {
+function FoodProgress({ range, controls }: { range: Range; controls: ReactNode }) {
   const db = useDb()
   const { settings } = useSettings()
   const today = localDate()
@@ -114,6 +120,7 @@ function FoodProgress({ range }: { range: Range }) {
     `Week of ${shortDay(w.weekStart)}: ${w.avgProteinG} g protein a day, ${w.daysLogged} of 7 days logged`
   return (
     <>
+      {controls}
       <BarChart
         labels={weeks.map((w) => shortDay(w.weekStart))}
         series={[{ key: 'protein', label: 'Protein', color: 'var(--chart-spent)', values: weeks.map((w) => w.avgProteinG) }]}
@@ -124,14 +131,14 @@ function FoodProgress({ range }: { range: Range }) {
       />
       <dl>
         <Stat label="Protein per logged day" value={`${Math.round(proteinPerDay)} g`} />
-        <Stat label="Days logged per week" value={`${avg(weeks.map((w) => w.daysLogged)).toFixed(1)} of 7`} />
+        <Stat label="Days logged per week" value={`${avg(fromFirst(weeks, (w) => w.daysLogged > 0).map((w) => w.daysLogged)).toFixed(1)} of 7`} />
         {kcalPerDay !== undefined ? <Stat label="Energy per logged day" value={`${Math.round(kcalPerDay).toLocaleString('en-GB')} kcal`} /> : null}
       </dl>
     </>
   )
 }
 
-function TrainingProgress({ range }: { range: Range }) {
+function TrainingProgress({ range, controls }: { range: Range; controls: ReactNode }) {
   const db = useDb()
   const { settings } = useSettings()
   const unit = settings.weightUnit
@@ -145,6 +152,7 @@ function TrainingProgress({ range }: { range: Range }) {
   const labels = weeks.map((w) => shortDay(w.weekStart))
   return (
     <>
+      {controls}
       <h3 className="font-semibold">Workouts per week</h3>
       <BarChart
         labels={labels}
@@ -164,7 +172,7 @@ function TrainingProgress({ range }: { range: Range }) {
         table={{ columns: ['Week starting', `Volume (${unit})`], rows: weeks.map((w, i) => [labels[i], w.volume.toLocaleString('en-GB')]) }}
       />
       <dl>
-        <Stat label="Workouts per week" value={avg(weeks.map((w) => w.workouts)).toFixed(1)} />
+        <Stat label="Workouts per week" value={avg(fromFirst(weeks, (w) => w.workouts > 0).map((w) => w.workouts)).toFixed(1)} />
         <Stat label="Total volume" value={`${weeks.reduce((a, w) => a + w.volume, 0).toLocaleString('en-GB')} ${unit}`} />
       </dl>
       {lifts.length ? (
@@ -199,18 +207,21 @@ export function ProgressSection() {
     ...(food ? [{ value: 'food' as const, label: 'Food' }] : []),
     ...(train ? [{ value: 'train' as const, label: 'Training' }] : []),
   ]
+  // The range control only appears once there's something to range over.
+  const controls = (
+    <Segmented
+      label="Range" value={range} onChange={setRange}
+      options={[{ value: 3, label: '3 months' }, { value: 6, label: '6 months' }, { value: 12, label: '12 months' }]}
+    />
+  )
   let body: ReactNode
-  if (current === 'money') body = <MoneyProgress range={range} />
-  else if (current === 'food') body = <FoodProgress range={range} />
-  else body = <TrainingProgress range={range} />
+  if (current === 'money') body = <MoneyProgress range={range} controls={controls} />
+  else if (current === 'food') body = <FoodProgress range={range} controls={controls} />
+  else body = <TrainingProgress range={range} controls={controls} />
   return (
     <section aria-labelledby="progress" className="flex flex-col gap-4">
       <h2 id="progress" className="font-display text-lg font-semibold">Your progress</h2>
       {tabs.length > 1 ? <Segmented label="Progress for" options={tabs} value={current} onChange={setTab} /> : null}
-      <Segmented
-        label="Range" value={range} onChange={setRange}
-        options={[{ value: 3, label: '3 months' }, { value: 6, label: '6 months' }, { value: 12, label: '12 months' }]}
-      />
       {body}
     </section>
   )
