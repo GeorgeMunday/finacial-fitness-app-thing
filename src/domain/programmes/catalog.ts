@@ -1,4 +1,5 @@
 import type { SqlExecutor } from '../../db/executor'
+import { createRoutine } from '../training'
 import type { Programme, ProgrammeProgress, Tier } from './types'
 
 type ProgrammeRow = {
@@ -75,4 +76,35 @@ export async function activeProgramme(db: SqlExecutor): Promise<{ programme: Pro
   if (!pr) return null
   const [p] = await db.all<ProgrammeRow>('SELECT * FROM programmes WHERE id = ?', [pr.programme_id])
   return { programme: toProgramme(p), progress: toProgress(pr) }
+}
+
+/**
+ * Turns each day of a programme into one of the user's own routines, ready to edit. Sets are the programme's and
+ * reps are the bottom of each range; 5/3/1 main lifts become 3×5 (the weekly percentages don't fit a plain routine).
+ * The programme and its progress are untouched, and copying again makes another set.
+ */
+export async function copyProgrammeToRoutines(db: SqlExecutor, programmeId: string): Promise<string[]> {
+  const [p] = await db.all<{ name: string }>('SELECT name FROM programmes WHERE id = ?', [programmeId])
+  if (!p) throw new Error('Programme not found')
+  const days = await db.all<{ id: string; name: string }>('SELECT id, name FROM programme_days WHERE programme_id = ? AND deleted_at IS NULL ORDER BY position', [programmeId])
+  const ids: string[] = []
+  for (const d of days) {
+    const rows = await db.all<{ exercise_id: string; tier: Tier; sets: number; rep_min: number }>(
+      `SELECT exercise_id, tier, sets, rep_min FROM programme_day_exercises
+       WHERE day_id = ? AND deleted_at IS NULL AND tier <> 'fsl' AND (week IS NULL OR week = 1) ORDER BY position`,
+      [d.id],
+    )
+    const items: { exerciseId: string; targetSets: number; targetReps: number }[] = []
+    for (const r of rows) {
+      if (r.tier === 'm531') {
+        const prev = items[items.length - 1]
+        if (prev?.exerciseId === r.exercise_id && prev.targetSets < 3) prev.targetSets++
+        else items.push({ exerciseId: r.exercise_id, targetSets: 1, targetReps: 5 })
+      } else {
+        items.push({ exerciseId: r.exercise_id, targetSets: r.sets, targetReps: r.rep_min })
+      }
+    }
+    ids.push(await createRoutine(db, `${p.name} – ${d.name}`, items))
+  }
+  return ids
 }

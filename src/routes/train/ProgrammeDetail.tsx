@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/Button'
 import { Chip } from '../../components/ui/Chip'
 import { useToast } from '../../components/ui/Toast'
 import { localDate } from '../../domain/dates'
-import { getProgramme, type ProgrammeSummary } from '../../domain/programmes/catalog'
+import { copyProgrammeToRoutines, getProgramme, type ProgrammeSummary } from '../../domain/programmes/catalog'
 import { roundKg } from '../../domain/programmes/rounding'
 import { defaultStartKg, defaultTrainingMaxKg, estimateTrainingMax, programmeLifts, startProgramme, type StartLift } from '../../domain/programmes/start'
 import { fromKg, parseWeight, toKg } from '../../domain/units'
@@ -118,6 +118,16 @@ export default function ProgrammeDetail() {
           )
         })}
       </section>
+      <Button
+        variant="secondary"
+        onClick={async () => {
+          const [first] = await copyProgrammeToRoutines(db, p.id)
+          toast.show('Copied to your routines')
+          navigate(`/train/routine/${first}`)
+        }}
+      >
+        Copy and edit
+      </Button>
       <Button
         disabled={!canStart}
         onClick={async () => {

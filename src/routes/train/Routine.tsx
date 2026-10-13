@@ -1,19 +1,30 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { useToast } from '../../components/ui/Toast'
 import { useAsync } from '../../hooks/useAsync'
-import { createRoutine, customExercise, searchExercises } from '../../domain/training'
+import { createRoutine, customExercise, deleteRoutine, getRoutine, restoreRoutine, searchExercises, updateRoutine } from '../../domain/training'
 import { useDb } from '../../state/DbProvider'
 
 type Item = { exerciseId: string; name: string; targetSets: number; targetReps: number }
 
 export default function Routine() {
+  const { id } = useParams()
+  const editing = id !== undefined && id !== 'new'
+  const db = useDb()
+  const { data: existing } = useAsync(() => (editing ? getRoutine(db, id) : Promise.resolve(undefined)), [db, id])
+  if (editing && existing === undefined) return null
+  if (editing && existing === null) return <p>That routine couldn't be found.</p>
+  return <RoutineForm key={id} id={editing ? id : undefined} initial={existing ?? undefined} />
+}
+
+function RoutineForm({ id, initial }: { id?: string; initial?: { name: string; items: Item[] } }) {
+  const editing = id !== undefined
   const db = useDb()
   const navigate = useNavigate()
   const toast = useToast()
-  const [name, setName] = useState('')
-  const [items, setItems] = useState<Item[]>([])
+  const [name, setName] = useState(initial?.name ?? '')
+  const [items, setItems] = useState<Item[]>(initial?.items.map((i) => ({ exerciseId: i.exerciseId, name: i.name, targetSets: i.targetSets, targetReps: i.targetReps })) ?? [])
   const [q, setQ] = useState('')
   const { data: matches } = useAsync(() => (q.trim() ? searchExercises(db, q.trim(), 8) : Promise.resolve([])), [db, q])
   const add = (exerciseId: string, n: string) => {
@@ -24,7 +35,7 @@ export default function Routine() {
     setItems((cur) => cur.map((it, j) => (j === i ? { ...it, [k]: Math.max(1, Math.min(50, Number(v) || 1)) } : it)))
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="font-display text-xl font-semibold">New routine</h1>
+      <h1 className="font-display text-xl font-semibold">{editing ? 'Edit routine' : 'New routine'}</h1>
       <label className="flex flex-col gap-1">Routine name<input className="min-h-11 rounded-xl border border-fog bg-surface px-3" value={name} onChange={(e) => setName(e.target.value)} /></label>
       {items.map((it, i) => (
         <div key={i} className="flex items-end gap-2 border-b border-fog py-2">
@@ -40,13 +51,26 @@ export default function Routine() {
       <Button
         disabled={!name.trim() || items.length === 0}
         onClick={async () => {
-          await createRoutine(db, name, items)
+          if (editing) await updateRoutine(db, id, name, items)
+          else await createRoutine(db, name, items)
           toast.show('Routine saved')
           navigate('/train', { replace: true })
         }}
       >
         Save routine
       </Button>
+      {editing ? (
+        <Button
+          variant="quiet" className="self-start"
+          onClick={async () => {
+            await deleteRoutine(db, id)
+            toast.show('Routine deleted', { undo: () => restoreRoutine(db, id) })
+            navigate('/train', { replace: true })
+          }}
+        >
+          Delete routine
+        </Button>
+      ) : null}
     </div>
   )
 }

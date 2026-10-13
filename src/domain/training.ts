@@ -31,19 +31,53 @@ export async function getExercise(db: SqlExecutor, id: string): Promise<Exercise
 }
 
 export async function createRoutine(db: SqlExecutor, name: string, items: { exerciseId: string; targetSets: number; targetReps: number }[]): Promise<string> {
+  if (!name.trim()) throw new Error('A routine needs a name')
+  if (items.length === 0) throw new Error('A routine needs at least one exercise')
   const id = newId()
   const now = nowIso()
   await db.transaction(async (tx) => {
     await tx.run('INSERT INTO routines (id, created_at, updated_at, name) VALUES (?,?,?,?)', [id, now, now, name.trim()])
-    for (const [i, it] of items.entries()) {
-      await tx.run(
-        `INSERT INTO routine_exercises (id, created_at, updated_at, routine_id, exercise_id, position, target_sets, target_reps)
-         VALUES (?,?,?,?,?,?,?,?)`,
-        [newId(), now, now, id, it.exerciseId, i, it.targetSets, it.targetReps],
-      )
-    }
+    await insertItems(tx, id, items, now)
   })
   return id
+}
+
+type RoutineItem = { exerciseId: string; targetSets: number; targetReps: number }
+
+async function insertItems(tx: SqlExecutor, routineId: string, items: RoutineItem[], now: string) {
+  for (const [i, it] of items.entries()) {
+    await tx.run(
+      `INSERT INTO routine_exercises (id, created_at, updated_at, routine_id, exercise_id, position, target_sets, target_reps)
+       VALUES (?,?,?,?,?,?,?,?)`,
+      [newId(), now, now, routineId, it.exerciseId, i, it.targetSets, it.targetReps],
+    )
+  }
+}
+
+export async function getRoutine(db: SqlExecutor, id: string) {
+  const [r] = await db.all<{ id: string; name: string }>('SELECT id, name FROM routines WHERE id = ? AND deleted_at IS NULL', [id])
+  return r ? { id: r.id, name: r.name, items: await routineExercises(db, id) } : null
+}
+
+/** Renames a routine and replaces its exercises. The routine keeps its id, so past workouts still point at it. */
+export async function updateRoutine(db: SqlExecutor, id: string, name: string, items: RoutineItem[]): Promise<void> {
+  if (!name.trim()) throw new Error('A routine needs a name')
+  if (items.length === 0) throw new Error('A routine needs at least one exercise')
+  const now = nowIso()
+  await db.transaction(async (tx) => {
+    await tx.run('UPDATE routines SET name = ?, updated_at = ? WHERE id = ?', [name.trim(), now, id])
+    await tx.run('UPDATE routine_exercises SET deleted_at = ?, updated_at = ? WHERE routine_id = ? AND deleted_at IS NULL', [now, now, id])
+    await insertItems(tx, id, items, now)
+  })
+}
+
+export async function deleteRoutine(db: SqlExecutor, id: string): Promise<void> {
+  const now = nowIso()
+  await db.run('UPDATE routines SET deleted_at = ?, updated_at = ? WHERE id = ?', [now, now, id])
+}
+
+export async function restoreRoutine(db: SqlExecutor, id: string): Promise<void> {
+  await db.run('UPDATE routines SET deleted_at = NULL, updated_at = ? WHERE id = ?', [nowIso(), id])
 }
 
 export async function listRoutines(db: SqlExecutor): Promise<{ id: string; name: string }[]> {

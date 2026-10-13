@@ -46,7 +46,7 @@ function TrainHome() {
       {data.routines.length === 0 ? <EmptyState message="No routines yet" action={{ label: 'New routine', onClick: () => navigate('/train/routine/new') }} /> : null}
       {data.routines.map((r) => (
         <div key={r.id} className="flex min-h-14 items-center justify-between border-b border-fog">
-          <span>{r.name}</span>
+          <Link to={`/train/routine/${r.id}`} className="flex min-h-11 flex-1 items-center">{r.name}</Link>
           <Button variant="secondary" aria-label={`Start ${r.name}`} onClick={() => start(r.id)}>Start</Button>
         </div>
       ))}
@@ -64,7 +64,7 @@ export default function Train() {
       <Route index element={<TrainHome />} />
       <Route path="programmes" element={<Programmes />} />
       <Route path="programmes/:key" element={<ProgrammeDetail />} />
-      <Route path="routine/new" element={<Routine />} />
+      <Route path="routine/:id" element={<Routine />} />
       <Route path="workout/:id" element={<Workout />} />
       <Route path="exercise/:id" element={<Exercise />} />
     </Routes>
