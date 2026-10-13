@@ -1,7 +1,7 @@
 import type { SqlExecutor } from '../db/executor'
 import { newId, nowIso } from '../db/ids'
 import type { CategoryKind, Transaction, TxKind } from '../db/types'
-import { addDays, addMonths, localDate, monthRange, weekStart } from './dates'
+import { addDays, addMonthsAnchored, localDate, monthRange, weekStart } from './dates'
 
 const MAX_PENCE = 100_000_000 // £1,000,000
 
@@ -155,20 +155,24 @@ export type Cadence = 'weekly' | 'monthly' | 'yearly'
 
 export async function addRecurringRule(
   db: SqlExecutor,
-  r: { kind: TxKind; name: string; amountPence: number; categoryId: string; cadence: Cadence; nextDate: string },
+  r: { kind: TxKind; name: string; amountPence: number; categoryId: string; cadence: Cadence; nextDate: string; anchorDay?: number },
 ): Promise<string> {
+  // Monthly and yearly rules remember their day so a 31st clamps to the 28th in February and returns to the 31st after.
+  const anchorDay = r.anchorDay ?? Number(r.nextDate.slice(8, 10))
   const id = newId()
   const now = nowIso()
   await db.run(
-    `INSERT INTO recurring_rules (id, created_at, updated_at, kind, name, amount_pence, category_id, cadence, next_date)
-     VALUES (?,?,?,?,?,?,?,?,?)`,
-    [id, now, now, r.kind, r.name, r.amountPence, r.categoryId, r.cadence, r.nextDate],
+    `INSERT INTO recurring_rules (id, created_at, updated_at, kind, name, amount_pence, category_id, cadence, next_date, anchor_day)
+     VALUES (?,?,?,?,?,?,?,?,?,?)`,
+    [id, now, now, r.kind, r.name, r.amountPence, r.categoryId, r.cadence, r.nextDate, anchorDay],
   )
   return id
 }
 
-const advance = (date: string, c: Cadence) =>
-  c === 'weekly' ? addDays(date, 7) : c === 'monthly' ? addMonths(date, 1) : addMonths(date, 12)
+const advance = (date: string, c: Cadence, anchorDay: number | null) => {
+  const day = anchorDay ?? Number(date.slice(8, 10))
+  return c === 'weekly' ? addDays(date, 7) : addMonthsAnchored(date, c === 'monthly' ? 1 : 12, day)
+}
 
 /** Posts a transaction for every occurrence due on or before today. Returns how many were posted. */
 export async function postDueRecurring(db: SqlExecutor, today: string): Promise<number> {
@@ -177,6 +181,7 @@ export async function postDueRecurring(db: SqlExecutor, today: string): Promise<
     // Read inside the transaction so a concurrent run (app start + tab refocus) sees the advanced dates.
     const rules = await tx.all<{
       id: string; kind: TxKind; name: string; amount_pence: number; category_id: string; cadence: Cadence; next_date: string
+      anchor_day: number | null
     }>('SELECT * FROM recurring_rules WHERE deleted_at IS NULL AND next_date <= ?', [today])
     for (const r of rules) {
       let next = r.next_date
@@ -184,7 +189,7 @@ export async function postDueRecurring(db: SqlExecutor, today: string): Promise<
         await addTransaction(tx, {
           kind: r.kind, amountPence: r.amount_pence, categoryId: r.category_id, logDate: next, merchant: r.name, source: 'recurring',
         })
-        next = advance(next, r.cadence)
+        next = advance(next, r.cadence, r.anchor_day)
         count += 1
       }
       await tx.run('UPDATE recurring_rules SET next_date = ?, updated_at = ? WHERE id = ?', [next, nowIso(), r.id])

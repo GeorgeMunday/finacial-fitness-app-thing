@@ -11,6 +11,7 @@ import { DbContext } from '../../state/DbProvider'
 import { getSettings } from '../../state/settings'
 import { SettingsProvider } from '../../state/SettingsProvider'
 import OnboardingFlow from '../onboarding/OnboardingFlow'
+import { localDate, nextMonthlyOccurrence } from '../../domain/dates'
 
 let db: SqlExecutor
 beforeEach(async () => {
@@ -48,6 +49,8 @@ describe('onboarding', () => {
     expect(screen.getByLabelText('Money')).toBeDisabled()
     await user.click(screen.getByRole('button', { name: 'Continue' }))
     await user.type(screen.getByLabelText('Monthly income'), '2000')
+    expect(screen.getByLabelText('Day of the month you\'re paid')).toHaveValue('1')
+    await user.selectOptions(screen.getByLabelText('Day of the month you\'re paid'), '15')
     await user.click(screen.getByRole('button', { name: 'Save income' }))
     await user.type(screen.getByLabelText('Goal name'), 'Holiday')
     await user.type(screen.getByLabelText('Target'), '1200')
@@ -58,7 +61,8 @@ describe('onboarding', () => {
     await waitFor(async () => expect((await getSettings(db)).onboarded).toBe(true))
     const s = await getSettings(db)
     expect(s.monthlyIncomePence).toBe(200000)
-    expect(await db.all('SELECT * FROM recurring_rules WHERE kind = ?', ['income'])).toHaveLength(1)
+    const rules = await db.all<{ next_date: string; anchor_day: number; cadence: string }>('SELECT * FROM recurring_rules WHERE kind = ?', ['income'])
+    expect(rules).toEqual([expect.objectContaining({ next_date: nextMonthlyOccurrence(localDate(), 15), anchor_day: 15, cadence: 'monthly' })])
     expect(await db.all('SELECT * FROM savings_goals')).toHaveLength(1)
   })
 

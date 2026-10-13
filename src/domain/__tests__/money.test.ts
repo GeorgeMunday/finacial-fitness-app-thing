@@ -90,6 +90,18 @@ describe('recurring', () => {
     const [r] = await db.all<{ next_date: string }>('SELECT next_date FROM recurring_rules')
     expect(r.next_date).toBe('2026-11-12')
   })
+  it('monthly rules keep their pay day through short months', async () => {
+    await addRecurringRule(db, { kind: 'income', name: 'Pay', amountPence: 1000, categoryId: 'cat-income', cadence: 'monthly', nextDate: '2026-01-31' })
+    await postDueRecurring(db, '2026-04-30')
+    const dates = (await listTransactions(db, '2026-01-01', '2026-12-31')).map((t) => t.logDate).sort()
+    expect(dates).toEqual(['2026-01-31', '2026-02-28', '2026-03-31', '2026-04-30'])
+  })
+  it('an explicit anchor day is used even when the first date is clamped', async () => {
+    await addRecurringRule(db, { kind: 'income', name: 'Pay', amountPence: 1000, categoryId: 'cat-income', cadence: 'monthly', nextDate: '2026-02-28', anchorDay: 31 })
+    await postDueRecurring(db, '2026-03-31')
+    const dates = (await listTransactions(db, '2026-01-01', '2026-12-31')).map((t) => t.logDate).sort()
+    expect(dates).toEqual(['2026-02-28', '2026-03-31'])
+  })
   it('concurrent runs never post the same occurrence twice', async () => {
     await addRecurringRule(db, { kind: 'expense', name: 'Rent', amountPence: 50000, categoryId: 'cat-bills', cadence: 'monthly', nextDate: '2026-08-12' })
     const counts = await Promise.all([postDueRecurring(db, '2026-10-12'), postDueRecurring(db, '2026-10-12')])

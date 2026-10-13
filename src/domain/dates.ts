@@ -57,3 +57,16 @@ export function yearRange(logDate: string): { from: string; to: string } {
   const { y } = parse(logDate)
   return { from: fmt(y, 1, 1), to: fmt(y, 12, 31) }
 }
+
+/** Adds calendar months and puts the day back to `anchorDay`, clamped to the target month's length. */
+export function addMonthsAnchored(logDate: string, n: number, anchorDay: number): string {
+  const moved = addMonths(`${logDate.slice(0, 8)}01`, n)
+  const { y, m } = parse(moved)
+  return fmt(y, m, Math.min(anchorDay, daysInMonth(y, m)))
+}
+
+/** The next date on or after `today` that falls on `day` of the month (clamped to short months). */
+export function nextMonthlyOccurrence(today: string, day: number): string {
+  const thisMonth = addMonthsAnchored(today, 0, day)
+  return thisMonth >= today ? thisMonth : addMonthsAnchored(today, 1, day)
+}

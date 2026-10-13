@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { Chip } from '../../components/ui/Chip'
-import { addDays, localDate, monthRange } from '../../domain/dates'
+import { localDate, nextMonthlyOccurrence } from '../../domain/dates'
 import { addRecurringRule, parsePence } from '../../domain/money'
 import { createGoal } from '../../domain/savings'
 import type { GoalPeriod } from '../../db/types'
@@ -32,6 +32,7 @@ export default function OnboardingFlow() {
   const [pillars, setPillars] = useState<('food' | 'train')[]>([])
   const [income, setIncome] = useState('')
   const [incomeTouched, setIncomeTouched] = useState(false)
+  const [payDay, setPayDay] = useState(1)
   const [goalName, setGoalName] = useState('')
   const [goalPeriod, setGoalPeriod] = useState<GoalPeriod>('year')
   const [goalTarget, setGoalTarget] = useState('')
@@ -93,6 +94,15 @@ export default function OnboardingFlow() {
             onChange={(e) => setIncome(e.target.value)} onBlur={() => setIncomeTouched(true)}
           />
         </label>
+        <label className="flex flex-col gap-1">
+          Day of the month you're paid
+          <select className={inputCls} value={payDay} onChange={(e) => setPayDay(Number(e.target.value))}>
+            {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+        </label>
+        <p className="-mt-2 text-sm text-slate">If a month is shorter, Tally uses its last day.</p>
         {incomeTouched && income !== '' && incomePence === null ? (
           <p className="text-amber-ink">That amount isn't valid. Use numbers like 1850.00.</p>
         ) : null}
@@ -103,7 +113,7 @@ export default function OnboardingFlow() {
             await update({ monthlyIncomePence: pence })
             await addRecurringRule(db, {
               kind: 'income', name: 'Monthly income', amountPence: pence, categoryId: 'cat-income', cadence: 'monthly',
-              nextDate: addDays(monthRange(localDate()).to, 1),
+              nextDate: nextMonthlyOccurrence(localDate(), payDay), anchorDay: payDay,
             })
             setStep('goal')
           }}

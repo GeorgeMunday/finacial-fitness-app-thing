@@ -21,6 +21,18 @@ export async function exportAll(db: SqlExecutor): Promise<Backup> {
   return { app: 'tally', schemaVersion: v.user_version, exportedAt: new Date().toISOString(), tables }
 }
 
+type Tables = Record<string, Record<string, unknown>[]>
+
+/** Row changes that mirror each migration, keyed by the version a backup is upgraded *from*. */
+const UPGRADES: Record<number, (t: Tables) => void> = {
+  1: (t) => {
+    // Matches migration 2: every pre-v2 'cofid' row was the hand-written starter list.
+    for (const f of t.foods ?? []) if (f.source === 'cofid') f.source = 'starter'
+    for (const r of t.recurring_rules ?? [])
+      if (r.anchor_day === undefined && typeof r.next_date === 'string') r.anchor_day = Number(r.next_date.slice(8, 10))
+  },
+}
+
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 
 /** Replaces all data with a backup, all or nothing. Invalid input is rejected before anything is touched. */
@@ -31,7 +43,9 @@ export async function importAll(db: SqlExecutor, backup: unknown): Promise<{ tab
   if (v > MIGRATIONS.length) throw new Error('That backup comes from a newer version of Tally. Update Tally, then try again.')
   if (typeof backup.exportedAt !== 'string' || !isObj(backup.tables)) throw new Error('That backup is incomplete.')
   const known = await tableNames(db)
-  const tables = backup.tables
+  const tables = structuredClone(backup.tables) as Tables
+  for (const t of Object.values(tables)) if (!Array.isArray(t)) throw new Error('That backup is incomplete.')
+  for (let from = v; from < MIGRATIONS.length; from++) UPGRADES[from]?.(tables)
   for (const name of known) if (!Array.isArray(tables[name])) throw new Error(`That backup is incomplete (no ${name}).`)
   for (const name of Object.keys(tables)) if (!known.includes(name)) throw new Error(`That backup has an unknown table: ${name}.`)
   const plan: { table: string; cols: string[]; rows: Record<string, unknown>[] }[] = []

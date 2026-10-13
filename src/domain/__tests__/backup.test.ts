@@ -59,6 +59,19 @@ describe('backup', () => {
     const after = await exportAll(db)
     expect(after.tables).toEqual(before.tables)
   })
+  it('upgrades a version 1 backup: starter foods relabelled, anchor days filled', async () => {
+    const db = await freshDb()
+    const b = await exportAll(db)
+    const v1 = JSON.parse(JSON.stringify(b))
+    v1.schemaVersion = 1
+    v1.tables.foods = [{ id: 'f1', created_at: 'x', updated_at: 'x', deleted_at: null, source: 'cofid', barcode: null, name: 'Banana', brand: null,
+      kcal_100g: 95, protein_100g: 1, carbs_100g: 23, fat_100g: 0, serving_g: null, serving_label: null }]
+    v1.tables.recurring_rules = [{ id: 'r1', created_at: 'x', updated_at: 'x', deleted_at: null, kind: 'income', name: 'Pay', amount_pence: 100,
+      category_id: 'cat-income', cadence: 'monthly', next_date: '2026-11-30' }]
+    await importAll(db, v1)
+    expect(await db.all('SELECT source FROM foods')).toEqual([{ source: 'starter' }])
+    expect(await db.all('SELECT anchor_day FROM recurring_rules')).toEqual([{ anchor_day: 30 }])
+  })
   it('toCsv quotes awkward cells', () => {
     expect(toCsv([{ a: 'x,y', b: 'say "hi"', c: 'two\nlines', d: null, e: 5 }])).toBe('a,b,c,d,e\r\n"x,y","say ""hi""","two\nlines",,5\r\n')
     expect(toCsv([])).toBe('')
