@@ -2,6 +2,7 @@ import { Button } from '../components/ui/Button'
 import { Chip } from '../components/ui/Chip'
 import { Sheet } from '../components/ui/Sheet'
 import { DataSection } from '../components/DataSection'
+import { ProfileHeader } from '../components/profile/ProfileHeader'
 import { IncomeSection } from '../components/IncomeSection'
 import { useStorageStatus } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
@@ -42,7 +43,7 @@ export default function More() {
   }
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-display text-xl font-semibold">More</h1>
+      <ProfileHeader />
       <section aria-labelledby="pillars" className="flex flex-col gap-2">
         <h2 id="pillars" className="font-semibold">Optional sections</h2>
         <div className="flex gap-2">
