@@ -6,6 +6,18 @@ import { createUserFood, logFood } from '../../domain/food'
 import { getSettings } from '../../state/settings'
 import More from '../More'
 
+describe('More consent', () => {
+  it('turning Food on asks for consent naming only food logs and body weight', async () => {
+    const db = await freshDb({ onboarded: true })
+    const user = userEvent.setup()
+    renderApp(<More />, db, '/more')
+    await user.click(await screen.findByRole('button', { name: 'Food' }))
+    const dialog = screen.getByRole('dialog', { name: 'Your health data' })
+    expect(dialog).toHaveTextContent(/food logs and body weight/)
+    expect(dialog).not.toHaveTextContent(/workout/i)
+  })
+})
+
 describe('More data section', () => {
   it('needs a typed confirmation before deleting health data', async () => {
     const db = await freshDb({ onboarded: true, optionalPillars: ['food'], healthConsent: true })

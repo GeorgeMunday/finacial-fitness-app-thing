@@ -104,7 +104,7 @@ export default function More() {
       </section>
       <Sheet open={consentOpen} onClose={() => setConsentOpen(false)} title="Your health data">
         <div className="flex flex-col gap-3">
-          <p>To use Food, Tally stores your food logs, body weight and workouts on this device. Nothing is sent anywhere.</p>
+          <p>To use Food, Tally stores your food logs and body weight on this device. Nothing is sent anywhere.</p>
           <label className="flex min-h-11 items-center gap-3">
             <input type="checkbox" className="size-6" checked={consentTicked} onChange={(e) => setConsentTicked(e.target.checked)} />
             I agree Tally can store this health data on my device

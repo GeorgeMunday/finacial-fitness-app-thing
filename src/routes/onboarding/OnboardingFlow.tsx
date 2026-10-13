@@ -164,7 +164,7 @@ export default function OnboardingFlow() {
     return (
       <Screen title="Your health data">
         <p>
-          To use Food, Tally stores your food logs, body weight and workouts on this device. Nothing is sent anywhere.
+          To use Food, Tally stores your food logs and body weight on this device. Nothing is sent anywhere.
           You can delete this data from More at any time.
         </p>
         <label className="flex min-h-11 items-center gap-3">
