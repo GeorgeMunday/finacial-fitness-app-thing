@@ -40,6 +40,11 @@
   "equipment": "barbell"
  },
  {
+  "name": "Barbell Hip Thrust",
+  "primary_muscle": "glutes",
+  "equipment": "barbell"
+ },
+ {
   "name": "Barbell Lunge",
   "primary_muscle": "quadriceps",
   "equipment": "barbell"
@@ -103,6 +108,11 @@
   "name": "Bodyweight Squat",
   "primary_muscle": "quadriceps",
   "equipment": "body only"
+ },
+ {
+  "name": "Bodyweight Walking Lunge",
+  "primary_muscle": "quadriceps",
+  "equipment": "other"
  },
  {
   "name": "Bottoms Up",
@@ -210,6 +220,11 @@
   "equipment": "dumbbell"
  },
  {
+  "name": "Crunches",
+  "primary_muscle": "abdominals",
+  "equipment": "body only"
+ },
+ {
   "name": "Cuban Press",
   "primary_muscle": "shoulders",
   "equipment": "dumbbell"
@@ -290,6 +305,11 @@
   "equipment": "dumbbell"
  },
  {
+  "name": "Dumbbell Shoulder Press",
+  "primary_muscle": "shoulders",
+  "equipment": "dumbbell"
+ },
+ {
   "name": "Dumbbell Shrug",
   "primary_muscle": "traps",
   "equipment": "dumbbell"
@@ -340,6 +360,11 @@
   "equipment": "body only"
  },
  {
+  "name": "Goblet Squat",
+  "primary_muscle": "quadriceps",
+  "equipment": "kettlebells"
+ },
+ {
   "name": "Hack Squat",
   "primary_muscle": "quadriceps",
   "equipment": "machine"
@@ -348,6 +373,11 @@
   "name": "Hammer Curls",
   "primary_muscle": "biceps",
   "equipment": "dumbbell"
+ },
+ {
+  "name": "Hanging Leg Raise",
+  "primary_muscle": "abdominals",
+  "equipment": "body only"
  },
  {
   "name": "High Cable Curls",
@@ -378,6 +408,11 @@
   "name": "Incline Push-Up Close-Grip",
   "primary_muscle": "triceps",
   "equipment": "body only"
+ },
+ {
+  "name": "Inverted Row",
+  "primary_muscle": "middle back",
+  "equipment": "other"
  },
  {
   "name": "Iron Cross",

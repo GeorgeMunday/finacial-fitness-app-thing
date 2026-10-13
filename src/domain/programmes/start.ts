@@ -12,7 +12,7 @@ const BY_NAME: [RegExp, number][] = [
   [/lateral raise/i, 3], [/lat pulldown/i, 25], [/cable row/i, 25], [/face pull/i, 10], [/pushdown/i, 15],
   [/leg press/i, 40], [/standing calf/i, 30],
 ]
-const BY_EQUIPMENT: Record<string, number> = { barbell: 20, 'e-z curl bar': 10, dumbbell: 6, cable: 15, machine: 20, 'body only': 0 }
+const BY_EQUIPMENT: Record<string, number> = { barbell: 20, 'e-z curl bar': 10, dumbbell: 6, kettlebells: 8, cable: 15, machine: 20, 'body only': 0 }
 
 /** A light, empty-bar starting weight for a lift the user doesn't know their weight for. */
 export function defaultStartKg(name: string, equipment: string | null): number {

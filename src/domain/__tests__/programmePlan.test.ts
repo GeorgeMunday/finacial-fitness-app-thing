@@ -58,6 +58,7 @@ describe('defaults', () => {
     expect(defaultStartKg('Leg Press', 'machine')).toBe(40)
     expect(defaultStartKg('Standing Calf Raises', 'machine')).toBe(30)
     expect(defaultStartKg('EZ-Bar Skullcrusher', 'e-z curl bar')).toBe(10)
+    expect(defaultStartKg('Goblet Squat', 'kettlebells')).toBe(8)
   })
   it('training maxes default to 40 kg, 30 kg for the overhead press', () => {
     expect(defaultTrainingMaxKg('Barbell Squat')).toBe(40)
@@ -66,9 +67,9 @@ describe('defaults', () => {
 })
 
 describe('catalog', () => {
-  it('lists five programmes with a preview of every day', async () => {
+  it('lists nine programmes with a preview of every day', async () => {
     const list = await listProgrammes(db)
-    expect(list).toHaveLength(5)
+    expect(list).toHaveLength(9)
     const ppl = list.find((p) => p.key === 'ppl')!
     expect(ppl.days.map((d) => d.name)).toEqual(['Push day', 'Pull day', 'Legs day'])
     expect(ppl.days[0].exercises[0]).toEqual({ name: BENCH, tier: 'main', sets: 4, repMin: 6, repMax: 8, amrap: false })
@@ -96,6 +97,9 @@ describe('programmeLifts', () => {
     const lifts = await programmeLifts(db, await pid('531-beginners'))
     expect(lifts.map((l) => l.name).sort()).toEqual(['Barbell Deadlift', 'Barbell Squat', BENCH, 'Standing Military Press'].sort())
     expect(lifts.every((l) => l.kind === 'trainingMax')).toBe(true)
+  })
+  it('a bodyweight programme needs no starting weights', async () => {
+    expect(await programmeLifts(db, await pid('bodyweight-home'))).toEqual([])
   })
   it('leaves out chin-ups and assistance work', async () => {
     const lifts = await programmeLifts(db, await pid('full-body-beginner'))

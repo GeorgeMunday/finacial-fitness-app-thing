@@ -92,7 +92,7 @@ export default function ProgrammeDetail() {
       ))}
       <section className="flex flex-col gap-3" aria-label="Starting weights">
         <h2 className="font-display text-lg font-semibold">{p.progression === 'wendler531' ? 'Your training maxes' : 'Starting weights'}</h2>
-        {p.progression === 'wendler531'
+        {!lifts.length ? null : p.progression === 'wendler531'
           ? <p className="text-slate">A training max is 90% of your one-rep max. If you are unsure, start light: the weights are small at first and rise each cycle.</p>
           : <p className="text-slate">Weights in {unit}. Pick something you can lift for every set with good form.</p>}
         {p.daysPerWeekOptions.length > 1 ? (
@@ -100,7 +100,7 @@ export default function ProgrammeDetail() {
             {p.daysPerWeekOptions.map((n) => <Chip key={n} selected={days === n} onClick={() => setDays(n)}>{n} days a week</Chip>)}
           </div>
         ) : null}
-        <Button variant="secondary" className="self-start" onClick={fillDefaults}>I don't know, start light</Button>
+        {lifts.length ? <Button variant="secondary" className="self-start" onClick={fillDefaults}>I don't know, start light</Button> : <p>No weights needed: every exercise uses your bodyweight.</p>}
         {lifts.map((l) => {
           const label = liftLabel(l)
           const showError = touched.has(l.liftKey) && bad(l.liftKey)

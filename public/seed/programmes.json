@@ -879,5 +879,487 @@
     ]
    }
   ]
+ },
+ {
+  "key": "upper-lower-beginner",
+  "name": "Upper / Lower for beginners",
+  "level": "beginner",
+  "progression": "double",
+  "daysPerWeekOptions": [
+   4
+  ],
+  "description": "Two sessions, upper body and lower body, each done twice a week. A gentle step up from full-body training with enough rest between sessions. Add weight once every set reaches the top of its range.",
+  "days": [
+   {
+    "name": "Upper day",
+    "exercises": [
+     {
+      "exercise": "Barbell Bench Press - Medium Grip",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       6,
+       10
+      ]
+     },
+     {
+      "exercise": "Bent Over Barbell Row",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       6,
+       10
+      ]
+     },
+     {
+      "exercise": "Dumbbell Shoulder Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Wide-Grip Lat Pulldown",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Dumbbell Bicep Curl",
+      "tier": "main",
+      "sets": 2,
+      "reps": [
+       10,
+       15
+      ]
+     },
+     {
+      "exercise": "Triceps Pushdown",
+      "tier": "main",
+      "sets": 2,
+      "reps": [
+       10,
+       15
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Lower day",
+    "exercises": [
+     {
+      "exercise": "Barbell Squat",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       6,
+       10
+      ]
+     },
+     {
+      "exercise": "Romanian Deadlift",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Leg Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       15
+      ]
+     },
+     {
+      "exercise": "Lying Leg Curls",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       15
+      ]
+     },
+     {
+      "exercise": "Standing Calf Raises",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       15
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "key": "full-body-2day",
+  "name": "Two-day full body",
+  "level": "beginner",
+  "progression": "double",
+  "daysPerWeekOptions": [
+   2
+  ],
+  "description": "For busy weeks: two full-body sessions that still train every major muscle twice. Leave at least a day between them. Add weight once every set reaches the top of its range.",
+  "days": [
+   {
+    "name": "Day 1",
+    "exercises": [
+     {
+      "exercise": "Barbell Squat",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       6,
+       10
+      ]
+     },
+     {
+      "exercise": "Barbell Bench Press - Medium Grip",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       6,
+       10
+      ]
+     },
+     {
+      "exercise": "Seated Cable Rows",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Barbell Hip Thrust",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Hanging Leg Raise",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       15
+      ],
+      "amrap": true
+     }
+    ]
+   },
+   {
+    "name": "Day 2",
+    "exercises": [
+     {
+      "exercise": "Barbell Deadlift",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       5,
+       5
+      ]
+     },
+     {
+      "exercise": "Standing Military Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       6,
+       10
+      ]
+     },
+     {
+      "exercise": "Wide-Grip Lat Pulldown",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Dumbbell Lunges",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ],
+      "note": "Reps each leg"
+     },
+     {
+      "exercise": "Crunches",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       10,
+       20
+      ],
+      "amrap": true
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "key": "dumbbell-full-body",
+  "name": "Dumbbell full body",
+  "level": "beginner",
+  "progression": "double",
+  "daysPerWeekOptions": [
+   3
+  ],
+  "description": "Three full-body sessions a week with just a pair of dumbbells and a bench, alternating workout A and workout B. Good for home or a quiet corner of the gym. Weights are per dumbbell.",
+  "days": [
+   {
+    "name": "Workout A",
+    "exercises": [
+     {
+      "exercise": "Goblet Squat",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ],
+      "note": "Hold one dumbbell at your chest"
+     },
+     {
+      "exercise": "Dumbbell Bench Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Bent Over Two-Dumbbell Row",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "Stiff-Legged Dumbbell Deadlift",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       10,
+       12
+      ]
+     },
+     {
+      "exercise": "Hammer Curls",
+      "tier": "main",
+      "sets": 2,
+      "reps": [
+       10,
+       15
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Workout B",
+    "exercises": [
+     {
+      "exercise": "Dumbbell Lunges",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ],
+      "note": "Reps each leg"
+     },
+     {
+      "exercise": "Dumbbell Shoulder Press",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ]
+     },
+     {
+      "exercise": "One-Arm Dumbbell Row",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       8,
+       12
+      ],
+      "note": "Reps each arm"
+     },
+     {
+      "exercise": "Standing Dumbbell Calf Raise",
+      "tier": "main",
+      "sets": 3,
+      "reps": [
+       12,
+       15
+      ]
+     },
+     {
+      "exercise": "Bench Dips",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       15
+      ],
+      "amrap": true,
+      "note": "Use the bench or a sturdy chair"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "key": "bodyweight-home",
+  "name": "Bodyweight at home",
+  "level": "beginner",
+  "progression": "double",
+  "daysPerWeekOptions": [
+   3
+  ],
+  "description": "Three sessions a week using only your own bodyweight, alternating workout A and workout B. Do as many good reps as you can each set and try to beat last time.",
+  "days": [
+   {
+    "name": "Workout A",
+    "exercises": [
+     {
+      "exercise": "Pushups",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true,
+      "note": "Hands on a table or wall to make it easier"
+     },
+     {
+      "exercise": "Bodyweight Squat",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true
+     },
+     {
+      "exercise": "Inverted Row",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true,
+      "note": "Lie under a sturdy table and pull your chest to the edge"
+     },
+     {
+      "exercise": "Butt Lift (Bridge)",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true
+     },
+     {
+      "exercise": "Crunches",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true
+     }
+    ]
+   },
+   {
+    "name": "Workout B",
+    "exercises": [
+     {
+      "exercise": "Bench Dips",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true,
+      "note": "Use a sturdy chair"
+     },
+     {
+      "exercise": "Bodyweight Walking Lunge",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true,
+      "note": "Reps each leg"
+     },
+     {
+      "exercise": "Pullups",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true,
+      "alt": "Inverted Row",
+      "note": "Needs a pull-up bar; swap for inverted rows if you have none"
+     },
+     {
+      "exercise": "Single Leg Glute Bridge",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true,
+      "note": "Reps each leg"
+     },
+     {
+      "exercise": "Pushups",
+      "tier": "bw",
+      "sets": 3,
+      "reps": [
+       8,
+       20
+      ],
+      "amrap": true
+     }
+    ]
+   }
+  ]
  }
 ]

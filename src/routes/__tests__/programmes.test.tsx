@@ -14,6 +14,9 @@ import { finishWorkout } from '../../domain/training'
 import { toKg } from '../../domain/units'
 import Train from '../Train'
 
+/** The chooser row whose title is exactly this name. */
+const row = (name: string) => screen.getAllByRole('link').find((l) => l.querySelector('span')?.textContent === name)!
+
 const app = () => (
   <Routes>
     <Route path="/train/*" element={<Train />} />
@@ -30,17 +33,32 @@ describe('choose a programme', () => {
   it('lists five programmes with days a week and level, credits the authors and shows no web addresses', async () => {
     const db = await setup()
     renderApp(app(), db, '/train/programmes')
-    for (const name of ['Push / Pull / Legs', 'Upper / Lower', 'Full body beginner', 'GZCLP', '5/3/1 for Beginners']) {
-      expect(await screen.findByRole('link', { name: new RegExp(name) })).toBeInTheDocument()
-    }
+    await screen.findByRole('link', { name: /GZCLP/ })
+    for (const name of ['Push / Pull / Legs', 'Upper / Lower', 'Full body beginner', 'GZCLP', '5/3/1 for Beginners']) expect(row(name)).toBeTruthy()
     const ppl = screen.getByRole('link', { name: /Push \/ Pull \/ Legs/ })
     expect(ppl).toHaveTextContent('3 or 6 days a week')
     expect(ppl).toHaveTextContent('Beginner')
     expect(ppl).toHaveTextContent('Push day · Pull day · Legs day')
-    expect(screen.getByRole('link', { name: /Upper \/ Lower/ })).toHaveTextContent('4 days a week')
-    expect(screen.getByRole('link', { name: /Upper \/ Lower/ })).toHaveTextContent('Intermediate')
+    expect(row('Upper / Lower')).toHaveTextContent('4 days a week')
+    expect(row('Upper / Lower')).toHaveTextContent('Intermediate')
     for (const author of ['Brandon Campbell', 'Cody Lefever', 'Jim Wendler']) expect(screen.getAllByText(new RegExp(author)).length).toBeGreaterThan(0)
     expect(document.body.textContent).not.toMatch(/https?:|www\./i)
+  })
+  it('lists the newer programmes too', async () => {
+    const db = await setup()
+    renderApp(app(), db, '/train/programmes')
+    await screen.findByRole('link', { name: /GZCLP/ })
+    for (const name of ['Upper / Lower for beginners', 'Two-day full body', 'Dumbbell full body', 'Bodyweight at home']) expect(row(name)).toBeTruthy()
+  })
+  it('a bodyweight programme starts without asking for weights', async () => {
+    const db = await setup()
+    const user = userEvent.setup()
+    renderApp(app(), db, '/train/programmes/bodyweight-home')
+    expect(await screen.findByText(/No weights needed/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: "I don't know, start light" })).toBeNull()
+    expect(screen.getAllByText('Pushups 3× as many reps as you can')).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'Start this programme' }))
+    expect(await screen.findByText('Next: Workout A')).toBeInTheDocument()
   })
   it('a programme page previews every day', async () => {
     const db = await setup()

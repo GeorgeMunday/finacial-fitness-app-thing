@@ -25,9 +25,42 @@ async function outline(key: string, day: string) {
 }
 
 describe('programme seed', () => {
-  it('seeds five programmes', async () => {
+  it('seeds nine programmes', async () => {
     const list = await db.all<{ key: string }>('SELECT key FROM programmes ORDER BY key')
-    expect(list.map((p) => p.key)).toEqual(['531-beginners', 'full-body-beginner', 'gzclp', 'phul', 'ppl'])
+    expect(list.map((p) => p.key)).toEqual([
+      '531-beginners', 'bodyweight-home', 'dumbbell-full-body', 'full-body-2day', 'full-body-beginner', 'gzclp', 'phul', 'ppl', 'upper-lower-beginner'])
+  })
+  it('Upper / Lower for beginners alternates an upper and a lower day', async () => {
+    expect(await outline('upper-lower-beginner', 'Upper day')).toEqual([
+      'Barbell Bench Press - Medium Grip 3×6–10', 'Bent Over Barbell Row 3×6–10', 'Dumbbell Shoulder Press 3×8–12', 'Wide-Grip Lat Pulldown 3×8–12',
+      'Dumbbell Bicep Curl 2×10–15', 'Triceps Pushdown 2×10–15'])
+    expect(await outline('upper-lower-beginner', 'Lower day')).toEqual([
+      'Barbell Squat 3×6–10', 'Romanian Deadlift 3×8–12', 'Leg Press 3×10–15', 'Lying Leg Curls 3×10–15', 'Standing Calf Raises 3×10–15'])
+  })
+  it('Two-day full body covers the whole body twice a week', async () => {
+    expect(await outline('full-body-2day', 'Day 1')).toEqual([
+      'Barbell Squat 3×6–10', 'Barbell Bench Press - Medium Grip 3×6–10', 'Seated Cable Rows 3×8–12', 'Barbell Hip Thrust 3×8–12', 'Hanging Leg Raise 3×8–15'])
+    expect(await outline('full-body-2day', 'Day 2')).toEqual([
+      'Barbell Deadlift 3×5', 'Standing Military Press 3×6–10', 'Wide-Grip Lat Pulldown 3×8–12', 'Dumbbell Lunges 3×8–12', 'Crunches 3×10–20'])
+  })
+  it('Dumbbell full body needs only dumbbells and a bench', async () => {
+    expect(await outline('dumbbell-full-body', 'Workout A')).toEqual([
+      'Goblet Squat 3×8–12', 'Dumbbell Bench Press 3×8–12', 'Bent Over Two-Dumbbell Row 3×8–12', 'Stiff-Legged Dumbbell Deadlift 3×10–12', 'Hammer Curls 2×10–15'])
+    expect(await outline('dumbbell-full-body', 'Workout B')).toEqual([
+      'Dumbbell Lunges 3×8–12', 'Dumbbell Shoulder Press 3×8–12', 'One-Arm Dumbbell Row 3×8–12', 'Standing Dumbbell Calf Raise 3×12–15', 'Bench Dips 3×8–15'])
+    const kit = await db.all<{ equipment: string }>(
+      `SELECT DISTINCT e.equipment FROM programme_day_exercises x JOIN programme_days d ON d.id = x.day_id JOIN programmes p ON p.id = d.programme_id
+       JOIN exercises e ON e.id = x.exercise_id WHERE p.key = 'dumbbell-full-body' ORDER BY e.equipment`)
+    expect(kit.map((k) => k.equipment)).toEqual(['body only', 'dumbbell', 'kettlebells'])
+  })
+  it('Bodyweight at home uses no weights: every set is as many reps as you can', async () => {
+    const all = await rows('bodyweight-home')
+    expect(all.length).toBeGreaterThan(0)
+    expect(all.every((r) => r.tier === 'bw' && r.is_amrap === 1)).toBe(true)
+    expect(await outline('bodyweight-home', 'Workout A')).toEqual([
+      'Pushups 3×8–20', 'Bodyweight Squat 3×8–20', 'Inverted Row 3×8–20', 'Butt Lift (Bridge) 3×8–20', 'Crunches 3×8–20'])
+    expect(await outline('bodyweight-home', 'Workout B')).toEqual([
+      'Bench Dips 3×8–20', 'Bodyweight Walking Lunge 3×8–20', 'Pullups 3×8–20', 'Single Leg Glute Bridge 3×8–20', 'Pushups 3×8–20'])
   })
   it('Push / Pull / Legs matches the brief', async () => {
     expect(await outline('ppl', 'Push day')).toEqual([
@@ -94,10 +127,10 @@ describe('programme seed', () => {
     expect(sq.filter((r) => r.tier === 'fsl').map((r) => [r.week, r.percent, r.sets, r.rep_min])).toEqual([[1, 65, 5, 5], [2, 70, 5, 5], [3, 75, 5, 5]])
   })
   it('credits the three authors and no other programme has one', async () => {
-    const authors = await db.all<{ key: string; author: string | null }>('SELECT key, author FROM programmes ORDER BY key')
-    expect(authors).toEqual([
-      { key: '531-beginners', author: 'Jim Wendler' }, { key: 'full-body-beginner', author: null }, { key: 'gzclp', author: 'Cody Lefever' },
-      { key: 'phul', author: 'Brandon Campbell' }, { key: 'ppl', author: null }])
+    const authors = await db.all<{ key: string; author: string | null }>("SELECT key, author FROM programmes ORDER BY CASE WHEN author IS NULL THEN 1 ELSE 0 END, key")
+    expect(authors.filter((a) => a.author)).toEqual([
+      { key: '531-beginners', author: 'Jim Wendler' }, { key: 'gzclp', author: 'Cody Lefever' }, { key: 'phul', author: 'Brandon Campbell' }])
+    expect(authors.filter((a) => !a.author).map((a) => a.key)).toEqual(['bodyweight-home', 'dumbbell-full-body', 'full-body-2day', 'full-body-beginner', 'ppl', 'upper-lower-beginner'])
   })
   it('descriptions are short, name the author where there is one and contain no URL', async () => {
     for (const p of await db.all<{ description: string; author: string | null }>('SELECT description, author FROM programmes')) {
@@ -110,8 +143,9 @@ describe('programme seed', () => {
   it('records level, days a week and the progression kind', async () => {
     const list = await db.all<{ key: string; level: string; progression: string; days_per_week_options: string }>('SELECT key, level, progression, days_per_week_options FROM programmes ORDER BY key')
     expect(list.map((p) => [p.key, p.level, p.progression, JSON.parse(p.days_per_week_options)])).toEqual([
-      ['531-beginners', 'intermediate', 'wendler531', [3]], ['full-body-beginner', 'beginner', 'linear', [3]], ['gzclp', 'intermediate', 'gzclp', [4]],
-      ['phul', 'intermediate', 'double', [4]], ['ppl', 'beginner', 'double', [3, 6]]])
+      ['531-beginners', 'intermediate', 'wendler531', [3]], ['bodyweight-home', 'beginner', 'double', [3]], ['dumbbell-full-body', 'beginner', 'double', [3]],
+      ['full-body-2day', 'beginner', 'double', [2]], ['full-body-beginner', 'beginner', 'linear', [3]], ['gzclp', 'intermediate', 'gzclp', [4]],
+      ['phul', 'intermediate', 'double', [4]], ['ppl', 'beginner', 'double', [3, 6]], ['upper-lower-beginner', 'beginner', 'double', [4]]])
   })
   it('seeding twice inserts nothing the second time, and a renamed programme survives', async () => {
     await db.run("UPDATE programmes SET name = 'My PPL' WHERE key = 'ppl'")
