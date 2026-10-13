@@ -29,6 +29,8 @@
   --text-2xl: 1.953rem; --text-3xl: 2.441rem; --text-4xl: 3.052rem;
 }
 
+/* Base rules sit in a layer so Tailwind utilities (e.g. text-on-pond on buttons) win over them. */
+@layer base {
 html { background: var(--chalk); }
 body {
   margin: 0; background: var(--chalk); color: var(--ink); font-family: var(--font-body); font-size: 1rem; line-height: 1.5;
@@ -36,6 +38,7 @@ body {
 }
 :focus-visible { outline: 2px solid var(--pond); outline-offset: 2px; }
 button { font: inherit; color: inherit; }
+}
 .tabular { font-variant-numeric: tabular-nums; }
 
 @keyframes tally-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
