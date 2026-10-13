@@ -191,3 +191,28 @@ export async function postDueRecurring(db: SqlExecutor, today: string): Promise<
   })
   return count
 }
+
+export async function listBudgets(db: SqlExecutor): Promise<{ categoryId: string; period: 'week' | 'month'; limitPence: number }[]> {
+  const rows = await db.all<{ category_id: string; period: 'week' | 'month'; limit_pence: number }>(
+    'SELECT category_id, period, limit_pence FROM budgets WHERE deleted_at IS NULL',
+  )
+  return rows.map((r) => ({ categoryId: r.category_id, period: r.period, limitPence: r.limit_pence }))
+}
+
+export type RecurringRule = { id: string; kind: TxKind; name: string; amountPence: number; categoryId: string; cadence: Cadence; nextDate: string }
+
+export async function listRecurring(db: SqlExecutor): Promise<RecurringRule[]> {
+  const rows = await db.all<{ id: string; kind: TxKind; name: string; amount_pence: number; category_id: string; cadence: Cadence; next_date: string }>(
+    'SELECT * FROM recurring_rules WHERE deleted_at IS NULL ORDER BY next_date, rowid',
+  )
+  return rows.map((r) => ({ id: r.id, kind: r.kind, name: r.name, amountPence: r.amount_pence, categoryId: r.category_id, cadence: r.cadence, nextDate: r.next_date }))
+}
+
+export async function deleteRecurring(db: SqlExecutor, id: string): Promise<void> {
+  const now = nowIso()
+  await db.run('UPDATE recurring_rules SET deleted_at = ?, updated_at = ? WHERE id = ?', [now, now, id])
+}
+
+export async function listCategories(db: SqlExecutor): Promise<{ id: string; name: string; kind: CategoryKind }[]> {
+  return db.all('SELECT id, name, kind FROM categories WHERE deleted_at IS NULL ORDER BY rowid')
+}

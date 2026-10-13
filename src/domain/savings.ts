@@ -141,3 +141,13 @@ export async function yearlySummary(db: SqlExecutor, year: number) {
   }
   return { incomePence, spentPence, savedPence, byMonth }
 }
+
+export type Contribution = { id: string; goalId: string; logDate: string; amountPence: number; note: string | null }
+
+export async function listContributions(db: SqlExecutor, goalId: string): Promise<Contribution[]> {
+  const rows = await db.all<{ id: string; goal_id: string; log_date: string; amount_pence: number; note: string | null }>(
+    'SELECT * FROM savings_contributions WHERE goal_id = ? AND deleted_at IS NULL ORDER BY log_date DESC, rowid DESC',
+    [goalId],
+  )
+  return rows.map((r) => ({ id: r.id, goalId: r.goal_id, logDate: r.log_date, amountPence: r.amount_pence, note: r.note }))
+}

@@ -3,7 +3,7 @@ import { memoryExecutor } from '../../../test/memoryExecutor'
 import type { SqlExecutor } from '../../db/executor'
 import { migrate } from '../../db/migrations'
 import {
-  addExpense, addIncome, addRecurringRule, deleteTransaction, formatPence, leftToSpend, listTransactions,
+  addExpense, addIncome, addRecurringRule, deleteRecurring, deleteTransaction, listBudgets, listRecurring, formatPence, leftToSpend, listTransactions,
   parsePence, postDueRecurring, recentCategories, setBudget, spendByCategory, spendByKind,
 } from '../money'
 
@@ -95,5 +95,20 @@ describe('recurring', () => {
     await postDueRecurring(db, '2026-10-12')
     const [t] = await listTransactions(db, '2026-10-01', '2026-10-31')
     expect(t.kind).toBe('income')
+  })
+})
+
+describe('lists', () => {
+  it('listBudgets and recurring rules', async () => {
+    await setBudget(db, 'cat-groceries', 'week', 5000)
+    await setBudget(db, 'cat-groceries', 'month', 20000)
+    expect(await listBudgets(db)).toEqual(expect.arrayContaining([
+      { categoryId: 'cat-groceries', period: 'week', limitPence: 5000 },
+      { categoryId: 'cat-groceries', period: 'month', limitPence: 20000 },
+    ]))
+    const id = await addRecurringRule(db, { kind: 'expense', name: 'Rent', amountPence: 50000, categoryId: 'cat-bills', cadence: 'monthly', nextDate: '2026-11-01' })
+    expect(await listRecurring(db)).toHaveLength(1)
+    await deleteRecurring(db, id)
+    expect(await listRecurring(db)).toHaveLength(0)
   })
 })

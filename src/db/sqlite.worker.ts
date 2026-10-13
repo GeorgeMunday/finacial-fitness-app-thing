@@ -6,10 +6,24 @@ type Db = {
   exec(opts: { sql: string; bind?: unknown[]; rowMode?: 'object'; returnValue?: 'resultRows' }): unknown
 }
 
+/** A reloaded page can race the previous page's worker for the OPFS handles, so retry before giving up. */
+async function installPool(sqlite3: Awaited<ReturnType<typeof sqlite3InitModule>>) {
+  let last: unknown
+  for (let attempt = 0; attempt < 12; attempt++) {
+    try {
+      return await sqlite3.installOpfsSAHPoolVfs({ name: 'tally' })
+    } catch (e) {
+      last = e
+      await new Promise((r) => setTimeout(r, 250))
+    }
+  }
+  throw last
+}
+
 async function open(): Promise<{ db: Db; persistent: boolean }> {
   const sqlite3 = await sqlite3InitModule()
   try {
-    const pool = await sqlite3.installOpfsSAHPoolVfs({ name: 'tally' })
+    const pool = await installPool(sqlite3)
     return { db: new pool.OpfsSAHPoolDb('/tally.sqlite3') as unknown as Db, persistent: true }
   } catch (e) {
     console.warn('OPFS unavailable, using in-memory database', e)

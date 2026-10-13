@@ -3,7 +3,7 @@ import { memoryExecutor } from '../../../test/memoryExecutor'
 import type { SqlExecutor } from '../../db/executor'
 import { migrate } from '../../db/migrations'
 import { addExpense, addIncome } from '../money'
-import { archiveGoal, contribute, createGoal, goalProgress, listGoals, monthlySummary, yearlySummary } from '../savings'
+import { archiveGoal, contribute, deleteContribution, listContributions, createGoal, goalProgress, listGoals, monthlySummary, yearlySummary } from '../savings'
 
 let db: SqlExecutor
 beforeEach(async () => {
@@ -95,5 +95,17 @@ describe('summaries', () => {
     expect(y.byMonth).toHaveLength(12)
     expect(y.savedPence).toBe(5000)
     expect(y.byMonth[2]).toEqual({ month: '2026-03', netPence: 1000, savedPence: 5000 })
+  })
+})
+
+describe('listContributions', () => {
+  it('lists newest first, excluding deleted', async () => {
+    const id = await createGoal(db, { name: 'g', period: 'year', targetPence: 100000 })
+    await contribute(db, id, 100, '2026-01-01')
+    const b = await contribute(db, id, 200, '2026-02-01')
+    await contribute(db, id, -50, '2026-03-01')
+    await deleteContribution(db, b)
+    const list = await listContributions(db, id)
+    expect(list.map((c) => c.amountPence)).toEqual([-50, 100])
   })
 })
