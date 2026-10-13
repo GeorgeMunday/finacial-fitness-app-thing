@@ -1,6 +1,9 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { localDate } from '../domain/dates'
-import { deleteEverything, deleteHealthData, exportAll, importAll, transactionsCsv } from '../domain/backup'
+import { deleteEverything, deleteHealthData, exportAll, transactionsCsv } from '../domain/backup'
+import { RestoreFromBackup } from './RestoreFromBackup'
+import { useNavigate } from 'react-router-dom'
+import { emitChange } from '../state/changes'
 import { useDb } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
 import { Button } from './ui/Button'
@@ -38,9 +41,7 @@ export function DataSection() {
   const db = useDb()
   const toast = useToast()
   const { settings, update } = useSettings()
-  const file = useRef<HTMLInputElement>(null)
-  const [pending, setPending] = useState<unknown>(null)
-  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
   const [confirm, setConfirm] = useState<'health' | 'all' | null>(null)
 
   return (
@@ -63,41 +64,8 @@ export function DataSection() {
         <Button variant="secondary" onClick={async () => download(`tally-transactions-${localDate()}.csv`, await transactionsCsv(db), 'text/csv')}>
           Export transactions (CSV)
         </Button>
-        <Button variant="secondary" onClick={() => file.current?.click()}>Restore from backup</Button>
       </div>
-      <input
-        ref={file} type="file" accept="application/json,.json" className="hidden" aria-label="Backup file"
-        onChange={async (e) => {
-          const f = e.target.files?.[0]
-          e.target.value = ''
-          if (!f) return
-          try {
-            setPending(JSON.parse(await f.text()))
-            setError(null)
-          } catch {
-            setError("That file isn't a Tally backup. Choose the .json file you downloaded from Tally.")
-          }
-        }}
-      />
-      {error ? <p className="text-amber-ink">{error}</p> : null}
-      <Sheet open={pending !== null} onClose={() => setPending(null)} title="Restore from backup">
-        <div className="flex flex-col gap-3">
-          <p>This replaces all data on this device with the backup.</p>
-          <Button
-            onClick={async () => {
-              try {
-                await importAll(db, pending)
-                location.reload()
-              } catch (err) {
-                setPending(null)
-                setError(`${err instanceof Error ? err.message : String(err)} Nothing was changed.`)
-              }
-            }}
-          >
-            Replace my data
-          </Button>
-        </div>
-      </Sheet>
+      <RestoreFromBackup />
       <div className="mt-2 flex flex-wrap gap-2">
         <Button variant="secondary" onClick={() => setConfirm('health')}>Delete health data…</Button>
         <Button variant="secondary" onClick={() => setConfirm('all')}>Delete everything…</Button>
@@ -117,7 +85,9 @@ export function DataSection() {
         body="This permanently deletes all your Tally data on this device. Download a backup first if you might want it back."
         onConfirm={async () => {
           await deleteEverything(db)
-          location.assign('/')
+          await update({}) // settings are back to defaults, so the app returns to onboarding
+          emitChange()
+          navigate('/onboarding', { replace: true })
         }}
       />
     </section>

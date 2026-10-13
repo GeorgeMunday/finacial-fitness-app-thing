@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { Chip } from '../../components/ui/Chip'
+import { RestoreFromBackup } from '../../components/RestoreFromBackup'
 import { localDate } from '../../domain/dates'
 import { saveMonthlyIncome } from '../../domain/income'
 import { parsePence } from '../../domain/money'
@@ -61,6 +62,10 @@ export default function OnboardingFlow() {
           I'm 18 or over
         </label>
         <Button disabled={!adult} onClick={() => setStep('pillars')}>Continue</Button>
+        <div className="mt-6 flex flex-col gap-2 border-t border-fog pt-6">
+          <p className="text-slate">Used Tally before? If this browser's data was cleared, restore the backup you downloaded.</p>
+          <RestoreFromBackup label="Restore from a backup" />
+        </div>
       </Screen>
     )
 
