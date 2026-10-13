@@ -1,3 +1,4 @@
+import { useFormatDate } from '../hooks/useFormatDate'
 import { Link } from 'react-router-dom'
 import { formatPence } from '../domain/money'
 import type { GoalProgress } from '../domain/savings'
@@ -5,20 +6,21 @@ import { ProgressBar } from './ProgressBar'
 import { Button } from './ui/Button'
 import { TallyMarks } from './ui/TallyMarks'
 
-export const periodLabel = (p: GoalProgress) =>
-  p.goal.period === 'month' ? 'This month' : p.goal.period === 'year' ? 'This year' : `By ${p.goal.targetDate}`
+export const periodLabel = (p: GoalProgress, fmt: (d: string) => string = (d) => d) =>
+  p.goal.period === 'month' ? 'This month' : p.goal.period === 'year' ? 'This year' : `By ${fmt(p.goal.targetDate ?? '')}`
 
 export function goalLabel(p: GoalProgress): string {
   return `${p.goal.name}, ${p.percent}% saved, ${formatPence(p.remainingPence)} to go`
 }
 
 export function GoalRow({ progress: p, onSave }: { progress: GoalProgress; onSave: () => void }) {
+  const fmt = useFormatDate()
   return (
     <div className="flex flex-col gap-3 border-b border-fog py-5">
       <div className="flex items-center justify-between gap-3">
         <Link to={`/money/goals/${p.goal.id}`} className="min-h-11 min-w-0 flex-1 py-2">
           <div className="truncate font-semibold">{p.goal.name}</div>
-          <div className="text-sm text-slate">{periodLabel(p)}</div>
+          <div className="text-sm text-slate">{periodLabel(p, fmt)}</div>
         </Link>
         <Button variant="secondary" aria-label={`Save to ${p.goal.name}`} onClick={onSave}>+ Save</Button>
       </div>

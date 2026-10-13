@@ -1,3 +1,4 @@
+import { useFormatDate } from '../../hooks/useFormatDate'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { periodLabel, goalLabel } from '../../components/GoalRow'
@@ -17,6 +18,7 @@ import { useDb } from '../../state/DbProvider'
 export default function GoalDetail() {
   const { id = '' } = useParams()
   const db = useDb()
+  const fmt = useFormatDate()
   const navigate = useNavigate()
   const toast = useToast()
   const today = localDate()
@@ -28,7 +30,7 @@ export default function GoalDetail() {
     <div className="flex flex-col gap-4">
       <div>
         <h1 className="font-display text-xl font-semibold">{p.goal.name}</h1>
-        <p className="text-slate">{periodLabel(p)}</p>
+        <p className="text-slate">{periodLabel(p, fmt)}</p>
       </div>
       <TallyMarks percent={p.percent} seed={p.goal.id} label={goalLabel(p)} />
       <ProgressBar percent={p.percent} label={`${p.goal.name} progress`} />
@@ -42,12 +44,12 @@ export default function GoalDetail() {
         {items.length === 0 ? <p className="py-2 text-slate">Nothing saved to this goal yet.</p> : null}
         {items.map((c) => (
           <ListRow
-            key={c.id} title={c.amountPence < 0 ? 'Withdrawal' : 'Saved'} detail={c.logDate}
+            key={c.id} title={c.amountPence < 0 ? 'Withdrawal' : 'Saved'} detail={fmt(c.logDate)}
             trailing={
               <>
                 <Amount pence={c.amountPence} />
                 <Button
-                  variant="quiet" aria-label={`Delete ${formatPence(c.amountPence)} on ${c.logDate}`}
+                  variant="quiet" aria-label={`Delete ${formatPence(c.amountPence)} on ${fmt(c.logDate)}`}
                   onClick={async () => {
                     await deleteContribution(db, c.id)
                     reload()

@@ -1,3 +1,4 @@
+import { useFormatDate } from '../../hooks/useFormatDate'
 import { useState } from 'react'
 import { Amount } from '../../components/ui/Amount'
 import { Button } from '../../components/ui/Button'
@@ -15,6 +16,7 @@ const input = 'min-h-11 w-full rounded-xl border border-fog bg-surface px-3'
 
 export default function Recurring() {
   const db = useDb()
+  const fmt = useFormatDate()
   const toast = useToast()
   const { data: rules, reload } = useAsync(() => listRecurring(db), [db])
   const { data: cats } = useAsync(() => listCategories(db), [db])
@@ -33,7 +35,7 @@ export default function Recurring() {
       {rules.length === 0 ? <EmptyState message="No recurring payments yet" /> : null}
       {rules.map((r) => (
         <ListRow
-          key={r.id} title={r.name} detail={`${r.kind === 'income' ? 'Income' : 'Expense'}, ${r.cadence}, next ${r.nextDate}`}
+          key={r.id} title={r.name} detail={`${r.kind === 'income' ? 'Income' : 'Expense'}, ${r.cadence}, next ${fmt(r.nextDate)}`}
           trailing={
             <>
               <Amount pence={r.amountPence} />

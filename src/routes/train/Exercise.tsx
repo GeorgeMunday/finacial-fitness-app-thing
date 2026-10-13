@@ -1,3 +1,4 @@
+import { useFormatDate } from '../../hooks/useFormatDate'
 import { useParams } from 'react-router-dom'
 import { ListRow } from '../../components/ui/ListRow'
 import { useAsync } from '../../hooks/useAsync'
@@ -9,6 +10,7 @@ import { useSettings } from '../../state/SettingsProvider'
 export default function Exercise() {
   const { id = '' } = useParams()
   const db = useDb()
+  const fmt = useFormatDate()
   const unit = useSettings().settings.weightUnit
   const { data } = useAsync(async () => ({ ex: await getExercise(db, id), pr: await personalRecords(db, id), history: await exerciseHistory(db, id) }), [db, id])
   if (!data) return null
@@ -22,7 +24,7 @@ export default function Exercise() {
       </div>
       <section aria-label="History">
         {data.history.length === 0 ? <p className="text-slate">No sets logged yet.</p> : null}
-        {data.history.map((h, i) => <ListRow key={i} title={`${fromKg(h.weight_kg, unit)} ${unit} × ${h.reps}`} detail={h.log_date} />)}
+        {data.history.map((h, i) => <ListRow key={i} title={`${fromKg(h.weight_kg, unit)} ${unit} × ${h.reps}`} detail={fmt(h.log_date)} />)}
       </section>
     </div>
   )

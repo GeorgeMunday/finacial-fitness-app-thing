@@ -24,7 +24,7 @@ function Home() {
 const app = () => (
   <Routes>
     <Route path="/" element={<Home />} />
-    <Route path="/more" element={<More />} />
+    <Route path="/more/*" element={<More />} />
     <Route path="/onboarding/*" element={<OnboardingFlow />} />
   </Routes>
 )
@@ -36,7 +36,7 @@ describe('restore without reloading the page', () => {
     vi.stubGlobal('location', { ...window.location, reload, assign: vi.fn() })
     try {
       const user = userEvent.setup()
-      renderApp(app(), db, '/more')
+      renderApp(app(), db, '/more/data')
       fireEvent.change(await screen.findByLabelText('Backup file'), { target: { files: [await backupFile()] } })
       await user.click(await screen.findByRole('button', { name: 'Replace my data' }))
       expect(await screen.findByText('Home after restore')).toBeInTheDocument()

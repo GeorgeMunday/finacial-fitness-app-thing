@@ -37,7 +37,7 @@ export default function Workout() {
   const { settings } = useSettings()
   const unit = settings.weightUnit
   const step = unit === 'kg' ? 2.5 : 5
-  const timer = useRestTimer(90)
+  const timer = useRestTimer(settings.restSeconds)
   const { data } = useAsync(async () => {
     const workout = await getWorkout(db, id)
     if (!workout) return null

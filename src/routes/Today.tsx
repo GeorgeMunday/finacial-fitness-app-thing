@@ -1,3 +1,4 @@
+import { useFormatDate } from '../hooks/useFormatDate'
 import { Link, useNavigate } from 'react-router-dom'
 import { TodayCard } from '../components/TodayCard'
 import { Amount } from '../components/ui/Amount'
@@ -13,6 +14,7 @@ import { useSettings } from '../state/SettingsProvider'
 
 export default function Today() {
   const db = useDb()
+  const fmt = useFormatDate()
   const navigate = useNavigate()
   const { settings } = useSettings()
   const today = localDate()
@@ -56,7 +58,7 @@ export default function Today() {
       </section>
 
       {s.backupDue ? (
-        <TodayCard title="Back up your data" to="/more">
+        <TodayCard title="Back up your data" to="/more/data">
           <p className="text-slate">It's been over 30 days. Your data only lives in this browser, so download a backup from More.</p>
         </TodayCard>
       ) : null}
@@ -73,7 +75,7 @@ export default function Today() {
 
       {s.train ? (
         <TodayCard title="Train" to="/train">
-          <p>{s.train.workoutToday ? 'Workout logged today' : s.train.lastWorkoutDate ? `Last workout ${s.train.lastWorkoutDate}` : 'No workouts yet'}</p>
+          <p>{s.train.workoutToday ? 'Workout logged today' : s.train.lastWorkoutDate ? `Last workout ${fmt(s.train.lastWorkoutDate)}` : 'No workouts yet'}</p>
         </TodayCard>
       ) : null}
 

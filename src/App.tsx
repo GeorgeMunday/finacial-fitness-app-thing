@@ -76,7 +76,7 @@ export default function App() {
                 <Route path="money/*" element={<Money />} />
                 <Route path="food/*" element={<Food />} />
                 <Route path="train/*" element={<Train />} />
-                <Route path="more" element={<More />} />
+                <Route path="more/*" element={<More />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

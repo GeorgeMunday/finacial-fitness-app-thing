@@ -1,3 +1,4 @@
+import { useFormatDate } from '../hooks/useFormatDate'
 import { useState } from 'react'
 import { localDate } from '../domain/dates'
 import { deleteEverything, deleteHealthData, exportAll, transactionsCsv } from '../domain/backup'
@@ -39,6 +40,7 @@ function TypedConfirm({ open, title, body, action, onClose, onConfirm }: { open:
 
 export function DataSection() {
   const db = useDb()
+  const fmt = useFormatDate()
   const toast = useToast()
   const { settings, update } = useSettings()
   const navigate = useNavigate()
@@ -48,7 +50,7 @@ export function DataSection() {
     <section aria-labelledby="data" className="flex flex-col gap-2">
       <h2 id="data" className="font-semibold">Your data</h2>
       <p className="text-sm text-slate">
-        {settings.lastBackupAt ? `Last backup ${settings.lastBackupAt.slice(0, 10)}.` : 'No backup yet.'} Backups are files you keep; restore one here or in another browser.
+        {settings.lastBackupAt ? `Last backup ${fmt(settings.lastBackupAt)}.` : 'No backup yet.'} Backups are files you keep; restore one here or in another browser.
       </p>
       <div className="flex flex-wrap gap-2">
         <Button

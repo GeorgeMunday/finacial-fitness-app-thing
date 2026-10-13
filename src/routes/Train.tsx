@@ -1,3 +1,4 @@
+import { useFormatDate } from '../hooks/useFormatDate'
 import { Link, Route, Routes, useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -10,6 +11,7 @@ import Workout from './train/Workout'
 
 function TrainHome() {
   const db = useDb()
+  const fmt = useFormatDate()
   const navigate = useNavigate()
   const { data } = useAsync(async () => ({
     routines: await listRoutines(db),
@@ -21,7 +23,7 @@ function TrainHome() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="font-display text-xl font-semibold">Train</h1>
-      {data.last ? <p className="text-slate">Last workout {data.last}</p> : null}
+      {data.last ? <p className="text-slate">Last workout {fmt(data.last)}</p> : null}
       {data.open[0] ? <Link to={`/train/workout/${data.open[0].id}`} className="flex min-h-11 items-center text-pond">Carry on with your open workout</Link> : null}
       {data.routines.length === 0 ? <EmptyState message="No routines yet" action={{ label: 'New routine', onClick: () => navigate('/train/routine/new') }} /> : null}
       {data.routines.map((r) => (

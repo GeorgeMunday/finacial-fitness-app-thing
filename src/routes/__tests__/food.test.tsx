@@ -17,7 +17,7 @@ vi.mock('../../domain/openFoodFacts', () => ({
 const app = () => (
   <Routes>
     <Route path="/food/*" element={<Food />} />
-    <Route path="/more" element={<More />} />
+    <Route path="/more/*" element={<More />} />
   </Routes>
 )
 const food = { createdAt: '', updatedAt: '', deletedAt: null, barcode: null, brand: null, servingG: null, servingLabel: null }
@@ -80,7 +80,7 @@ describe('food screens', () => {
   it('clamps calorie targets to the floor', async () => {
     const db = await freshDb({ onboarded: true, optionalPillars: ['food'], healthConsent: true, sex: 'female' })
     const user = userEvent.setup()
-    renderApp(app(), db, '/more')
+    renderApp(app(), db, '/more/food')
     await user.type(await screen.findByLabelText('Daily calorie target'), '1000')
     await user.click(screen.getByRole('button', { name: 'Save targets' }))
     await waitFor(async () => expect((await getSettings(db)).kcalTarget).toBe(1200))
