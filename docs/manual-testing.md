@@ -22,7 +22,7 @@ fetch('https://world.openfoodfacts.org/api/v2/product/3017620422003.json?fields=
 
 - [ ] It logs a product name, and there's no CORS error in the console.
 
-Then in the app (turn Food on in onboarding or More):
+Then in the app (turn Food on in onboarding, or from your profile → Food and training):
 
 - [ ] Food → Add → Scan barcode, type `3017620422003`, press Look up. You land on the food's page with "Food data © Open Food Facts contributors, ODbL" at the bottom.
 - [ ] In DevTools → Network, the request URL contains `app_name=Tally&app_version=0.1`.
@@ -44,11 +44,11 @@ Run on both phones, from the HTTPS URL.
 
 ## 3. Add to Home Screen and persistent storage on iOS
 
-Important: on iOS, a Home Screen app has **separate storage** from Safari tabs. Anything logged in a Safari tab won't appear in the installed app. If you've already used Tally in Safari, download a backup first (More → Download backup) and restore it inside the installed app.
+Important: on iOS, a Home Screen app has **separate storage** from Safari tabs. Anything logged in a Safari tab won't appear in the installed app. If you've already used Tally in Safari, download a backup first (avatar on Today → Backup and storage → Download backup) and restore it inside the installed app.
 
 - [ ] In Safari (not installed), Tally shows "Add Tally to your Home Screen to keep your data safe…".
 - [ ] Share → Add to Home Screen. Open Tally from the Home Screen: it opens full screen with no Safari address bar, and the banner is gone.
-- [ ] Go through onboarding. More → Storage shows "Saved in this browser: Yes" and "Installed to Home Screen: Yes". Note what "Protected from clean-up" says (Yes, No or Not supported).
+- [ ] Go through onboarding. Avatar on Today → Backup and storage shows "Saved in this browser: Yes" and "Installed to Home Screen: Yes". Note what "Protected from clean-up" says (Yes, No or Not supported).
 - [ ] Add an expense and a savings contribution. Force-quit the app from the app switcher and reopen it: both are still there.
 - [ ] Restart the phone and reopen: the data is still there.
 - [ ] Optional, longer check: leave the installed app unused for 8+ days, then reopen. The data should still be there; installed apps are exempt from Safari's 7-day clean-up.
@@ -56,13 +56,20 @@ Important: on iOS, a Home Screen app has **separate storage** from Safari tabs. 
 ## 4. Backup from Chrome restored in Safari
 
 - [ ] In Chrome, log a few expenses, one income, a savings goal with a contribution, and (with Food on) a food log. Note the Money screen totals and the goal's "£X to go".
-- [ ] More → Download backup. A file named `tally-backup-YYYY-MM-DD.json` downloads, and More now shows "Last backup" with today's date.
+- [ ] Avatar on Today → Backup and storage → Download backup. A file named `tally-backup-YYYY-MM-DD.json` downloads, and Backup and storage now shows "Backed up" with today's date.
 - [ ] Move the file to the Safari device (AirDrop, Files or email).
 - [ ] Also try Download backup inside the installed iOS app: note whether a file is saved (or a share sheet appears). Downloads from Home Screen apps are unreliable on iOS, so this may fail.
-- [ ] In Safari (or the installed iOS app), More → Restore from backup → choose the file → Replace my data. The app reloads.
+- [ ] In Safari (or the installed iOS app), Avatar on Today → Backup and storage → Restore from backup → choose the file → Replace my data. The app reloads.
 - [ ] Money totals, transactions, the goal and its progress, and the food log match what you noted in Chrome.
 - [ ] Clear the site's data (or use a fresh browser profile), open Tally: the first onboarding screen offers "Restore from a backup", and restoring there takes you straight to Today with your data.
 - [ ] Try restoring any other JSON file: you get a message saying it isn't a Tally backup, and your data is unchanged.
+
+## 4b. Profile button and its dot
+
+- [ ] On Today, the avatar sits at the top-right level with the date. Tap it: the profile opens with Back to Today at the top-left and the bottom nav still showing. Back returns to Today.
+- [ ] With a fresh install, no dot shows. Use the app past 30 days without backing up (or restore a backup, then change the phone's date forward 31 days): an amber dot appears on the avatar, and VoiceOver/TalkBack reads "Your profile and settings, backup due".
+- [ ] In a private/incognito window where data can't be saved, the dot shows and the label says "data can't be saved in this browser".
+- [ ] Old links still work: open `/more` and `/more/data` directly; they land on the profile and Backup and storage.
 
 ## 5. Offline use of the installed app
 
