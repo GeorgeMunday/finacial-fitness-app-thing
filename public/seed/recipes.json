@@ -1,0 +1,769 @@
+{
+ "pricesEstimated": "October 2026",
+ "prices": [
+  {
+   "food": "Chicken thigh fillet, raw",
+   "packG": 1000,
+   "pricePence": 650
+  },
+  {
+   "food": "Chicken breast, raw",
+   "packG": 1000,
+   "pricePence": 600
+  },
+  {
+   "food": "Turkey mince, 5% fat, raw",
+   "packG": 500,
+   "pricePence": 275
+  },
+  {
+   "food": "Beef mince, 5% fat, raw",
+   "packG": 500,
+   "pricePence": 360
+  },
+  {
+   "food": "Red lentils, dry",
+   "packG": 500,
+   "pricePence": 130
+  },
+  {
+   "food": "Kidney beans, canned",
+   "packG": 240,
+   "pricePence": 65
+  },
+  {
+   "food": "Chopped tomatoes, canned",
+   "packG": 400,
+   "pricePence": 45
+  },
+  {
+   "food": "Rice, dry",
+   "packG": 1000,
+   "pricePence": 160
+  },
+  {
+   "food": "Rice, microwave pouch",
+   "packG": 250,
+   "pricePence": 95
+  },
+  {
+   "food": "Pasta, dry",
+   "packG": 500,
+   "pricePence": 70
+  },
+  {
+   "food": "Tuna, canned in brine",
+   "packG": 112,
+   "pricePence": 100
+  },
+  {
+   "food": "Greek yoghurt, 0% fat",
+   "packG": 500,
+   "pricePence": 170
+  },
+  {
+   "food": "Whey protein powder",
+   "packG": 1000,
+   "pricePence": 1500
+  },
+  {
+   "food": "Cottage cheese",
+   "packG": 300,
+   "pricePence": 110
+  },
+  {
+   "food": "Egg, raw",
+   "packG": 660,
+   "pricePence": 240
+  },
+  {
+   "food": "Ham, cooked",
+   "packG": 100,
+   "pricePence": 85
+  },
+  {
+   "food": "Spinach, frozen",
+   "packG": 800,
+   "pricePence": 150
+  },
+  {
+   "food": "Potato, baking, raw",
+   "packG": 1000,
+   "pricePence": 120
+  },
+  {
+   "food": "Sweetcorn, canned",
+   "packG": 285,
+   "pricePence": 55
+  },
+  {
+   "food": "Baked beans",
+   "packG": 400,
+   "pricePence": 50
+  },
+  {
+   "food": "Bread, wholemeal",
+   "packG": 800,
+   "pricePence": 90
+  },
+  {
+   "food": "Frozen mixed berries",
+   "packG": 500,
+   "pricePence": 190
+  },
+  {
+   "food": "Oats, rolled",
+   "packG": 1000,
+   "pricePence": 125
+  },
+  {
+   "food": "Milk, semi-skimmed",
+   "packG": 1000,
+   "pricePence": 65
+  },
+  {
+   "food": "Peppers",
+   "packG": 500,
+   "pricePence": 150
+  },
+  {
+   "food": "Onion",
+   "packG": 1000,
+   "pricePence": 110
+  },
+  {
+   "food": "Carrot",
+   "packG": 1000,
+   "pricePence": 80
+  },
+  {
+   "food": "Garlic",
+   "packG": 50,
+   "pricePence": 40
+  },
+  {
+   "food": "Olive oil",
+   "packG": 920,
+   "pricePence": 550
+  },
+  {
+   "food": "Mixed spices",
+   "packG": 45,
+   "pricePence": 125
+  },
+  {
+   "food": "Tikka curry paste",
+   "packG": 290,
+   "pricePence": 150
+  },
+  {
+   "food": "Soy sauce",
+   "packG": 150,
+   "pricePence": 100
+  },
+  {
+   "food": "Frozen mixed vegetables",
+   "packG": 1000,
+   "pricePence": 120
+  },
+  {
+   "food": "Cheddar cheese",
+   "packG": 400,
+   "pricePence": 340
+  },
+  {
+   "food": "Butter",
+   "packG": 250,
+   "pricePence": 200
+  }
+ ],
+ "recipes": [
+  {
+   "key": "chicken-rice-pepper-traybake",
+   "name": "Chicken thigh, rice and pepper traybake",
+   "description": "Everything cooks in one tray: the rice soaks up the chicken juices while the peppers go soft and sweet.",
+   "servings": 4,
+   "prepMinutes": 15,
+   "cookMinutes": 40,
+   "fridgeDays": 3,
+   "tags": [
+    "batch",
+    "dinner"
+   ],
+   "ingredients": [
+    {
+     "food": "Chicken thigh fillet, raw",
+     "grams": 700
+    },
+    {
+     "food": "Rice, dry",
+     "grams": 280
+    },
+    {
+     "food": "Peppers",
+     "grams": 400
+    },
+    {
+     "food": "Onion",
+     "grams": 200
+    },
+    {
+     "food": "Olive oil",
+     "grams": 20
+    },
+    {
+     "food": "Mixed spices",
+     "grams": 8
+    },
+    {
+     "food": "Garlic",
+     "grams": 10
+    }
+   ],
+   "steps": [
+    "Heat the oven to 200°C (180°C fan).",
+    "Cut the peppers and onion into chunky pieces and tip them into a large deep tray with the oil, spices and crushed garlic.",
+    "Lay the chicken on top and roast for 15 minutes.",
+    "Stir the dry rice into the tray with 700 ml boiling water, cover tightly with foil and roast for 25 minutes, until the rice is tender and the chicken is cooked through.",
+    "Rest for 5 minutes, then divide into four boxes."
+   ]
+  },
+  {
+   "key": "turkey-chilli-kidney-beans",
+   "name": "Turkey mince chilli with kidney beans",
+   "description": "A big, thick pot of lean chilli with beans for extra fibre. It tastes better on day two.",
+   "servings": 4,
+   "prepMinutes": 15,
+   "cookMinutes": 35,
+   "fridgeDays": 4,
+   "tags": [
+    "batch",
+    "dinner",
+    "freezer-friendly"
+   ],
+   "ingredients": [
+    {
+     "food": "Turkey mince, 5% fat, raw",
+     "grams": 500
+    },
+    {
+     "food": "Kidney beans, canned",
+     "grams": 480
+    },
+    {
+     "food": "Chopped tomatoes, canned",
+     "grams": 800
+    },
+    {
+     "food": "Onion",
+     "grams": 200
+    },
+    {
+     "food": "Peppers",
+     "grams": 150
+    },
+    {
+     "food": "Rice, dry",
+     "grams": 280
+    },
+    {
+     "food": "Mixed spices",
+     "grams": 10
+    },
+    {
+     "food": "Garlic",
+     "grams": 10
+    },
+    {
+     "food": "Olive oil",
+     "grams": 10
+    }
+   ],
+   "steps": [
+    "Soften the chopped onion and pepper in the oil in a large pan for 5 minutes.",
+    "Add the crushed garlic, spices and turkey mince. Break the mince up and cook until there is no pink left.",
+    "Tip in the tomatoes and the drained beans, then simmer for 25 minutes, stirring now and then.",
+    "While it simmers, cook the rice following the packet.",
+    "Divide the chilli and rice between four boxes."
+   ]
+  },
+  {
+   "key": "beef-lentil-bolognese",
+   "name": "Beef and lentil bolognese",
+   "description": "Red lentils stretch a small amount of beef mince into five generous, protein-packed portions.",
+   "servings": 5,
+   "prepMinutes": 15,
+   "cookMinutes": 40,
+   "fridgeDays": 4,
+   "tags": [
+    "batch",
+    "dinner",
+    "freezer-friendly"
+   ],
+   "ingredients": [
+    {
+     "food": "Beef mince, 5% fat, raw",
+     "grams": 400
+    },
+    {
+     "food": "Red lentils, dry",
+     "grams": 150
+    },
+    {
+     "food": "Chopped tomatoes, canned",
+     "grams": 800
+    },
+    {
+     "food": "Onion",
+     "grams": 200
+    },
+    {
+     "food": "Carrot",
+     "grams": 200
+    },
+    {
+     "food": "Pasta, dry",
+     "grams": 375
+    },
+    {
+     "food": "Garlic",
+     "grams": 10
+    },
+    {
+     "food": "Mixed spices",
+     "grams": 4
+    },
+    {
+     "food": "Olive oil",
+     "grams": 10
+    }
+   ],
+   "steps": [
+    "Fry the chopped onion and grated carrot in the oil for 5 minutes.",
+    "Add the garlic, spices and beef mince and cook until browned.",
+    "Stir in the lentils, tomatoes and 400 ml water. Simmer for 30 minutes until the lentils are soft, adding a splash of water if it gets dry.",
+    "Cook the pasta following the packet and drain.",
+    "Split the sauce and pasta between five boxes."
+   ]
+  },
+  {
+   "key": "chicken-tikka-style-curry",
+   "name": "Chicken tikka-style curry with Greek yoghurt and rice",
+   "description": "Yoghurt and curry paste make a creamy, mild curry without any cream.",
+   "servings": 4,
+   "prepMinutes": 15,
+   "cookMinutes": 30,
+   "fridgeDays": 3,
+   "tags": [
+    "batch",
+    "dinner",
+    "freezer-friendly"
+   ],
+   "ingredients": [
+    {
+     "food": "Chicken breast, raw",
+     "grams": 600
+    },
+    {
+     "food": "Greek yoghurt, 0% fat",
+     "grams": 200
+    },
+    {
+     "food": "Tikka curry paste",
+     "grams": 100
+    },
+    {
+     "food": "Chopped tomatoes, canned",
+     "grams": 400
+    },
+    {
+     "food": "Onion",
+     "grams": 200
+    },
+    {
+     "food": "Rice, dry",
+     "grams": 280
+    },
+    {
+     "food": "Garlic",
+     "grams": 10
+    },
+    {
+     "food": "Olive oil",
+     "grams": 10
+    }
+   ],
+   "steps": [
+    "Dice the chicken and stir it through the yoghurt and curry paste in a bowl. Leave it while you start the sauce.",
+    "Soften the chopped onion and crushed garlic in the oil for 5 minutes.",
+    "Add the chicken with all its marinade and cook for 5 minutes, then pour in the tomatoes and 100 ml water.",
+    "Simmer for 20 minutes until the chicken is cooked through. Cook the rice following the packet.",
+    "Divide the curry and rice between four boxes."
+   ]
+  },
+  {
+   "key": "tuna-pasta-bake",
+   "name": "Tuna pasta bake",
+   "description": "A cheesy, golden bake made almost entirely from the cupboard.",
+   "servings": 4,
+   "prepMinutes": 15,
+   "cookMinutes": 30,
+   "fridgeDays": 3,
+   "tags": [
+    "batch",
+    "lunch",
+    "dinner",
+    "freezer-friendly"
+   ],
+   "ingredients": [
+    {
+     "food": "Tuna, canned in brine",
+     "grams": 448
+    },
+    {
+     "food": "Pasta, dry",
+     "grams": 300
+    },
+    {
+     "food": "Chopped tomatoes, canned",
+     "grams": 400
+    },
+    {
+     "food": "Sweetcorn, canned",
+     "grams": 150
+    },
+    {
+     "food": "Cheddar cheese",
+     "grams": 80
+    },
+    {
+     "food": "Onion",
+     "grams": 100
+    },
+    {
+     "food": "Garlic",
+     "grams": 5
+    },
+    {
+     "food": "Mixed spices",
+     "grams": 4
+    }
+   ],
+   "steps": [
+    "Heat the oven to 200°C (180°C fan). Boil the pasta for 2 minutes less than the packet says, then drain.",
+    "Soften the chopped onion and garlic in a pan, add the tomatoes and spices and simmer for 10 minutes.",
+    "Stir the drained tuna, sweetcorn and pasta into the sauce.",
+    "Tip it into a baking dish, scatter over the grated cheese and bake for 15 minutes until golden.",
+    "Let it cool a little, then divide into four boxes."
+   ]
+  },
+  {
+   "key": "turkey-meatballs-tomato-sauce",
+   "name": "Turkey meatballs in tomato sauce",
+   "description": "Lean turkey meatballs, held together with a little bread, simmered in a simple tomato sauce.",
+   "servings": 4,
+   "prepMinutes": 20,
+   "cookMinutes": 30,
+   "fridgeDays": 4,
+   "tags": [
+    "batch",
+    "dinner",
+    "freezer-friendly"
+   ],
+   "ingredients": [
+    {
+     "food": "Turkey mince, 5% fat, raw",
+     "grams": 600
+    },
+    {
+     "food": "Egg, raw",
+     "grams": 55
+    },
+    {
+     "food": "Bread, wholemeal",
+     "grams": 36
+    },
+    {
+     "food": "Chopped tomatoes, canned",
+     "grams": 800
+    },
+    {
+     "food": "Onion",
+     "grams": 150
+    },
+    {
+     "food": "Pasta, dry",
+     "grams": 300
+    },
+    {
+     "food": "Garlic",
+     "grams": 10
+    },
+    {
+     "food": "Mixed spices",
+     "grams": 6
+    },
+    {
+     "food": "Olive oil",
+     "grams": 10
+    }
+   ],
+   "steps": [
+    "Tear the bread into crumbs and mix with the mince, egg, half the garlic and half the spices. Roll into about 24 balls.",
+    "Brown the meatballs in the oil for 5 minutes, turning them often.",
+    "Add the chopped onion, the rest of the garlic and spices and the tomatoes. Simmer for 20 minutes until the meatballs are cooked through.",
+    "Meanwhile cook the pasta following the packet and drain.",
+    "Divide the meatballs, sauce and pasta between four boxes."
+   ]
+  },
+  {
+   "key": "egg-ham-spinach-muffins",
+   "name": "Egg, ham and spinach muffins",
+   "description": "Savoury egg muffins that reheat in a minute. Three muffins make a portion.",
+   "servings": 4,
+   "prepMinutes": 10,
+   "cookMinutes": 25,
+   "fridgeDays": 4,
+   "tags": [
+    "batch",
+    "breakfast",
+    "lunch",
+    "freezer-friendly"
+   ],
+   "ingredients": [
+    {
+     "food": "Egg, raw",
+     "grams": 660
+    },
+    {
+     "food": "Ham, cooked",
+     "grams": 120
+    },
+    {
+     "food": "Spinach, frozen",
+     "grams": 150
+    },
+    {
+     "food": "Cheddar cheese",
+     "grams": 60
+    },
+    {
+     "food": "Cottage cheese",
+     "grams": 150
+    },
+    {
+     "food": "Olive oil",
+     "grams": 5
+    }
+   ],
+   "steps": [
+    "Heat the oven to 180°C (160°C fan) and brush a 12-hole muffin tin with the oil.",
+    "Whisk the eggs with the cottage cheese until mostly smooth.",
+    "Chop the ham, thaw the spinach and squeeze out the water. Share the ham, spinach and grated cheese between the 12 holes.",
+    "Pour the egg mixture over the top.",
+    "Bake for 22 to 25 minutes until set and lightly golden. Cool, then keep three muffins per portion."
+   ]
+  },
+  {
+   "key": "overnight-oats-yoghurt-whey",
+   "name": "Overnight oats with Greek yoghurt and whey",
+   "description": "Five jars you assemble in one go on Sunday evening and grab all week.",
+   "servings": 5,
+   "prepMinutes": 10,
+   "cookMinutes": 0,
+   "fridgeDays": 4,
+   "tags": [
+    "batch",
+    "breakfast"
+   ],
+   "ingredients": [
+    {
+     "food": "Oats, rolled",
+     "grams": 250
+    },
+    {
+     "food": "Greek yoghurt, 0% fat",
+     "grams": 750
+    },
+    {
+     "food": "Whey protein powder",
+     "grams": 100
+    },
+    {
+     "food": "Milk, semi-skimmed",
+     "grams": 400
+    },
+    {
+     "food": "Frozen mixed berries",
+     "grams": 250
+    }
+   ],
+   "steps": [
+    "Spoon 50 g of oats into each of five jars.",
+    "Whisk the yoghurt, whey and milk together until smooth.",
+    "Pour the mixture evenly over the oats and stir.",
+    "Top each jar with 50 g of berries, put the lids on and chill overnight."
+   ]
+  },
+  {
+   "key": "tuna-sweetcorn-cottage-cheese-jacket",
+   "name": "Tuna, sweetcorn and cottage cheese jacket potato",
+   "description": "A microwave jacket potato with a cool, creamy tuna filling.",
+   "servings": 1,
+   "prepMinutes": 5,
+   "cookMinutes": 10,
+   "fridgeDays": 1,
+   "tags": [
+    "quick",
+    "lunch"
+   ],
+   "ingredients": [
+    {
+     "food": "Potato, baking, raw",
+     "grams": 300
+    },
+    {
+     "food": "Tuna, canned in brine",
+     "grams": 112
+    },
+    {
+     "food": "Cottage cheese",
+     "grams": 100
+    },
+    {
+     "food": "Sweetcorn, canned",
+     "grams": 50
+    }
+   ],
+   "steps": [
+    "Prick the potato all over and microwave for 8 to 10 minutes, turning halfway, until soft.",
+    "Drain the tuna and mix it with the cottage cheese and sweetcorn.",
+    "Split the potato open and spoon the filling in."
+   ]
+  },
+  {
+   "key": "chicken-veg-egg-fried-rice",
+   "name": "Chicken and veg egg-fried rice",
+   "description": "A fast stir-fry built on a pouch of microwave rice.",
+   "servings": 1,
+   "prepMinutes": 10,
+   "cookMinutes": 8,
+   "fridgeDays": 1,
+   "tags": [
+    "quick",
+    "lunch",
+    "dinner"
+   ],
+   "ingredients": [
+    {
+     "food": "Chicken breast, raw",
+     "grams": 130
+    },
+    {
+     "food": "Egg, raw",
+     "grams": 55
+    },
+    {
+     "food": "Rice, microwave pouch",
+     "grams": 125
+    },
+    {
+     "food": "Frozen mixed vegetables",
+     "grams": 80
+    },
+    {
+     "food": "Soy sauce",
+     "grams": 10
+    },
+    {
+     "food": "Olive oil",
+     "grams": 5
+    }
+   ],
+   "steps": [
+    "Slice the chicken thinly and fry it in the oil for 5 minutes until cooked through.",
+    "Add the frozen vegetables and cook for 2 minutes.",
+    "Push everything to one side, crack the egg into the gap and scramble it.",
+    "Add the microwaved rice and the soy sauce and stir-fry for 2 minutes."
+   ]
+  },
+  {
+   "key": "scrambled-eggs-beans-toast",
+   "name": "Scrambled eggs and beans on toast",
+   "description": "A cafe-style breakfast with three eggs for extra staying power.",
+   "servings": 1,
+   "prepMinutes": 5,
+   "cookMinutes": 8,
+   "fridgeDays": null,
+   "tags": [
+    "quick",
+    "breakfast",
+    "lunch"
+   ],
+   "ingredients": [
+    {
+     "food": "Egg, raw",
+     "grams": 165
+    },
+    {
+     "food": "Baked beans",
+     "grams": 200
+    },
+    {
+     "food": "Bread, wholemeal",
+     "grams": 72
+    },
+    {
+     "food": "Butter",
+     "grams": 5
+    },
+    {
+     "food": "Milk, semi-skimmed",
+     "grams": 20
+    }
+   ],
+   "steps": [
+    "Heat the beans in a pan or the microwave.",
+    "Toast the bread.",
+    "Beat the eggs with the milk and scramble gently in the butter, taking the pan off the heat while they are still soft.",
+    "Pile the eggs and beans onto the toast."
+   ]
+  },
+  {
+   "key": "greek-yoghurt-protein-pot",
+   "name": "Greek yoghurt protein pot",
+   "description": "Whey stirred into thick yoghurt, topped with fruit and crunch.",
+   "servings": 1,
+   "prepMinutes": 5,
+   "cookMinutes": 0,
+   "fridgeDays": 2,
+   "tags": [
+    "quick",
+    "breakfast"
+   ],
+   "ingredients": [
+    {
+     "food": "Greek yoghurt, 0% fat",
+     "grams": 200
+    },
+    {
+     "food": "Whey protein powder",
+     "grams": 25
+    },
+    {
+     "food": "Frozen mixed berries",
+     "grams": 80
+    },
+    {
+     "food": "Oats, rolled",
+     "grams": 20
+    }
+   ],
+   "steps": [
+    "Stir the whey into the yoghurt until there are no lumps.",
+    "Scatter the berries on top and leave for 5 minutes so they soften.",
+    "Sprinkle over the oats."
+   ]
+  }
+ ]
+}

@@ -3,6 +3,7 @@ import { newId, nowIso } from '../db/ids'
 import type { Food } from '../db/types'
 import { seedProgrammes } from './programmes/seedProgrammes'
 import type { SeedProgramme } from './programmes/types'
+import { seedRecipes, type RecipeSeedFile } from './recipes/seedRecipes'
 
 export type SeedFood = { name: string; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number }
 export type SeedExercise = { name: string; primary_muscle: string; equipment: string }
@@ -42,6 +43,7 @@ export async function seedAll(db: SqlExecutor, data: SeedData): Promise<{ foods:
       out.exercises++
     }
     out.programmes = await seedProgrammes(tx, data.programmes as SeedProgramme[])
+    if (data.recipes) out.recipes = await seedRecipes(tx, data.recipes as RecipeSeedFile)
   })
   return out
 }
