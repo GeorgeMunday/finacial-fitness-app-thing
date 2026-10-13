@@ -2,13 +2,20 @@ import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-/** A settings sub-screen: a way back to More, then a title. */
+/** A top-left way back: a chevron and where it goes. */
+export function BackLink({ to, label, text }: { to: string; label: string; text: string }) {
+  return (
+    <Link to={to} aria-label={label} className="-ml-2 flex min-h-11 items-center gap-1 self-start pr-2 text-pond">
+      <ChevronLeft aria-hidden="true" size={20} /> {text}
+    </Link>
+  )
+}
+
+/** A settings sub-screen: a way back to the profile, then a title. */
 export function SubScreen({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-6">
-      <Link to="/more" aria-label="Back to More" className="-ml-2 flex min-h-11 items-center gap-1 self-start pr-2 text-pond">
-        <ChevronLeft aria-hidden="true" size={20} /> More
-      </Link>
+      <BackLink to="/you" label="Back to profile" text="Profile" />
       <h1 className="-mt-4 font-display text-xl font-semibold">{title}</h1>
       {children}
     </div>

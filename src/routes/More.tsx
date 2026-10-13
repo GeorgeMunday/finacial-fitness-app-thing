@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { BackLink } from '../components/settings/SettingsUi'
 import { ProfileHeader } from '../components/profile/ProfileHeader'
 import { ProgressSection } from '../components/profile/ProgressSection'
 import { SettingsList } from '../components/settings/SettingsList'
@@ -11,11 +12,14 @@ import ProfileSettings from './more/ProfileSettings'
 import SectionSettings from './more/SectionSettings'
 import TrainingSettings from './more/TrainingSettings'
 
-/** Your own space: who you are, how you're doing, then settings. */
+/** Your own space: who you are, how you're doing, then settings. Opened from the avatar on Today. */
 function ProfileHome() {
   return (
     <div className="flex flex-col gap-10">
-      <ProfileHeader />
+      <div className="flex flex-col gap-3">
+        <BackLink to="/" label="Back to Today" text="Today" />
+        <ProfileHeader />
+      </div>
       <ProgressSection />
       <SettingsList />
     </div>

@@ -16,10 +16,10 @@ export function SettingsList() {
   return (
     <nav aria-label="Settings" className="flex flex-col gap-6">
       <Group title="Profile">
-        <RowLink to="/more/profile" label="Name and avatar" value={settings.displayName?.trim() || 'You'} />
+        <RowLink to="/you/profile" label="Name and avatar" value={settings.displayName?.trim() || 'You'} />
       </Group>
       <Group title="Money">
-        <RowLink to="/more/income" label="Monthly income" value={income ? `${formatPence(income.amountPence)}, day ${income.payDay}` : 'Not set'} />
+        <RowLink to="/you/income" label="Monthly income" value={income ? `${formatPence(income.amountPence)}, day ${income.payDay}` : 'Not set'} />
         <RowLink to="/money/budgets" label="Budgets" />
         <RowLink to="/money/recurring" label="Recurring payments" />
         <RowLink to="/money/goals" label="Savings goals" />
@@ -27,28 +27,28 @@ export function SettingsList() {
       {food ? (
         <Group title="Food">
           <RowLink
-            to="/more/food" label="Targets and calories"
+            to="/you/food" label="Targets and calories"
             value={settings.hideCalories ? 'Calories hidden' : settings.kcalTarget ? `${settings.kcalTarget.toLocaleString('en-GB')} kcal` : 'No target'}
           />
         </Group>
       ) : null}
       {train ? (
         <Group title="Training">
-          <RowLink to="/more/training" label="Units and rest timer" value={`${settings.weightUnit}, ${settings.restSeconds} s`} />
+          <RowLink to="/you/training" label="Units and rest timer" value={`${settings.weightUnit}, ${settings.restSeconds} s`} />
         </Group>
       ) : null}
       <Group title="Dates">
-        <RowLink to="/more/dates" label="Date format" value={formatDate('2026-10-12', settings.dateFormat)} />
+        <RowLink to="/you/dates" label="Date format" value={formatDate('2026-10-12', settings.dateFormat)} />
       </Group>
       <Group title="Appearance">
-        <RowLink to="/more/appearance" label="Theme" value={theme} />
+        <RowLink to="/you/appearance" label="Theme" value={theme} />
       </Group>
       <Group title="Sections">
-        <RowLink to="/more/sections" label="Food and training" value={[food && 'Food', train && 'Training'].filter(Boolean).join(', ') || 'Money only'} />
+        <RowLink to="/you/sections" label="Food and training" value={[food && 'Food', train && 'Training'].filter(Boolean).join(', ') || 'Money only'} />
       </Group>
       <Group title="Your data">
         <RowLink
-          to="/more/data" label="Backup and storage"
+          to="/you/data" label="Backup and storage"
           value={settings.lastBackupAt ? `Backed up ${formatDate(settings.lastBackupAt.slice(0, 10), settings.dateFormat)}` : 'No backup yet'}
         />
       </Group>

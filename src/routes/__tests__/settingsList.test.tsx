@@ -12,7 +12,7 @@ import Train from '../Train'
 
 const app = () => (
   <Routes>
-    <Route path="/more/*" element={<More />} />
+    <Route path="/you/*" element={<More />} />
     <Route path="/money/*" element={<Money />} />
     <Route path="/train/*" element={<Train />} />
   </Routes>
@@ -21,7 +21,7 @@ const app = () => (
 describe('settings list', () => {
   it('groups settings, showing Food and Training only when those are on', async () => {
     const db = await freshDb({ onboarded: true })
-    renderApp(app(), db, '/more')
+    renderApp(app(), db, '/you')
     const list = await screen.findByRole('navigation', { name: 'Settings' })
     for (const g of ['Profile', 'Money', 'Dates', 'Appearance', 'Sections', 'Your data']) expect(within(list).getByRole('heading', { name: g })).toBeInTheDocument()
     expect(within(list).queryByRole('heading', { name: 'Food' })).toBeNull()
@@ -29,7 +29,7 @@ describe('settings list', () => {
   })
   it('shows Food and Training groups when on', async () => {
     const db = await freshDb({ onboarded: true, optionalPillars: ['food', 'train'], healthConsent: true })
-    renderApp(app(), db, '/more')
+    renderApp(app(), db, '/you')
     const list = await screen.findByRole('navigation', { name: 'Settings' })
     expect(within(list).getByRole('heading', { name: 'Food' })).toBeInTheDocument()
     expect(within(list).getByRole('heading', { name: 'Training' })).toBeInTheDocument()
@@ -37,15 +37,15 @@ describe('settings list', () => {
   it('each row opens its own screen, with a way back', async () => {
     const db = await freshDb({ onboarded: true })
     const user = userEvent.setup()
-    renderApp(app(), db, '/more')
+    renderApp(app(), db, '/you')
     await user.click(await screen.findByRole('link', { name: /Backup and storage/ }))
     expect(await screen.findByRole('button', { name: 'Download backup' })).toBeInTheDocument()
-    await user.click(screen.getByRole('link', { name: 'Back to More' }))
+    await user.click(screen.getByRole('link', { name: 'Back to profile' }))
     expect(await screen.findByRole('navigation', { name: 'Settings' })).toBeInTheDocument()
   })
   it('money rows link to budgets, recurring payments and goals', async () => {
     const db = await freshDb({ onboarded: true })
-    renderApp(app(), db, '/more')
+    renderApp(app(), db, '/you')
     const list = await screen.findByRole('navigation', { name: 'Settings' })
     expect(within(list).getByRole('link', { name: /Budgets/ })).toHaveAttribute('href', '/money/budgets')
     expect(within(list).getByRole('link', { name: /Recurring payments/ })).toHaveAttribute('href', '/money/recurring')
@@ -54,7 +54,7 @@ describe('settings list', () => {
   it('saves a display name', async () => {
     const db = await freshDb({ onboarded: true })
     const user = userEvent.setup()
-    renderApp(app(), db, '/more/profile')
+    renderApp(app(), db, '/you/profile')
     await user.type(await screen.findByLabelText('Display name'), 'Sam')
     await user.click(screen.getByRole('button', { name: 'Save name' }))
     await waitFor(async () => expect((await getSettings(db)).displayName).toBe('Sam'))
@@ -62,7 +62,7 @@ describe('settings list', () => {
   it('sets the theme', async () => {
     const db = await freshDb({ onboarded: true })
     const user = userEvent.setup()
-    renderApp(app(), db, '/more/appearance')
+    renderApp(app(), db, '/you/appearance')
     await user.click(await screen.findByRole('radio', { name: 'Dark' }))
     await waitFor(async () => expect((await getSettings(db)).theme).toBe('dark'))
   })
@@ -72,7 +72,7 @@ describe('training settings', () => {
   it('the rest timer uses the chosen length', async () => {
     const db = await freshDb({ onboarded: true, optionalPillars: ['train'] })
     const user = userEvent.setup()
-    renderApp(app(), db, '/more/training')
+    renderApp(app(), db, '/you/training')
     await user.click(await screen.findByRole('radio', { name: '60 s' }))
     await waitFor(async () => expect((await getSettings(db)).restSeconds).toBe(60))
   })
@@ -97,7 +97,7 @@ describe('date format', () => {
     const g = await createGoal(db, { name: 'Holiday', period: 'year', targetPence: 100000 })
     await contribute(db, g, 500, '2026-03-04')
     const user = userEvent.setup()
-    renderApp(app(), db, '/more/dates')
+    renderApp(app(), db, '/you/dates')
     await user.click(await screen.findByRole('radio', { name: '12/10/2026' }))
     await waitFor(async () => expect((await getSettings(db)).dateFormat).toBe('numeric'))
   })

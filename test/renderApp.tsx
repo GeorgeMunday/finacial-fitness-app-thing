@@ -16,10 +16,10 @@ export async function freshDb(settings: Partial<Settings> = { onboarded: true })
   return db
 }
 
-export function renderApp(ui: ReactElement, db: SqlExecutor, route = '/') {
+export function renderApp(ui: ReactElement, db: SqlExecutor, route = '/', opts: { persistent?: boolean } = {}) {
   return render(
     <MemoryRouter initialEntries={[route]}>
-      <DbContext.Provider value={{ db, persistent: true }}>
+      <DbContext.Provider value={{ db, persistent: opts.persistent ?? true }}>
         <SettingsProvider>
           <ToastProvider>{ui}</ToastProvider>
         </SettingsProvider>

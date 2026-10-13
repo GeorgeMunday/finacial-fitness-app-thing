@@ -14,6 +14,9 @@ function useDbValue(): DbValue {
 }
 export const useDb = (): SqlExecutor => useDbValue().db
 
+/** Just whether the database is saved to disk, without asking the browser for persistence again. */
+export const usePersistent = (): boolean => useDbValue().persistent
+
 export type StorageStatus = { persistent: boolean; persisted: boolean | null; standalone: boolean }
 export function useStorageStatus(): StorageStatus {
   const { persistent } = useDbValue()

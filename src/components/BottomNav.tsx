@@ -1,4 +1,4 @@
-import { Apple, Dumbbell, Ellipsis, House, Plus, Wallet, type LucideIcon } from 'lucide-react'
+import { Apple, Dumbbell, House, Plus, Wallet, type LucideIcon } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useSettings } from '../state/SettingsProvider'
 
@@ -21,18 +21,27 @@ function Item({ to, label, icon: Icon, end }: { to: string; label: string; icon:
   )
 }
 
+type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean }
+
 export function BottomNav({ onAdd }: { onAdd: () => void }) {
   const { settings } = useSettings()
-  const food = settings.optionalPillars.includes('food')
-  const train = settings.optionalPillars.includes('train')
+  const items: NavItem[] = [
+    { to: '/', label: 'Today', icon: House, end: true },
+    { to: '/money', label: 'Money', icon: Wallet },
+    ...(settings.optionalPillars.includes('food') ? [{ to: '/food', label: 'Food', icon: Apple }] : []),
+    ...(settings.optionalPillars.includes('train') ? [{ to: '/train', label: 'Train', icon: Dumbbell }] : []),
+  ]
+  // Add sits in the exact middle; the items split evenly around it and share each half's width.
+  const half = Math.ceil(items.length / 2)
+  const side = (list: NavItem[]) => (
+    <div className="flex h-full items-center">
+      {list.map((i) => <Item key={i.to} {...i} />)}
+    </div>
+  )
   return (
     <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-30 border-t border-fog bg-surface pb-[env(safe-area-inset-bottom)]">
-      {/* Three columns so the Add button sits at the exact centre whatever pillars are on. */}
       <div className="mx-auto grid h-16 max-w-lg grid-cols-[1fr_auto_1fr] items-center px-2">
-        <div className="flex h-full items-center">
-          <Item to="/" end label="Today" icon={House} />
-          <Item to="/money" label="Money" icon={Wallet} />
-        </div>
+        {side(items.slice(0, half))}
         <div className="flex w-20 justify-center">
           <button
             aria-label="Add"
@@ -42,11 +51,7 @@ export function BottomNav({ onAdd }: { onAdd: () => void }) {
             <Plus aria-hidden="true" size={28} strokeWidth={2.5} />
           </button>
         </div>
-        <div className="flex h-full items-center">
-          {food ? <Item to="/food" label="Food" icon={Apple} /> : null}
-          {train ? <Item to="/train" label="Train" icon={Dumbbell} /> : null}
-          <Item to="/more" label="More" icon={Ellipsis} />
-        </div>
+        {side(items.slice(half))}
       </div>
     </nav>
   )

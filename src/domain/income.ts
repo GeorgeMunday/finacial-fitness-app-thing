@@ -4,7 +4,7 @@ import { updateSettings } from '../state/settings'
 import { addDays, nextMonthlyOccurrence } from './dates'
 import { addRecurringRule, deleteRecurring } from './money'
 
-/** The recurring income rule created by onboarding and edited from More. */
+/** The recurring income rule created by onboarding and edited from your profile. */
 export const MONTHLY_INCOME_NAME = 'Monthly income'
 
 type Rule = { id: string; amount_pence: number; anchor_day: number | null; next_date: string }

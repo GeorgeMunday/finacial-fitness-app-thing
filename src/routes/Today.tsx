@@ -1,5 +1,6 @@
 import { useFormatDate } from '../hooks/useFormatDate'
 import { Link, useNavigate } from 'react-router-dom'
+import { ProfileButton } from '../components/profile/ProfileButton'
 import { TodayCard } from '../components/TodayCard'
 import { Amount } from '../components/ui/Amount'
 import { Button } from '../components/ui/Button'
@@ -26,7 +27,10 @@ export default function Today() {
   const over = m.weekLimitPence > 0 && m.leftThisWeekPence < 0
   return (
     <div className="flex flex-col gap-8">
-      <p className="text-slate">{new Date(`${today}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+      <header className="flex items-center justify-between gap-3">
+        <h1 className="text-slate">{new Date(`${today}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</h1>
+        <ProfileButton />
+      </header>
 
       <section aria-label="Money" className="flex flex-col gap-4">
         {m.weekLimitPence > 0 ? (
@@ -58,8 +62,8 @@ export default function Today() {
       </section>
 
       {s.backupDue ? (
-        <TodayCard title="Back up your data" to="/more/data">
-          <p className="text-slate">It's been over 30 days. Your data only lives in this browser, so download a backup from More.</p>
+        <TodayCard title="Back up your data" to="/you/data">
+          <p className="text-slate">It's been over 30 days. Your data only lives in this browser, so download a backup from your profile.</p>
         </TodayCard>
       ) : null}
 

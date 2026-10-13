@@ -167,7 +167,7 @@ export default function OnboardingFlow() {
       <Screen title="Your health data">
         <p>
           To use Food, Tally stores your food logs and body weight on this device. Nothing is sent anywhere.
-          You can delete this data from More at any time.
+          You can delete this data from your profile at any time.
         </p>
         <label className="flex min-h-11 items-center gap-3">
           <input type="checkbox" className="size-6" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
@@ -198,7 +198,7 @@ export default function OnboardingFlow() {
     <Screen title="Your data stays on this device">
       <p>Everything you log is saved in this browser. There are no accounts and nothing is uploaded.</p>
       <p>
-        Browsers can clear site data, so download a backup from More now and then. Tally will remind you if it has been
+        Browsers can clear site data, so download a backup from your profile now and then. Tally will remind you if it has been
         more than 30 days.
       </p>
       <Button onClick={finish}>Start using Tally</Button>

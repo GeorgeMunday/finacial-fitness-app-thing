@@ -13,7 +13,7 @@ describe('More consent', () => {
   it('turning Food on asks for consent naming only food logs and body weight', async () => {
     const db = await freshDb({ onboarded: true })
     const user = userEvent.setup()
-    renderApp(<Routes><Route path="/more/*" element={<More />} /></Routes>, db, '/more/sections')
+    renderApp(<Routes><Route path="/you/*" element={<More />} /></Routes>, db, '/you/sections')
     await user.click(await screen.findByRole('switch', { name: 'Food' }))
     const dialog = screen.getByRole('dialog', { name: 'Your health data' })
     expect(dialog).toHaveTextContent(/food logs and body weight/)
@@ -26,7 +26,7 @@ describe('More monthly income', () => {
     const db = await freshDb({ onboarded: true })
     await saveMonthlyIncome(db, { amountPence: 200000, payDay: 1, today: localDate() })
     const user = userEvent.setup()
-    renderApp(<Routes><Route path="/more/*" element={<More />} /></Routes>, db, '/more/income')
+    renderApp(<Routes><Route path="/you/*" element={<More />} /></Routes>, db, '/you/income')
     const amount = await screen.findByLabelText('Monthly income')
     await waitFor(() => expect(amount).toHaveValue('2000.00'))
     await user.clear(amount)
@@ -40,7 +40,7 @@ describe('More monthly income', () => {
   it('sets up income for someone who skipped it in onboarding', async () => {
     const db = await freshDb({ onboarded: true })
     const user = userEvent.setup()
-    renderApp(<Routes><Route path="/more/*" element={<More />} /></Routes>, db, '/more/income')
+    renderApp(<Routes><Route path="/you/*" element={<More />} /></Routes>, db, '/you/income')
     await user.type(await screen.findByLabelText('Monthly income'), '1500')
     await user.click(screen.getByRole('button', { name: 'Save income' }))
     await waitFor(async () => expect(await getMonthlyIncome(db)).toEqual({ amountPence: 150000, payDay: 1 }))
@@ -53,7 +53,7 @@ describe('More data section', () => {
     const f = await createUserFood(db, { createdAt: '', updatedAt: '', deletedAt: null, barcode: null, brand: null, servingG: null, servingLabel: null, name: 'Oats', kcal100g: 1, protein100g: 1, carbs100g: 1, fat100g: 1 })
     await logFood(db, { foodId: f, grams: 10, slot: 'snack' })
     const user = userEvent.setup()
-    renderApp(<Routes><Route path="/more/*" element={<More />} /></Routes>, db, '/more/data')
+    renderApp(<Routes><Route path="/you/*" element={<More />} /></Routes>, db, '/you/data')
     await user.click(await screen.findByRole('button', { name: 'Delete health data…' }))
     const confirm = screen.getByRole('button', { name: 'Delete health data' })
     expect(confirm).toBeDisabled()
@@ -67,7 +67,7 @@ describe('More data section', () => {
     URL.createObjectURL = () => 'blob:x'
     URL.revokeObjectURL = () => {}
     const user = userEvent.setup()
-    renderApp(<Routes><Route path="/more/*" element={<More />} /></Routes>, db, '/more/data')
+    renderApp(<Routes><Route path="/you/*" element={<More />} /></Routes>, db, '/you/data')
     await user.click(await screen.findByRole('button', { name: 'Download backup' }))
     await waitFor(async () => expect((await getSettings(db)).lastBackupAt).toBeDefined())
   })
