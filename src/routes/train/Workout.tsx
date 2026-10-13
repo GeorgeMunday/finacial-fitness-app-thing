@@ -8,6 +8,11 @@ import { useAsync } from '../../hooks/useAsync'
 import { useRestTimer } from '../../hooks/useRestTimer'
 import { useWakeLock } from '../../hooks/useWakeLock'
 import { fromKg, toKg } from '../../domain/units'
+import { ShortfallSheet, type Shortfall } from '../../components/train/ShortfallSheet'
+import { Sheet } from '../../components/ui/Sheet'
+import { suggestWeights } from '../../domain/programmes/plan'
+import { applyProgression, progressionShortfalls } from '../../domain/programmes/progression'
+import type { ProgressionOutcome } from '../../domain/programmes/types'
 import { finishWorkout, getExercise, getWorkout, logSet, previousSets, routineExercises, searchExercises, workoutSets } from '../../domain/training'
 import { useDb } from '../../state/DbProvider'
 import { useSettings } from '../../state/SettingsProvider'
@@ -26,8 +31,25 @@ function Stepper({ value, disabled, lessLabel, moreLabel, onLess, onMore }: { va
   )
 }
 
-type Row = { weight: number; reps: number; done: boolean }
-type Block = { exerciseId: string; name: string; rows: Row[] }
+type Row = { weight: number; reps: number; done: boolean; hint?: string }
+type Block = { key: string; exerciseId: string; altExerciseId?: string | null; name: string; note?: string | null; rows: Row[] }
+
+const range = (min: number, max: number) => (min === max ? '' : `${min}–${max}`)
+
+/** One line for the toast: what to lift next time, for the first couple of lifts that moved or were held. */
+function summarise(outcomes: ProgressionOutcome[], show: (kg: number) => string): string {
+  const lines: string[] = []
+  for (const o of outcomes) {
+    if (o.result === 'not_done') continue
+    if (o.result === 'progressed') lines.push(`${o.name}: ${show(o.toKg)} next time`)
+    else if (o.result === 'held' || o.result === 'incomplete') lines.push(`${o.name}: same weight next time`)
+    else if (o.result === 'stage_change') lines.push(`${o.name}: same weight, new reps next time`)
+    else if (o.result === 'cycle_up') lines.push(`${o.name} training max: ${show(o.toKg)}`)
+    else lines.push(`${o.name}: ${show(o.toKg)} next time after a ${o.result === 'deload' ? 'lighter reset' : o.result}`)
+    if (lines.length === 2) break
+  }
+  return lines.length ? lines.join('. ') : 'Workout saved'
+}
 
 export default function Workout() {
   const { id = '' } = useParams()
@@ -41,10 +63,43 @@ export default function Workout() {
   const { data } = useAsync(async () => {
     const workout = await getWorkout(db, id)
     if (!workout) return null
-    const plan = workout.routineId ? await routineExercises(db, workout.routineId) : []
     const logged = await workoutSets(db, id)
-    const ids = [...new Set([...plan.map((p) => p.exerciseId), ...logged.map((s) => s.exerciseId)])]
     const blocks: Block[] = []
+    if (workout.programmeDayId) {
+      // A programme day: sets, rep ranges and weights come from the plan; sets already logged tick their rows.
+      const plan = await suggestWeights(db, workout.programmeDayId)
+      const working = logged.filter((s) => !s.isWarmup)
+      const cursor = new Map<string, number>()
+      plan.forEach((pe, idx) => {
+        const all = working.filter((s) => s.exerciseId === pe.exerciseId)
+        const start = cursor.get(pe.exerciseId) ?? 0
+        const lastForExercise = !plan.slice(idx + 1).some((x) => x.exerciseId === pe.exerciseId)
+        const taken = lastForExercise ? all.slice(start) : all.slice(start, start + pe.sets.length)
+        cursor.set(pe.exerciseId, start + pe.sets.length)
+        const count = Math.max(pe.sets.length, taken.length)
+        const rows: Row[] = Array.from({ length: count }, (_, i) => {
+          const d = taken[i]
+          const planned = pe.sets[Math.min(i, pe.sets.length - 1)]
+          const hint = planned.amrap ? ` · ${planned.minReps}+` : range(planned.minReps, planned.maxReps) ? ` · ${range(planned.minReps, planned.maxReps)}` : ''
+          return d
+            ? { weight: fromKg(d.weightKg, unit), reps: d.reps, done: true, hint }
+            : { weight: fromKg(planned.weightKg, unit), reps: planned.reps, done: false, hint }
+        })
+        blocks.push({ key: pe.dayExerciseId, exerciseId: pe.exerciseId, altExerciseId: pe.altExerciseId, name: pe.name, note: pe.note, rows })
+      })
+      const planned = new Set(plan.map((p) => p.exerciseId))
+      for (const exId of new Set(working.map((s) => s.exerciseId))) {
+        if (planned.has(exId)) continue
+        const done = working.filter((s) => s.exerciseId === exId)
+        blocks.push({
+          key: exId, exerciseId: exId, name: (await getExercise(db, exId))?.name ?? 'Exercise',
+          rows: done.map((d) => ({ weight: fromKg(d.weightKg, unit), reps: d.reps, done: true })),
+        })
+      }
+      return { workout, blocks }
+    }
+    const plan = workout.routineId ? await routineExercises(db, workout.routineId) : []
+    const ids = [...new Set([...plan.map((p) => p.exerciseId), ...logged.map((s) => s.exerciseId)])]
     for (const exId of ids) {
       const p = plan.find((x) => x.exerciseId === exId)
       const prev = await previousSets(db, exId)
@@ -56,13 +111,17 @@ export default function Workout() {
         const src = d ?? prev[i] ?? prev[prev.length - 1]
         return { weight: src ? fromKg(src.weightKg, unit) : 0, reps: src?.reps ?? p?.targetReps ?? 8, done: !!d }
       })
-      blocks.push({ exerciseId: exId, name, rows })
+      blocks.push({ key: exId, exerciseId: exId, name, rows })
     }
     return { workout, blocks }
   }, [db, id, unit])
   const [blocks, setBlocks] = useState<Block[]>([])
   useEffect(() => setBlocks(data?.blocks ?? []), [data])
   const [adding, setAdding] = useState('')
+  const [swapping, setSwapping] = useState<number | null>(null)
+  const [swapQ, setSwapQ] = useState('')
+  const [shortfalls, setShortfalls] = useState<Shortfall[] | null>(null)
+  const { data: swapMatches } = useAsync(() => (swapQ.trim() ? searchExercises(db, swapQ.trim(), 8) : Promise.resolve([])), [db, swapQ])
   const [saving, setSaving] = useState<Set<string>>(new Set())
   const { data: matches } = useAsync(() => (adding.trim() ? searchExercises(db, adding.trim(), 8) : Promise.resolve([])), [db, adding])
   useWakeLock(!!data && !data.workout.endedAt)
@@ -89,6 +148,27 @@ export default function Workout() {
     }
   }
 
+  const swap = async (bi: number, exerciseId: string, name: string) => {
+    const prev = (await previousSets(db, exerciseId))[0]
+    setBlocks((cur) => cur.map((bl, i) => (i !== bi ? bl : {
+      ...bl, exerciseId, name, altExerciseId: null, note: null,
+      rows: bl.rows.map((r) => ({ ...r, weight: prev ? fromKg(prev.weightKg, unit) : 0 })),
+    })))
+    setSwapping(null)
+    setSwapQ('')
+  }
+
+  /** Stores the workout's end, then (for a programme day) moves the programme on and says what to lift next time. */
+  async function complete(decisions: Record<string, 'miss' | 'ignore'>) {
+    let message = 'Workout saved'
+    if (data!.workout.programmeDayId) {
+      message = summarise(await applyProgression(db, id, decisions), (kg) => `${fromKg(kg, unit)} ${unit}`)
+    }
+    setShortfalls(null)
+    toast.show(message)
+    navigate('/train', { replace: true })
+  }
+
   const patch = (b: number, r: number, change: Partial<Row>) =>
     setBlocks((cur) => cur.map((bl, i) => (i !== b ? bl : { ...bl, rows: bl.rows.map((row, j) => (j === r ? { ...row, ...change } : row)) })))
 
@@ -97,14 +177,20 @@ export default function Workout() {
       <h1 className="font-display text-xl font-semibold">Workout</h1>
       <RestTimer remaining={timer.remaining} running={timer.running} onAdd={() => timer.add(30)} onStop={timer.stop} />
       {blocks.map((b, bi) => (
-        <section key={b.exerciseId} aria-label={b.name}>
+        <section key={b.key} aria-label={b.name}>
           <h2 className="border-b border-fog pb-2 font-semibold"><Link to={`/train/exercise/${b.exerciseId}`}>{b.name}</Link></h2>
+          {b.note ? <p className="pt-2 text-sm text-slate">{b.note}</p> : null}
           {b.rows.map((row, ri) => {
             const label = `set ${ri + 1} of ${b.name}`
             return (
               <div key={ri} className={`flex flex-col gap-2 border-b border-fog py-3 ${row.done ? 'text-slate' : ''}`}>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate">Set {ri + 1}</span>
+                  <span className="text-sm text-slate">{`Set ${ri + 1}${row.hint ?? ''}`}</span>
+                  {!row.done ? (
+                    <Button variant="quiet" aria-label={`Skip ${label}`} onClick={() => setBlocks((cur) => cur.map((bl, i) => (i === bi ? { ...bl, rows: bl.rows.filter((_, j) => j !== ri) } : bl)))}>
+                      Skip set
+                    </Button>
+                  ) : null}
                   <Button
                     variant={row.done ? 'quiet' : 'secondary'} aria-label={row.done ? `Logged ${label}` : `Log ${label}`} disabled={row.done || saving.has(`${bi}:${ri}`)}
                     className={row.done ? 'text-pond' : ''}
@@ -128,9 +214,14 @@ export default function Workout() {
               </div>
             )
           })}
-          <Button variant="quiet" onClick={() => setBlocks((cur) => cur.map((bl, i) => (i === bi ? { ...bl, rows: [...bl.rows, { ...bl.rows[bl.rows.length - 1], done: false }] } : bl)))}>
-            Add set
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="quiet" onClick={() => setBlocks((cur) => cur.map((bl, i) => (i === bi ? { ...bl, rows: [...bl.rows, { ...(bl.rows[bl.rows.length - 1] ?? { weight: 0, reps: 8 }), done: false }] } : bl)))}>
+              Add set
+            </Button>
+            {data.workout.programmeDayId && !b.rows.some((r) => r.done) ? (
+              <Button variant="quiet" aria-label={`Swap ${b.name}`} onClick={() => setSwapping(bi)}>Swap exercise</Button>
+            ) : null}
+          </div>
         </section>
       ))}
       <section aria-label="Add exercise" className="flex flex-col gap-1">
@@ -144,7 +235,7 @@ export default function Workout() {
             onClick={async () => {
               const prev = await previousSets(db, m.id)
               const first = prev[0]
-              setBlocks((cur) => (cur.some((c) => c.exerciseId === m.id) ? cur : [...cur, { exerciseId: m.id, name: m.name, rows: [{ weight: first ? fromKg(first.weightKg, unit) : 0, reps: first?.reps ?? 8, done: false }] }]))
+              setBlocks((cur) => (cur.some((c) => c.exerciseId === m.id) ? cur : [...cur, { key: m.id, exerciseId: m.id, name: m.name, rows: [{ weight: first ? fromKg(first.weightKg, unit) : 0, reps: first?.reps ?? 8, done: false }] }]))
               setAdding('')
             }}
           >
@@ -156,12 +247,39 @@ export default function Workout() {
         onClick={async () => {
           await finishWorkout(db, id)
           timer.stop()
-          toast.show('Workout saved')
-          navigate('/train', { replace: true })
+          if (data.workout.programmeDayId) {
+            const short = await progressionShortfalls(db, id)
+            if (short.length) {
+              setShortfalls(short)
+              return
+            }
+          }
+          await complete({})
         }}
       >
         Finish workout
       </Button>
+      <ShortfallSheet shortfalls={shortfalls} onSave={complete} />
+      <Sheet open={swapping !== null} onClose={() => setSwapping(null)} title="Swap exercise">
+        <div className="flex flex-col gap-1">
+          {swapping !== null && blocks[swapping]?.altExerciseId ? <AltOption id={blocks[swapping].altExerciseId!} onPick={(exId, name) => void swap(swapping, exId, name)} /> : null}
+          <label className="flex flex-col gap-1">
+            Search exercises
+            <input className="min-h-11 rounded-xl border border-fog bg-surface px-3" type="search" value={swapQ} onChange={(e) => setSwapQ(e.target.value)} />
+          </label>
+          {swapMatches?.map((m) => (
+            <button key={m.id} className="min-h-11 border-b border-fog text-left" onClick={() => swapping !== null && void swap(swapping, m.id, m.name)}>{m.name}</button>
+          ))}
+        </div>
+      </Sheet>
     </div>
   )
+}
+
+/** The programme's suggested alternative (for example pull-ups for lat pulldowns), shown first in the swap sheet. */
+function AltOption({ id, onPick }: { id: string; onPick: (exerciseId: string, name: string) => void }) {
+  const db = useDb()
+  const { data } = useAsync(() => getExercise(db, id), [db, id])
+  if (!data) return null
+  return <button className="min-h-11 border-b border-fog text-left font-semibold" onClick={() => onPick(data.id, data.name)}>{data.name}</button>
 }
