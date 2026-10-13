@@ -72,6 +72,31 @@ describe('backup', () => {
     expect(await db.all('SELECT source FROM foods')).toEqual([{ source: 'starter' }])
     expect(await db.all('SELECT anchor_day FROM recurring_rules')).toEqual([{ anchor_day: 30 }])
   })
+  it('restores a version 2 backup that has no programme tables', async () => {
+    const db = await freshDb()
+    const v2 = JSON.parse(JSON.stringify(await exportAll(db)))
+    v2.schemaVersion = 2
+    for (const t of ['programmes', 'programme_days', 'programme_day_exercises', 'programme_progress']) delete v2.tables[t]
+    await expect(importAll(db, v2)).resolves.toBeTruthy()
+  })
+  it('round-trips programme rows', async () => {
+    const db = await freshDb()
+    await db.run("INSERT INTO programmes (id, created_at, updated_at, key, name, level, description, progression, days_per_week_options) VALUES ('p1','x','x','k','P','beginner','d','double','[3]')")
+    const json = JSON.parse(JSON.stringify(await exportAll(db)))
+    const fresh = await freshDb()
+    await importAll(fresh, json)
+    expect(await fresh.all('SELECT key FROM programmes')).toEqual([{ key: 'k' }])
+  })
+  it('deleteHealthData removes user recipes but keeps Tally recipes, workouts and programmes', async () => {
+    const db = await freshDb()
+    await db.run("INSERT INTO meals (id, created_at, updated_at, name, kind, source) VALUES ('t','x','x','Tally one','recipe','tally'),('u','x','x','Mine','recipe','user')")
+    await db.run("INSERT INTO meal_items (id, created_at, updated_at, meal_id, food_id, grams) VALUES ('i1','x','x','t','f',1),('i2','x','x','u','f',1)")
+    await db.run("INSERT INTO programmes (id, created_at, updated_at, key, name, level, description, progression, days_per_week_options) VALUES ('p1','x','x','k','P','beginner','d','double','[3]')")
+    await deleteHealthData(db)
+    expect(await db.all('SELECT id FROM meals')).toEqual([{ id: 't' }])
+    expect(await db.all('SELECT id FROM meal_items')).toEqual([{ id: 'i1' }])
+    expect(await db.all('SELECT id FROM programmes')).toHaveLength(1)
+  })
   it('toCsv quotes awkward cells', () => {
     expect(toCsv([{ a: 'x,y', b: 'say "hi"', c: 'two\nlines', d: null, e: 5 }])).toBe('a,b,c,d,e\r\n"x,y","say ""hi""","two\nlines",,5\r\n')
     expect(toCsv([])).toBe('')

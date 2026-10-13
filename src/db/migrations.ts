@@ -55,8 +55,35 @@ CREATE INDEX idx_foods_barcode ON foods(barcode);
 ALTER TABLE recurring_rules ADD COLUMN anchor_day INTEGER;
 UPDATE recurring_rules SET anchor_day = CAST(substr(next_date, 9, 2) AS INTEGER);
 `,
+  // v3: workout programmes, recipes (meals extended), recipe logs and price provenance.
+  `
+ALTER TABLE workouts ADD COLUMN programme_day_id TEXT;
+ALTER TABLE workouts ADD COLUMN progression_applied_at TEXT;
+CREATE TABLE programmes (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT, key TEXT NOT NULL UNIQUE, name TEXT NOT NULL, author TEXT, level TEXT NOT NULL CHECK (level IN ('beginner','intermediate')), description TEXT NOT NULL, progression TEXT NOT NULL CHECK (progression IN ('double','linear','gzclp','wendler531')), days_per_week_options TEXT NOT NULL, source TEXT NOT NULL DEFAULT 'tally' CHECK (source IN ('tally','user')), parent_id TEXT);
+CREATE TABLE programme_days (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT, programme_id TEXT NOT NULL REFERENCES programmes(id), position INTEGER NOT NULL, name TEXT NOT NULL);
+CREATE TABLE programme_day_exercises (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT, day_id TEXT NOT NULL REFERENCES programme_days(id), position INTEGER NOT NULL, exercise_id TEXT NOT NULL, alt_exercise_id TEXT, lift_key TEXT NOT NULL, tier TEXT NOT NULL CHECK (tier IN ('main','bw','t1','t2','t3','m531','fsl','assist')), sets INTEGER NOT NULL, rep_min INTEGER NOT NULL, rep_max INTEGER NOT NULL, percent REAL, week INTEGER, is_amrap INTEGER NOT NULL DEFAULT 0, increment_kg REAL, note TEXT);
+CREATE TABLE programme_progress (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT, programme_id TEXT NOT NULL UNIQUE REFERENCES programmes(id), active INTEGER NOT NULL DEFAULT 1, started_on TEXT, days_per_week INTEGER, next_position INTEGER NOT NULL DEFAULT 0, cycle_week INTEGER NOT NULL DEFAULT 1, lifts TEXT NOT NULL DEFAULT '{}');
+CREATE INDEX idx_programme_days_prog ON programme_days(programme_id, position);
+CREATE INDEX idx_programme_day_ex ON programme_day_exercises(day_id, position);
+CREATE INDEX idx_workouts_prog_day ON workouts(programme_day_id);
+ALTER TABLE meals ADD COLUMN kind TEXT NOT NULL DEFAULT 'meal' CHECK (kind IN ('meal','recipe'));
+ALTER TABLE meals ADD COLUMN servings INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE meals ADD COLUMN prep_minutes INTEGER;
+ALTER TABLE meals ADD COLUMN cook_minutes INTEGER;
+ALTER TABLE meals ADD COLUMN steps TEXT NOT NULL DEFAULT '[]';
+ALTER TABLE meals ADD COLUMN tags TEXT NOT NULL DEFAULT '[]';
+ALTER TABLE meals ADD COLUMN fridge_days INTEGER;
+ALTER TABLE meals ADD COLUMN source TEXT NOT NULL DEFAULT 'user' CHECK (source IN ('tally','user'));
+ALTER TABLE meals ADD COLUMN key TEXT;
+ALTER TABLE meals ADD COLUMN description TEXT;
+ALTER TABLE meal_items ADD COLUMN position INTEGER NOT NULL DEFAULT 0;
+CREATE UNIQUE INDEX idx_meals_key ON meals(key) WHERE key IS NOT NULL;
+ALTER TABLE food_logs ADD COLUMN recipe_id TEXT;
+ALTER TABLE food_logs ADD COLUMN portions REAL;
+CREATE INDEX idx_food_logs_recipe ON food_logs(recipe_id);
+ALTER TABLE product_prices ADD COLUMN source TEXT NOT NULL DEFAULT 'user';
+`,
 ]
-
 
 /** Applies pending migrations, tracked in PRAGMA user_version. Returns the new version. */
 export async function migrate(db: SqlExecutor): Promise<number> {

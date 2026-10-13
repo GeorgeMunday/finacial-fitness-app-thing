@@ -26,4 +26,5 @@ export type Food = Base & {
 export type FoodLog = Base & {
   logDate: string; slot: Slot; foodId: string | null; grams: number | null
   kcal: number; proteinG: number; carbsG: number; fatG: number
+  recipeId: string | null; portions: number | null
 }

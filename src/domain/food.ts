@@ -9,19 +9,21 @@ const r1 = (n: number) => Math.round(n * 10) / 10
 type LogRow = {
   id: string; created_at: string; updated_at: string; deleted_at: string | null; log_date: string; slot: Slot
   food_id: string | null; grams: number | null; kcal: number; protein_g: number; carbs_g: number; fat_g: number
+  recipe_id: string | null; portions: number | null
 }
 const toLog = (r: LogRow): FoodLog => ({
   id: r.id, createdAt: r.created_at, updatedAt: r.updated_at, deletedAt: r.deleted_at, logDate: r.log_date, slot: r.slot,
   foodId: r.food_id, grams: r.grams, kcal: r.kcal, proteinG: r.protein_g, carbsG: r.carbs_g, fatG: r.fat_g,
+  recipeId: r.recipe_id, portions: r.portions,
 })
 
-async function insertLog(db: SqlExecutor, l: { logDate: string; slot: Slot; foodId: string | null; grams: number | null; kcal: number; proteinG: number; carbsG: number; fatG: number }) {
+async function insertLog(db: SqlExecutor, l: { logDate: string; slot: Slot; foodId: string | null; grams: number | null; kcal: number; proteinG: number; carbsG: number; fatG: number; recipeId?: string | null; portions?: number | null }) {
   const id = newId()
   const now = nowIso()
   await db.run(
-    `INSERT INTO food_logs (id, created_at, updated_at, log_date, slot, food_id, grams, kcal, protein_g, carbs_g, fat_g)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-    [id, now, now, l.logDate, l.slot, l.foodId, l.grams, l.kcal, l.proteinG, l.carbsG, l.fatG],
+    `INSERT INTO food_logs (id, created_at, updated_at, log_date, slot, food_id, grams, kcal, protein_g, carbs_g, fat_g, recipe_id, portions)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    [id, now, now, l.logDate, l.slot, l.foodId, l.grams, l.kcal, l.proteinG, l.carbsG, l.fatG, l.recipeId ?? null, l.portions ?? null],
   )
   return id
 }

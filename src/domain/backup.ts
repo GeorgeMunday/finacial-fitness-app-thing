@@ -25,6 +25,10 @@ type Tables = Record<string, Record<string, unknown>[]>
 
 /** Row changes that mirror each migration, keyed by the version a backup is upgraded *from*. */
 const UPGRADES: Record<number, (t: Tables) => void> = {
+  2: (t) => {
+    // Migration 3 added the programme tables; older backups simply have none.
+    for (const n of ['programmes', 'programme_days', 'programme_day_exercises', 'programme_progress']) t[n] ??= []
+  },
   1: (t) => {
     // Matches migration 2: every pre-v2 'cofid' row was the hand-written starter list.
     for (const f of t.foods ?? []) if (f.source === 'cofid') f.source = 'starter'
@@ -105,8 +109,8 @@ export async function deleteHealthData(db: SqlExecutor): Promise<void> {
   await db.transaction(async (tx) => {
     await tx.run('DELETE FROM food_logs')
     await tx.run('DELETE FROM body_metrics')
-    await tx.run('DELETE FROM meal_items')
-    await tx.run('DELETE FROM meals')
+    await tx.run("DELETE FROM meal_items WHERE meal_id IN (SELECT id FROM meals WHERE source = 'user')")
+    await tx.run("DELETE FROM meals WHERE source = 'user'")
     await tx.run("DELETE FROM product_prices WHERE food_id IN (SELECT id FROM foods WHERE source = 'user')")
     await tx.run("DELETE FROM foods WHERE source = 'user'")
     await tx.run('UPDATE transaction_links SET food_log_id = NULL')

@@ -36,6 +36,33 @@ describe('migration 2', () => {
   })
 })
 
+describe('migration 3', () => {
+  it('keeps existing rows and adds defaults for programmes and recipes', async () => {
+    const db = memoryExecutor()
+    await db.transaction(async (tx) => {
+      await tx.exec(MIGRATIONS[0])
+      await tx.exec(MIGRATIONS[1])
+      await tx.exec('PRAGMA user_version = 2')
+    })
+    await db.run("INSERT INTO meals (id, created_at, updated_at, name) VALUES ('m1','x','x','Porridge')")
+    await db.run("INSERT INTO meal_items (id, created_at, updated_at, meal_id, food_id, grams) VALUES ('i1','x','x','m1','f1',40)")
+    await db.run("INSERT INTO food_logs (id, created_at, updated_at, log_date, slot, kcal) VALUES ('l1','x','x','2026-10-12','lunch',100)")
+    await db.run("INSERT INTO product_prices (id, created_at, updated_at, food_id, price_pence, log_date) VALUES ('p1','x','x','f1',100,'2026-10-01')")
+    await db.run("INSERT INTO workouts (id, created_at, updated_at, started_at, log_date) VALUES ('w1','x','x','x','2026-10-12')")
+    expect(await migrate(db)).toBe(MIGRATIONS.length)
+    expect(MIGRATIONS.length).toBeGreaterThanOrEqual(3)
+    const [m] = await db.all<Record<string, unknown>>("SELECT * FROM meals WHERE id = 'm1'")
+    expect(m).toMatchObject({ kind: 'meal', servings: 1, steps: '[]', tags: '[]', source: 'user', key: null })
+    expect(await db.all("SELECT position FROM meal_items")).toEqual([{ position: 0 }])
+    expect(await db.all('SELECT source FROM product_prices')).toEqual([{ source: 'user' }])
+    expect(await db.all('SELECT recipe_id, portions FROM food_logs')).toEqual([{ recipe_id: null, portions: null }])
+    expect(await db.all('SELECT programme_day_id, progression_applied_at FROM workouts')).toEqual([{ programme_day_id: null, progression_applied_at: null }])
+    const names = (await db.all<{ name: string }>("SELECT name FROM sqlite_master WHERE type='table'")).map((r) => r.name)
+    for (const t of ['programmes', 'programme_days', 'programme_day_exercises', 'programme_progress']) expect(names).toContain(t)
+    await expect(db.run("INSERT INTO meals (id, created_at, updated_at, name, kind) VALUES ('m2','x','x','Bad','bogus')")).rejects.toThrow()
+  })
+})
+
 describe('migrate', () => {
   it('is idempotent and returns the version', async () => {
     const db = memoryExecutor()

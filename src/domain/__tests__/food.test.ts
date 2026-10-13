@@ -34,6 +34,11 @@ describe('food logging', () => {
     await deleteLog(db, id)
     expect((await dayTotals(db, '2026-10-12')).kcal).toBe(380)
   })
+  it('copyDay keeps recipe_id and portions', async () => {
+    await db.run("INSERT INTO food_logs (id, created_at, updated_at, log_date, slot, kcal, recipe_id, portions) VALUES ('l','x','x','2026-10-12','lunch',300,'r1',2)")
+    await copyDay(db, '2026-10-12', '2026-10-13')
+    expect(await db.all("SELECT recipe_id, portions FROM food_logs WHERE log_date = '2026-10-13'")).toEqual([{ recipe_id: 'r1', portions: 2 }])
+  })
   it('copyDay copies with new ids, optionally by slot', async () => {
     await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: '2026-10-12' })
     await logFood(db, { foodId: oats, grams: 100, slot: 'lunch', logDate: '2026-10-12' })

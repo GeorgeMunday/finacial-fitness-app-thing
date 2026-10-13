@@ -69,9 +69,9 @@ export async function startWorkout(db: SqlExecutor, routineId?: string): Promise
 }
 
 export async function getWorkout(db: SqlExecutor, id: string) {
-  const [w] = await db.all<{ id: string; routine_id: string | null; ended_at: string | null; log_date: string }>(
-    'SELECT id, routine_id, ended_at, log_date FROM workouts WHERE id = ?', [id])
-  return w ? { id: w.id, routineId: w.routine_id, endedAt: w.ended_at, logDate: w.log_date } : null
+  const [w] = await db.all<{ id: string; routine_id: string | null; ended_at: string | null; log_date: string; programme_day_id: string | null }>(
+    'SELECT id, routine_id, ended_at, log_date, programme_day_id FROM workouts WHERE id = ?', [id])
+  return w ? { id: w.id, routineId: w.routine_id, endedAt: w.ended_at, logDate: w.log_date, programmeDayId: w.programme_day_id } : null
 }
 
 /** Sets from the most recent finished workout that included this exercise (warm-ups excluded). */
