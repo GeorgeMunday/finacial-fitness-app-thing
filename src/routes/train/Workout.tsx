@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Check, Minus, Plus } from 'lucide-react'
 import { RestTimer } from '../../components/RestTimer'
@@ -116,7 +116,13 @@ export default function Workout() {
     return { workout, blocks }
   }, [db, id, unit])
   const [blocks, setBlocks] = useState<Block[]>([])
-  useEffect(() => setBlocks(data?.blocks ?? []), [data])
+  // Built once per workout: later reloads (an Undo anywhere sends one) must not undo removed or replaced exercises.
+  const loadedFor = useRef<string | null>(null)
+  useEffect(() => {
+    if (data === undefined || loadedFor.current === id) return
+    loadedFor.current = id
+    setBlocks(data?.blocks ?? [])
+  }, [data, id])
   const [adding, setAdding] = useState('')
   const [swapping, setSwapping] = useState<number | null>(null)
   const [swapQ, setSwapQ] = useState('')
@@ -156,6 +162,15 @@ export default function Workout() {
     })))
     setSwapping(null)
     setSwapQ('')
+  }
+
+  /** Takes an exercise out of this workout only (the routine or programme is unchanged), with Undo. */
+  const remove = (bi: number) => {
+    const removed = blocks[bi]
+    setBlocks((cur) => cur.filter((_, i) => i !== bi))
+    toast.show(`Removed ${removed.name}`, {
+      undo: () => setBlocks((cur) => (cur.some((c) => c.key === removed.key) ? cur : [...cur.slice(0, bi), removed, ...cur.slice(bi)])),
+    })
   }
 
   /** Stores the workout's end, then (for a programme day) moves the programme on and says what to lift next time. */
@@ -214,12 +229,15 @@ export default function Workout() {
               </div>
             )
           })}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-x-2">
             <Button variant="quiet" onClick={() => setBlocks((cur) => cur.map((bl, i) => (i === bi ? { ...bl, rows: [...bl.rows, { ...(bl.rows[bl.rows.length - 1] ?? { weight: 0, reps: 8 }), done: false }] } : bl)))}>
               Add set
             </Button>
-            {data.workout.programmeDayId && !b.rows.some((r) => r.done) ? (
-              <Button variant="quiet" aria-label={`Swap ${b.name}`} onClick={() => setSwapping(bi)}>Swap exercise</Button>
+            {!b.rows.some((r) => r.done) ? (
+              <>
+                <Button variant="quiet" aria-label={`Replace ${b.name}`} onClick={() => setSwapping(bi)}>Replace exercise</Button>
+                <Button variant="quiet" aria-label={`Remove ${b.name}`} onClick={() => remove(bi)}>Remove exercise</Button>
+              </>
             ) : null}
           </div>
         </section>
@@ -260,7 +278,7 @@ export default function Workout() {
         Finish workout
       </Button>
       <ShortfallSheet shortfalls={shortfalls} onSave={complete} />
-      <Sheet open={swapping !== null} onClose={() => setSwapping(null)} title="Swap exercise">
+      <Sheet open={swapping !== null} onClose={() => setSwapping(null)} title="Replace exercise">
         <div className="flex flex-col gap-1">
           {swapping !== null && blocks[swapping]?.altExerciseId ? <AltOption id={blocks[swapping].altExerciseId!} onPick={(exId, name) => void swap(swapping, exId, name)} /> : null}
           <label className="flex flex-col gap-1">

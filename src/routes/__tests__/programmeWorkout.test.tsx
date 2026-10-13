@@ -50,7 +50,7 @@ describe('programme workout', () => {
     const { db, w } = await setup('ppl', 'Push day', { [`${BENCH}|main`]: 60 })
     const user = userEvent.setup()
     renderApp(app(), db, `/train/workout/${w}`)
-    await user.click(await screen.findByRole('button', { name: `Swap ${BENCH}` }))
+    await user.click(await screen.findByRole('button', { name: `Replace ${BENCH}` }))
     await user.type(await screen.findByLabelText('Search exercises'), 'Dumbbell Flyes')
     await user.click(await screen.findByRole('button', { name: 'Dumbbell Flyes' }))
     expect(screen.queryByRole('region', { name: BENCH })).toBeNull()
@@ -65,7 +65,7 @@ describe('programme workout', () => {
     const { db, w } = await setup('ppl', 'Pull day', {})
     const user = userEvent.setup()
     renderApp(app(), db, `/train/workout/${w}`)
-    await user.click(await screen.findByRole('button', { name: 'Swap Wide-Grip Lat Pulldown' }))
+    await user.click(await screen.findByRole('button', { name: 'Replace Wide-Grip Lat Pulldown' }))
     expect(await screen.findByRole('button', { name: 'Pullups' })).toBeInTheDocument()
   })
   it('skip set removes an unlogged set, and progression then treats the lift as short', async () => {
