@@ -17,7 +17,7 @@ const toLog = (r: LogRow): FoodLog => ({
   recipeId: r.recipe_id, portions: r.portions,
 })
 
-async function insertLog(db: SqlExecutor, l: { logDate: string; slot: Slot; foodId: string | null; grams: number | null; kcal: number; proteinG: number; carbsG: number; fatG: number; recipeId?: string | null; portions?: number | null }) {
+export async function insertLog(db: SqlExecutor, l: { logDate: string; slot: Slot; foodId: string | null; grams: number | null; kcal: number; proteinG: number; carbsG: number; fatG: number; recipeId?: string | null; portions?: number | null }) {
   const id = newId()
   const now = nowIso()
   await db.run(
@@ -121,11 +121,20 @@ export async function restoreLog(db: SqlExecutor, id: string): Promise<void> {
 export async function dayLogsNamed(db: SqlExecutor, logDate: string): Promise<(FoodLog & { name: string })[]> {
   const logs = await dayLogs(db, logDate)
   const names = new Map<string, string>()
+  const recipes = new Map<string, string>()
+  for (const id of new Set(logs.map((l) => l.recipeId).filter((x): x is string => !!x))) {
+    const [m] = await db.all<{ name: string }>('SELECT name FROM meals WHERE id = ?', [id])
+    if (m) recipes.set(id, m.name)
+  }
   for (const id of new Set(logs.map((l) => l.foodId).filter((x): x is string => !!x))) {
     const f = await getFood(db, id)
     if (f) names.set(id, f.brand ? `${f.name} (${f.brand})` : f.name)
   }
-  return logs.map((l) => ({ ...l, name: l.foodId ? (names.get(l.foodId) ?? 'Food') : 'Quick add' }))
+  const portionsLabel = (n: number | null) => `${n ?? 1} ${n === 1 || n === null ? 'portion' : 'portions'}`
+  return logs.map((l) => ({
+    ...l,
+    name: l.recipeId ? `${recipes.get(l.recipeId) ?? 'Recipe'}, ${portionsLabel(l.portions)}` : l.foodId ? (names.get(l.foodId) ?? 'Food') : 'Quick add',
+  }))
 }
 
 /** Daily kcal totals for days with any food logged, oldest first. */
