@@ -1,0 +1,46 @@
+@import 'tailwindcss';
+
+:root {
+  --chalk: #F2F5F3; --surface: #FFFFFF; --ink: #1B2A2F; --slate: #5C6B70; --fog: #D5DDDA;
+  --pond: #0F6E6A; --on-pond: #FFFFFF; --marigold: #E9A23B; --on-marigold: #1B2A2F; --amber-ink: #7A4B00; --danger: #A3261E;
+  --font-display: 'Bricolage Grotesque Variable', 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --chalk: #0F1A1D; --surface: #172427; --ink: #E6EEEC; --slate: #9DB0B4; --fog: #2A3A3E;
+    --pond: #3FB8AE; --on-pond: #0F1A1D; --marigold: #F0B85A; --on-marigold: #0F1A1D; --amber-ink: #F5C77A; --danger: #F2867D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --chalk: #0F1A1D; --surface: #172427; --ink: #E6EEEC; --slate: #9DB0B4; --fog: #2A3A3E;
+  --pond: #3FB8AE; --on-pond: #0F1A1D; --marigold: #F0B85A; --on-marigold: #0F1A1D; --amber-ink: #F5C77A; --danger: #F2867D;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-chalk: var(--chalk); --color-surface: var(--surface); --color-ink: var(--ink); --color-slate: var(--slate);
+  --color-fog: var(--fog); --color-pond: var(--pond); --color-on-pond: var(--on-pond); --color-marigold: var(--marigold);
+  --color-amber-ink: var(--amber-ink); --color-danger: var(--danger);
+  --font-display: var(--font-display); --font-sans: var(--font-body);
+  --text-xs: 0.8rem; --text-sm: 0.8rem; --text-base: 1rem; --text-lg: 1.25rem; --text-xl: 1.563rem;
+  --text-2xl: 1.953rem; --text-3xl: 2.441rem; --text-4xl: 3.052rem;
+}
+
+html { background: var(--chalk); }
+body {
+  margin: 0; background: var(--chalk); color: var(--ink); font-family: var(--font-body); font-size: 1rem; line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+:focus-visible { outline: 2px solid var(--pond); outline-offset: 2px; }
+button { font: inherit; color: inherit; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+@keyframes tally-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.tally-draw { stroke-dasharray: 1; stroke-dashoffset: 0; animation: tally-draw 250ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .tally-draw { animation: none; }
+  * { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}
