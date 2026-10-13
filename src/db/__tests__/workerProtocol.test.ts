@@ -44,11 +44,30 @@ describe('worker protocol', () => {
   it('queues calls behind a running transaction', async () => {
     const { w, p } = make((r) => ({ id: r.id, ok: true }))
     const db = await p
-    const tx = db.transaction(async () => {
-      await db.run('INNER')
-    }).catch(() => {})
+    const tx = db.transaction(async (t) => {
+      await t.run('INNER')
+    })
     const outside = db.run('OUTSIDE')
     await Promise.all([tx, outside])
     expect(w.sent.map((s) => s.sql)).toEqual(['BEGIN', 'INNER', 'COMMIT', 'OUTSIDE'])
+  })
+  it('a call made from elsewhere during a transaction is not pulled into it', async () => {
+    const { w, p } = make((r) => ({ id: r.id, ok: true }))
+    const db = await p
+    let stray: Promise<void> | undefined
+    const tx = db.transaction(async (t) => {
+      await t.run('FIRST')
+      stray = db.run('STRAY') // e.g. another component writing while a restore runs
+      await t.run('SECOND')
+    })
+    await tx
+    await stray
+    expect(w.sent.map((s) => s.sql)).toEqual(['BEGIN', 'FIRST', 'SECOND', 'COMMIT', 'STRAY'])
+  })
+  it('rolls back and rejects when the callback throws', async () => {
+    const { w, p } = make((r) => ({ id: r.id, ok: true }))
+    const db = await p
+    await expect(db.transaction(async () => { throw new Error('nope') })).rejects.toThrow('nope')
+    expect(w.sent.map((s) => s.sql)).toEqual(['BEGIN', 'ROLLBACK'])
   })
 })

@@ -3,7 +3,8 @@ import type { SqlExecutor } from '../src/db/executor'
 
 export function memoryExecutor(): SqlExecutor {
   const d = new Database(':memory:')
-  return {
+  let txTail: Promise<unknown> = Promise.resolve()
+  const self: SqlExecutor = {
     async all<T>(sql: string, params: unknown[] = []) {
       return d.prepare(sql).all(...(params as never[])) as T[]
     },
@@ -13,15 +14,22 @@ export function memoryExecutor(): SqlExecutor {
     async exec(sql) {
       d.exec(sql)
     },
-    async transaction(fn) {
+    transaction(fn) {
+      // Serialise transactions like the worker executor does.
+      const run = async () => {
       d.exec('BEGIN')
       try {
-        await fn()
+        await fn(self)
         d.exec('COMMIT')
       } catch (e) {
         d.exec('ROLLBACK')
         throw e
       }
+      }
+      const next = txTail.then(run, run)
+      txTail = next.catch(() => {})
+      return next
     },
   }
+  return self
 }

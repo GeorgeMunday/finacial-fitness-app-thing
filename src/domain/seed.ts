@@ -9,13 +9,13 @@ export type SeedData = { foods: SeedFood[]; exercises: SeedExercise[] }
 /** Inserts bundled foods and exercises the first time they're needed. Idempotent. */
 export async function seedIfEmpty(db: SqlExecutor, data: SeedData): Promise<{ foods: number; exercises: number }> {
   const out = { foods: 0, exercises: 0 }
-  const [f] = await db.all<{ n: number }>("SELECT COUNT(*) AS n FROM foods WHERE source = 'cofid'")
-  const [e] = await db.all<{ n: number }>("SELECT COUNT(*) AS n FROM exercises WHERE source = 'seed'")
-  await db.transaction(async () => {
+  await db.transaction(async (tx) => {
+    const [f] = await tx.all<{ n: number }>("SELECT COUNT(*) AS n FROM foods WHERE source = 'cofid'")
+    const [e] = await tx.all<{ n: number }>("SELECT COUNT(*) AS n FROM exercises WHERE source = 'seed'")
     const now = nowIso()
     if (f.n === 0) {
       for (const x of data.foods) {
-        await db.run(
+        await tx.run(
           `INSERT INTO foods (id, created_at, updated_at, source, name, kcal_100g, protein_100g, carbs_100g, fat_100g)
            VALUES (?,?,?,'cofid',?,?,?,?,?)`,
           [newId(), now, now, x.name, x.kcal_100g, x.protein_100g, x.carbs_100g, x.fat_100g],
@@ -25,7 +25,7 @@ export async function seedIfEmpty(db: SqlExecutor, data: SeedData): Promise<{ fo
     }
     if (e.n === 0) {
       for (const x of data.exercises) {
-        await db.run(
+        await tx.run(
           `INSERT INTO exercises (id, created_at, updated_at, source, name, primary_muscle, equipment) VALUES (?,?,?,'seed',?,?,?)`,
           [newId(), now, now, x.name, x.primary_muscle, x.equipment],
         )

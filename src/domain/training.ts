@@ -33,10 +33,10 @@ export async function getExercise(db: SqlExecutor, id: string): Promise<Exercise
 export async function createRoutine(db: SqlExecutor, name: string, items: { exerciseId: string; targetSets: number; targetReps: number }[]): Promise<string> {
   const id = newId()
   const now = nowIso()
-  await db.transaction(async () => {
-    await db.run('INSERT INTO routines (id, created_at, updated_at, name) VALUES (?,?,?,?)', [id, now, now, name.trim()])
+  await db.transaction(async (tx) => {
+    await tx.run('INSERT INTO routines (id, created_at, updated_at, name) VALUES (?,?,?,?)', [id, now, now, name.trim()])
     for (const [i, it] of items.entries()) {
-      await db.run(
+      await tx.run(
         `INSERT INTO routine_exercises (id, created_at, updated_at, routine_id, exercise_id, position, target_sets, target_reps)
          VALUES (?,?,?,?,?,?,?,?)`,
         [newId(), now, now, id, it.exerciseId, i, it.targetSets, it.targetReps],

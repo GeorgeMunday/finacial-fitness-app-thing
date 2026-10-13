@@ -90,6 +90,12 @@ describe('recurring', () => {
     const [r] = await db.all<{ next_date: string }>('SELECT next_date FROM recurring_rules')
     expect(r.next_date).toBe('2026-11-12')
   })
+  it('concurrent runs never post the same occurrence twice', async () => {
+    await addRecurringRule(db, { kind: 'expense', name: 'Rent', amountPence: 50000, categoryId: 'cat-bills', cadence: 'monthly', nextDate: '2026-08-12' })
+    const counts = await Promise.all([postDueRecurring(db, '2026-10-12'), postDueRecurring(db, '2026-10-12')])
+    expect(counts[0] + counts[1]).toBe(3)
+    expect(await listTransactions(db, '2026-01-01', '2026-12-31')).toHaveLength(3)
+  })
   it('posts income rules as income', async () => {
     await addRecurringRule(db, { kind: 'income', name: 'Salary', amountPence: 200000, categoryId: 'cat-income', cadence: 'monthly', nextDate: '2026-10-01' })
     await postDueRecurring(db, '2026-10-12')

@@ -27,6 +27,10 @@ describe('seed', () => {
     expect(await seedIfEmpty(db, data)).toEqual({ foods: 3, exercises: 2 })
     expect(await seedIfEmpty(db, data)).toEqual({ foods: 0, exercises: 0 })
   })
+  it('concurrent seeding inserts once', async () => {
+    await Promise.all([seedIfEmpty(db, data), seedIfEmpty(db, data)])
+    expect(await db.all('SELECT * FROM foods')).toHaveLength(3)
+  })
   it('searches by name and ranks recently logged foods first', async () => {
     await seedIfEmpty(db, data)
     expect((await searchFoods(db, 'oat')).map((f) => f.name)).toEqual(['Oatcakes', 'Oats, rolled'])

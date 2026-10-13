@@ -172,21 +172,22 @@ const advance = (date: string, c: Cadence) =>
 
 /** Posts a transaction for every occurrence due on or before today. Returns how many were posted. */
 export async function postDueRecurring(db: SqlExecutor, today: string): Promise<number> {
-  const rules = await db.all<{
-    id: string; kind: TxKind; name: string; amount_pence: number; category_id: string; cadence: Cadence; next_date: string
-  }>('SELECT * FROM recurring_rules WHERE deleted_at IS NULL AND next_date <= ?', [today])
   let count = 0
-  await db.transaction(async () => {
+  await db.transaction(async (tx) => {
+    // Read inside the transaction so a concurrent run (app start + tab refocus) sees the advanced dates.
+    const rules = await tx.all<{
+      id: string; kind: TxKind; name: string; amount_pence: number; category_id: string; cadence: Cadence; next_date: string
+    }>('SELECT * FROM recurring_rules WHERE deleted_at IS NULL AND next_date <= ?', [today])
     for (const r of rules) {
       let next = r.next_date
       while (next <= today) {
-        await addTransaction(db, {
+        await addTransaction(tx, {
           kind: r.kind, amountPence: r.amount_pence, categoryId: r.category_id, logDate: next, merchant: r.name, source: 'recurring',
         })
         next = advance(next, r.cadence)
         count += 1
       }
-      await db.run('UPDATE recurring_rules SET next_date = ?, updated_at = ? WHERE id = ?', [next, nowIso(), r.id])
+      await tx.run('UPDATE recurring_rules SET next_date = ?, updated_at = ? WHERE id = ?', [next, nowIso(), r.id])
     }
   })
   return count

@@ -52,9 +52,9 @@ export async function migrate(db: SqlExecutor): Promise<number> {
   let version = row?.user_version ?? 0
   while (version < MIGRATIONS.length) {
     const sql = MIGRATIONS[version]
-    await db.transaction(async () => {
-      await db.exec(sql)
-      await db.exec(`PRAGMA user_version = ${version + 1}`)
+    await db.transaction(async (tx) => {
+      await tx.exec(sql)
+      await tx.exec(`PRAGMA user_version = ${version + 1}`)
     })
     version += 1
   }

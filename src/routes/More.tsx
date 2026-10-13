@@ -1,5 +1,6 @@
 import { Chip } from '../components/ui/Chip'
 import { Sheet } from '../components/ui/Sheet'
+import { DataSection } from '../components/DataSection'
 import { useStorageStatus } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
 import { formatPence, parsePence } from '../domain/money'
@@ -120,6 +121,7 @@ export default function More() {
           </button>
         </div>
       </Sheet>
+      <DataSection />
       <section aria-labelledby="storage" className="flex flex-col gap-1">
         <h2 id="storage" className="font-semibold">Storage</h2>
         <p>Saved in this browser: {storage.persistent ? 'Yes' : 'No'}</p>

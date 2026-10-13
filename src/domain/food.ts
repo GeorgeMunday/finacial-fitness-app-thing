@@ -83,8 +83,8 @@ export async function dayLogs(db: SqlExecutor, logDate: string): Promise<FoodLog
 
 export async function copyDay(db: SqlExecutor, from: string, to: string, slot?: Slot): Promise<number> {
   const logs = (await dayLogs(db, from)).filter((l) => !slot || l.slot === slot)
-  await db.transaction(async () => {
-    for (const l of logs) await insertLog(db, { ...l, logDate: to })
+  await db.transaction(async (tx) => {
+    for (const l of logs) await insertLog(tx, { ...l, logDate: to })
   })
   return logs.length
 }

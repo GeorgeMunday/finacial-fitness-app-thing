@@ -28,29 +28,29 @@ export function createWorkerExecutor(worker: Worker): Promise<WorkerExecutor> {
         w.postMessage({ id, op, sql, params } satisfies WorkerRequest)
       })
 
-    // Inside a transaction callback, calls must bypass the queue (it is held).
-    let inTx = false
-    const call = <T>(fn: () => Promise<T>) => (inTx ? fn() : enqueue(fn))
+    // Direct (unqueued) executor, handed only to a transaction's callback while it holds the queue.
+    const direct: SqlExecutor = {
+      all: async <T,>(sql: string, params?: unknown[]) => ((await rpc('all', sql, params)) ?? []) as T[],
+      run: async (sql, params) => void (await rpc('run', sql, params)),
+      exec: async (sql) => void (await rpc('exec', sql)),
+      transaction: () => Promise.reject(new Error('Nested transactions are not supported')),
+    }
 
     const exec: WorkerExecutor = {
       get persistent() {
         return persistent
       },
-      all: <T>(sql: string, params?: unknown[]) =>
-        call(async () => ((await rpc('all', sql, params)) ?? []) as T[]),
-      run: (sql, params) => call(async () => void (await rpc('run', sql, params))),
-      exec: (sql) => call(async () => void (await rpc('exec', sql))),
+      all: <T,>(sql: string, params?: unknown[]) => enqueue(() => direct.all<T>(sql, params)),
+      run: (sql, params) => enqueue(() => direct.run(sql, params)),
+      exec: (sql) => enqueue(() => direct.exec(sql)),
       transaction: (fn) =>
         enqueue(async () => {
           await rpc('exec', 'BEGIN')
-          inTx = true
           try {
-            await fn()
-            inTx = false
+            await fn(direct)
             await rpc('exec', 'COMMIT')
           } catch (e) {
-            inTx = false
-            await rpc('exec', 'ROLLBACK')
+            await rpc('exec', 'ROLLBACK').catch(() => {})
             throw e
           }
         }),
