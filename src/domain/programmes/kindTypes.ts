@@ -14,6 +14,8 @@ export type EvaluateArgs = {
 export type LiftUpdate = { state: LiftState; result: ProgressionResult; note?: string }
 
 export interface ProgressionKind {
+  /** True when a missed session changes the lift's state, so a short lift (fewer sets than prescribed) needs asking about. */
+  missAware: boolean
   prescribe(row: DayExercise, state: LiftState | undefined, ctx: { unit: WeightUnit; lower: boolean; cycleWeek: number }): PlannedSet[]
   evaluate(args: EvaluateArgs): LiftUpdate
   endOfWorkout?(args: {
