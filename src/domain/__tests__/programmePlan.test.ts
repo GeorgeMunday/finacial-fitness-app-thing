@@ -71,7 +71,7 @@ describe('catalog', () => {
     expect(list).toHaveLength(5)
     const ppl = list.find((p) => p.key === 'ppl')!
     expect(ppl.days.map((d) => d.name)).toEqual(['Push day', 'Pull day', 'Legs day'])
-    expect(ppl.days[0].exercises[0]).toEqual({ name: BENCH, sets: 4, repMin: 6, repMax: 8, amrap: false })
+    expect(ppl.days[0].exercises[0]).toEqual({ name: BENCH, tier: 'main', sets: 4, repMin: 6, repMax: 8, amrap: false })
     expect(ppl.daysPerWeekOptions).toEqual([3, 6])
   })
   it('previews a 5/3/1 lift once, as three working sets', async () => {

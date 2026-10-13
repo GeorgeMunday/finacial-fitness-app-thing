@@ -1,5 +1,5 @@
 import type { SqlExecutor } from '../../db/executor'
-import type { Programme, ProgrammeProgress } from './types'
+import type { Programme, ProgrammeProgress, Tier } from './types'
 
 type ProgrammeRow = {
   id: string; key: string; name: string; author: string | null; level: Programme['level']; description: string
@@ -20,10 +20,10 @@ export const toProgress = (r: ProgressRow): ProgrammeProgress => ({
 })
 
 export type ProgrammeSummary = Programme & {
-  days: { id: string; name: string; exercises: { name: string; sets: number; repMin: number; repMax: number; amrap: boolean }[] }[]
+  days: { id: string; name: string; exercises: { name: string; tier: Tier; sets: number; repMin: number; repMax: number; amrap: boolean }[] }[]
 }
 
-type PreviewRow = { name: string; tier: string; sets: number; rep_min: number; rep_max: number; is_amrap: number; week: number | null }
+type PreviewRow = { name: string; tier: Tier; sets: number; rep_min: number; rep_max: number; is_amrap: number; week: number | null }
 
 async function withDays(db: SqlExecutor, programmes: Programme[]): Promise<ProgrammeSummary[]> {
   const out: ProgrammeSummary[] = []
@@ -38,19 +38,19 @@ async function withDays(db: SqlExecutor, programmes: Programme[]): Promise<Progr
          WHERE x.day_id = ? AND x.deleted_at IS NULL AND x.tier <> 'fsl' AND (x.week IS NULL OR x.week = 1) ORDER BY x.position`,
         [d.id],
       )
-      const exercises: (ProgrammeSummary['days'][number]['exercises'][number] & { main531: boolean })[] = []
+      const exercises: ProgrammeSummary['days'][number]['exercises'] = []
       for (const r of rows) {
         const prev = exercises[exercises.length - 1]
-        if (r.tier === 'm531' && prev?.main531 && prev.name === r.name) {
+        if (r.tier === 'm531' && prev?.tier === 'm531' && prev.name === r.name) {
           prev.sets += 1
           prev.repMin = Math.min(prev.repMin, r.rep_min)
           prev.repMax = Math.max(prev.repMax, r.rep_max)
           prev.amrap = prev.amrap || r.is_amrap === 1
         } else {
-          exercises.push({ name: r.name, sets: r.sets, repMin: r.rep_min, repMax: r.rep_max, amrap: r.is_amrap === 1, main531: r.tier === 'm531' })
+          exercises.push({ name: r.name, tier: r.tier, sets: r.sets, repMin: r.rep_min, repMax: r.rep_max, amrap: r.is_amrap === 1 })
         }
       }
-      summary.push({ id: d.id, name: d.name, exercises: exercises.map(({ main531: _m, ...e }) => e) })
+      summary.push({ id: d.id, name: d.name, exercises })
     }
     out.push({ ...p, days: summary })
   }
