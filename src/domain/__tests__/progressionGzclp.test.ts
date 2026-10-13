@@ -20,8 +20,7 @@ beforeEach(async () => {
 const day = (n: number) => dayOf(db, 'gzclp', `Day ${n}`)
 const squatT1 = () => liftState(db, `${SQUAT}|t1`)
 const benchT2 = () => liftState(db, `${BENCH}|t2`)
-const rest = (n: number, kg: number) => ({ [BENCH]: reps(10, 3, 60), [PULLDOWN]: reps(15, 3, kg) })
-const day1 = (squat: [number, number][]) => ({ [SQUAT]: squat, ...rest(0, 40) })
+const day1 = (squat: [number, number][]) => ({ [SQUAT]: squat, [BENCH]: reps(10, 3, 60), [PULLDOWN]: reps(15, 3, 40) })
 
 describe('GZCLP prescriptions', () => {
   it('Day 1 is a 5×3 squat (last set AMRAP), a 3×10 bench and a 3×15 pulldown (last set AMRAP)', async () => {

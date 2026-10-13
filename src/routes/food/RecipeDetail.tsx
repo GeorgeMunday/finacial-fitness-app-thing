@@ -35,7 +35,7 @@ export default function RecipeDetail() {
   if (data === undefined) return null
   if (data === null) return <p>That recipe couldn't be found.</p>
   const { recipe: r, nutrition: n, cost } = data
-  const mealTags = r.tags.filter((t): t is Slot => (MEALS as string[]).includes(t))
+  const mealTags = MEALS.filter((m) => (r.tags as string[]).includes(m))
   const slot: Slot = mealTags.length === 1 ? mealTags[0] : slotFor(new Date())
   const own = r.source === 'user'
   const perPound = cost.complete && cost.perPortionPence > 0 ? Math.round(n.proteinG / (cost.perPortionPence / 100)) : null

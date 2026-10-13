@@ -1,5 +1,5 @@
 import type { WeightUnit } from '../units'
-import type { DayExercise, LiftState, PlannedSet, ProgressionKindName, ProgressionOutcome, ProgressionResult, ProgrammeProgress } from './types'
+import type { DayExercise, LiftState, PlannedSet, ProgressionOutcome, ProgressionResult, ProgrammeProgress } from './types'
 
 export type EvaluateArgs = {
   row: DayExercise
