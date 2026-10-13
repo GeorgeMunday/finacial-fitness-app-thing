@@ -72,6 +72,13 @@ describe('Money screen', () => {
     expect(await screen.findByText('No spending yet this month')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Add expense' })).toBeInTheDocument()
   })
+  it('rows without a merchant are named by their category', async () => {
+    const db = await freshDb()
+    await addExpense(db, { amountPence: 1250, categoryId: 'cat-transport', logDate: localDate() })
+    renderApp(app(), db, '/money')
+    expect(await screen.findByRole('button', { name: 'Delete Transport' })).toBeInTheDocument()
+    expect(screen.queryByText('Expense')).toBeNull()
+  })
   it('deleting a row offers Undo', async () => {
     const db = await freshDb()
     await addExpense(db, { amountPence: 340, categoryId: 'cat-groceries', merchant: 'Tesco', logDate: localDate() })
@@ -100,11 +107,12 @@ describe('add screen navigation and undo', () => {
     renderApp(app(), db, '/money')
     await user.click(await screen.findByRole('button', { name: 'Add expense' }))
     await user.type(await screen.findByLabelText('Amount'), '4.50')
+    await user.click(screen.getByRole('button', { name: 'Groceries' }))
     await user.click(screen.getByRole('button', { name: 'Save expense' }))
-    expect(await screen.findByRole('button', { name: 'Delete Expense' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Delete Groceries' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Undo' }))
     expect(await screen.findByText('No spending yet this month')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Delete Expense' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Delete Groceries' })).toBeNull()
   })
 })
 

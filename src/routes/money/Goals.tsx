@@ -20,7 +20,7 @@ export default function Goals() {
   if (!goals) return null
   const max = Math.max(1, ...(summary?.byMonth.map((m) => Math.max(0, m.savedPence)) ?? [1]))
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-xl font-semibold">Savings goals</h1>
         <Link to="/money/goals/new" className="flex min-h-11 items-center px-2 text-pond">New goal</Link>

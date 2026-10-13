@@ -42,7 +42,7 @@ export default function More() {
     return update({ optionalPillars: cur.includes(p) ? cur.filter((x) => x !== p) : [...cur, p] })
   }
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <h1 className="font-display text-xl font-semibold">More</h1>
       <section aria-labelledby="pillars" className="flex flex-col gap-2">
         <h2 id="pillars" className="font-semibold">Optional sections</h2>

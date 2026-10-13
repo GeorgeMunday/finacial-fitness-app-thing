@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Check, Minus, Plus } from 'lucide-react'
 import { RestTimer } from '../../components/RestTimer'
 import { Button } from '../../components/ui/Button'
 import { useToast } from '../../components/ui/Toast'
@@ -10,6 +11,20 @@ import { fromKg, toKg } from '../../domain/units'
 import { finishWorkout, getExercise, getWorkout, logSet, previousSets, routineExercises, searchExercises, workoutSets } from '../../domain/training'
 import { useDb } from '../../state/DbProvider'
 import { useSettings } from '../../state/SettingsProvider'
+
+function Stepper({ value, disabled, lessLabel, moreLabel, onLess, onMore }: { value: string; disabled: boolean; lessLabel: string; moreLabel: string; onLess: () => void; onMore: () => void }) {
+  return (
+    <div className="flex items-center rounded-xl border border-fog bg-surface">
+      <button type="button" aria-label={lessLabel} disabled={disabled} onClick={onLess} className="flex size-11 items-center justify-center text-pond disabled:text-slate disabled:opacity-50">
+        <Minus aria-hidden="true" size={18} />
+      </button>
+      <span className="min-w-0 flex-1 text-center tabular">{value}</span>
+      <button type="button" aria-label={moreLabel} disabled={disabled} onClick={onMore} className="flex size-11 items-center justify-center text-pond disabled:text-slate disabled:opacity-50">
+        <Plus aria-hidden="true" size={18} />
+      </button>
+    </div>
+  )
+}
 
 type Row = { weight: number; reps: number; done: boolean }
 type Block = { exerciseId: string; name: string; rows: Row[] }
@@ -80,30 +95,36 @@ export default function Workout() {
   return (
     <div className="flex flex-col gap-6 pb-16">
       <h1 className="font-display text-xl font-semibold">Workout</h1>
+      <RestTimer remaining={timer.remaining} running={timer.running} onAdd={() => timer.add(30)} onStop={timer.stop} />
       {blocks.map((b, bi) => (
         <section key={b.exerciseId} aria-label={b.name}>
-          <h2 className="border-b border-fog pb-1 font-semibold"><Link to={`/train/exercise/${b.exerciseId}`}>{b.name}</Link></h2>
+          <h2 className="border-b border-fog pb-2 font-semibold"><Link to={`/train/exercise/${b.exerciseId}`}>{b.name}</Link></h2>
           {b.rows.map((row, ri) => {
             const label = `set ${ri + 1} of ${b.name}`
             return (
-              <div key={ri} className={`flex items-center gap-2 border-b border-fog py-2 ${row.done ? 'text-slate' : ''}`}>
-                <span className="w-6 text-sm text-slate">{ri + 1}</span>
-                <div className="flex items-center">
-                  <Button variant="quiet" aria-label={`Less weight for ${label}`} disabled={row.done} onClick={() => patch(bi, ri, { weight: Math.max(0, row.weight - step) })}>−</Button>
-                  <span className="w-20 text-center tabular">{row.weight} {unit}</span>
-                  <Button variant="quiet" aria-label={`More weight for ${label}`} disabled={row.done} onClick={() => patch(bi, ri, { weight: row.weight + step })}>+</Button>
+              <div key={ri} className={`flex flex-col gap-2 border-b border-fog py-3 ${row.done ? 'text-slate' : ''}`}>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate">Set {ri + 1}</span>
+                  <Button
+                    variant={row.done ? 'quiet' : 'secondary'} aria-label={row.done ? `Logged ${label}` : `Log ${label}`} disabled={row.done || saving.has(`${bi}:${ri}`)}
+                    className={row.done ? 'text-pond' : ''}
+                    onClick={() => void saveSet(bi, ri, b.exerciseId, row)}
+                  >
+                    <Check aria-hidden="true" size={20} strokeWidth={2.5} />
+                  </Button>
                 </div>
-                <div className="flex items-center">
-                  <Button variant="quiet" aria-label={`Fewer reps for ${label}`} disabled={row.done} onClick={() => patch(bi, ri, { reps: Math.max(1, row.reps - 1) })}>−</Button>
-                  <span className="w-12 text-center tabular">×{row.reps}</span>
-                  <Button variant="quiet" aria-label={`More reps for ${label}`} disabled={row.done} onClick={() => patch(bi, ri, { reps: row.reps + 1 })}>+</Button>
+                <div className="grid grid-cols-2 gap-3">
+                  <Stepper
+                    value={`${row.weight} ${unit}`} disabled={row.done}
+                    lessLabel={`Less weight for ${label}`} moreLabel={`More weight for ${label}`}
+                    onLess={() => patch(bi, ri, { weight: Math.max(0, row.weight - step) })} onMore={() => patch(bi, ri, { weight: row.weight + step })}
+                  />
+                  <Stepper
+                    value={`×${row.reps}`} disabled={row.done}
+                    lessLabel={`Fewer reps for ${label}`} moreLabel={`More reps for ${label}`}
+                    onLess={() => patch(bi, ri, { reps: Math.max(1, row.reps - 1) })} onMore={() => patch(bi, ri, { reps: row.reps + 1 })}
+                  />
                 </div>
-                <Button
-                  variant={row.done ? 'quiet' : 'secondary'} aria-label={row.done ? `Logged ${label}` : `Log ${label}`} disabled={row.done || saving.has(`${bi}:${ri}`)} className="ml-auto"
-                  onClick={() => void saveSet(bi, ri, b.exerciseId, row)}
-                >
-                  ✓
-                </Button>
               </div>
             )
           })}
@@ -141,7 +162,6 @@ export default function Workout() {
       >
         Finish workout
       </Button>
-      <RestTimer remaining={timer.remaining} running={timer.running} onAdd={() => timer.add(30)} onStop={timer.stop} />
     </div>
   )
 }

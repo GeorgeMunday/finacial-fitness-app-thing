@@ -43,7 +43,7 @@ function Shell() {
     <>
       <StorageBanner persistent={persistent} />
       <InstallPrompt />
-      <div className="mx-auto max-w-lg px-4 pb-28 pt-6">
+      <div className="mx-auto max-w-lg px-5 pb-32 pt-8">
         <Outlet />
       </div>
       <BottomNav onAdd={() => setQuick(true)} />

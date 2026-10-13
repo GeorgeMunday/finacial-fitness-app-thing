@@ -1,8 +1,25 @@
+import { Apple, Dumbbell, Ellipsis, House, Plus, Wallet, type LucideIcon } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useSettings } from '../state/SettingsProvider'
 
-const linkCls = ({ isActive }: { isActive: boolean }) =>
-  `flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center px-1 text-sm ${isActive ? 'font-semibold text-pond' : 'text-slate'}`
+function Item({ to, label, icon: Icon, end }: { to: string; label: string; icon: LucideIcon; end?: boolean }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        `flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-1 text-xs ${isActive ? 'font-semibold text-pond' : 'text-slate'}`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <Icon aria-hidden="true" size={22} strokeWidth={isActive ? 2.4 : 1.8} />
+          <span>{label}</span>
+        </>
+      )}
+    </NavLink>
+  )
+}
 
 export function BottomNav({ onAdd }: { onAdd: () => void }) {
   const { settings } = useSettings()
@@ -10,19 +27,21 @@ export function BottomNav({ onAdd }: { onAdd: () => void }) {
   const train = settings.optionalPillars.includes('train')
   return (
     <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-30 border-t border-fog bg-surface pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex h-16 max-w-lg items-center">
-        <NavLink to="/" end className={linkCls}>Today</NavLink>
-        <NavLink to="/money" className={linkCls}>Money</NavLink>
-        <button
-          aria-label="Add"
-          onClick={onAdd}
-          className="mx-1 min-h-11 min-w-20 rounded-full bg-pond px-6 py-2 text-xl font-semibold text-on-pond"
-        >
-          +
-        </button>
-        {food ? <NavLink to="/food" className={linkCls}>Food</NavLink> : null}
-        {train ? <NavLink to="/train" className={linkCls}>Train</NavLink> : null}
-        <NavLink to="/more" className={linkCls}>More</NavLink>
+      <div className="mx-auto flex h-16 max-w-lg items-center px-2">
+        <Item to="/" end label="Today" icon={House} />
+        <Item to="/money" label="Money" icon={Wallet} />
+        <div className="flex flex-1 justify-center">
+          <button
+            aria-label="Add"
+            onClick={onAdd}
+            className="flex size-14 -translate-y-3 items-center justify-center rounded-full bg-pond text-on-pond shadow-[0_4px_12px_rgba(15,110,106,0.35)]"
+          >
+            <Plus aria-hidden="true" size={28} strokeWidth={2.5} />
+          </button>
+        </div>
+        {food ? <Item to="/food" label="Food" icon={Apple} /> : null}
+        {train ? <Item to="/train" label="Train" icon={Dumbbell} /> : null}
+        <Item to="/more" label="More" icon={Ellipsis} />
       </div>
     </nav>
   )

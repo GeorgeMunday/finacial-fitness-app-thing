@@ -37,7 +37,7 @@ export default function AddTransaction() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <h1 className="font-display text-xl font-semibold">{kind === 'income' ? 'Add income' : 'Add expense'}</h1>
       <AmountKeypad value={value} onChange={setValue} />
       {kind === 'expense' ? (

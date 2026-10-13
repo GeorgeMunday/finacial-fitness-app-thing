@@ -23,10 +23,10 @@ export default function Today() {
   const g = m.topGoal
   const over = m.weekLimitPence > 0 && m.leftThisWeekPence < 0
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
       <p className="text-slate">{new Date(`${today}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
 
-      <section aria-label="Money" className="flex flex-col gap-2">
+      <section aria-label="Money" className="flex flex-col gap-4">
         {m.weekLimitPence > 0 ? (
           <div>
             <Amount pence={Math.abs(m.leftThisWeekPence)} size="hero" />
@@ -52,7 +52,7 @@ export default function Today() {
         ) : (
           <Link to="/money/goals/new" className="text-pond">Set a savings goal</Link>
         )}
-        <Button className="min-h-14 text-lg" onClick={() => navigate('/money/add?kind=expense')}>Add expense</Button>
+        <Button className="mt-2 min-h-14 text-lg" onClick={() => navigate('/money/add?kind=expense')}>Add expense</Button>
       </section>
 
       {s.backupDue ? (

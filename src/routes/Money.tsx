@@ -8,7 +8,7 @@ import { useToast } from '../components/ui/Toast'
 import { goalLabel } from '../components/GoalRow'
 import { useAsync } from '../hooks/useAsync'
 import { localDate, monthRange } from '../domain/dates'
-import { deleteTransaction, formatPence, leftToSpend, listTransactions, restoreTransaction } from '../domain/money'
+import { deleteTransaction, formatPence, leftToSpend, listCategories, listTransactions, restoreTransaction } from '../domain/money'
 import { listGoals, monthlySummary } from '../domain/savings'
 import { useDb } from '../state/DbProvider'
 import AddTransaction from './money/AddTransaction'
@@ -48,13 +48,14 @@ function MoneyHome() {
       goals: await listGoals(db, today),
       summary: await monthlySummary(db, today.slice(0, 7)),
       txs: await listTransactions(db, month.from, month.to),
+      categories: new Map((await listCategories(db)).map((c) => [c.id, c.name])),
     }
   }, [db, today])
   if (!data) return null
   const { week, monthLeft, goals, summary, txs } = data
   const days = [...new Set(txs.map((t) => t.logDate))]
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-8">
       <h1 className="font-display text-xl font-semibold">Money</h1>
       <Left label="this week" left={week} />
       {monthLeft.limitPence > 0 ? <Left label="this month" left={monthLeft} /> : null}
@@ -62,7 +63,7 @@ function MoneyHome() {
       {goals.length > 0 ? (
         <section aria-label="Savings">
           {goals.slice(0, 3).map((p) => (
-            <Link key={p.goal.id} to={`/money/goals/${p.goal.id}`} className="flex min-h-14 flex-col justify-center gap-1 border-b border-fog py-2">
+            <Link key={p.goal.id} to={`/money/goals/${p.goal.id}`} className="flex min-h-16 flex-col justify-center gap-2 border-b border-fog py-3">
               <span className="flex justify-between"><span>{p.goal.name}</span><span className="text-slate">{p.percent}% saved, {formatPence(p.remainingPence)} to go</span></span>
               <TallyMarks percent={p.percent} seed={p.goal.id} label={goalLabel(p)} />
             </Link>
@@ -88,12 +89,13 @@ function MoneyHome() {
         <section aria-label="Transactions">
           {days.map((d) => (
             <div key={d}>
-              <h2 className="pt-3 text-sm text-slate">{new Date(`${d}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</h2>
+              <h2 className="pt-5 pb-1 text-sm text-slate">{new Date(`${d}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</h2>
               {txs.filter((t) => t.logDate === d).map((t) => {
-                const name = t.merchant ?? (t.kind === 'income' ? 'Income' : 'Expense')
+                const category = data.categories.get(t.categoryId) ?? (t.kind === 'income' ? 'Income' : 'Other')
+                const name = t.merchant ?? category
                 return (
                   <ListRow
-                    key={t.id} title={name} detail={t.kind === 'income' ? 'Income' : undefined}
+                    key={t.id} title={name} detail={t.merchant ? category : undefined}
                     trailing={
                       <>
                         <Amount pence={t.kind === 'income' ? t.amountPence : -t.amountPence} />

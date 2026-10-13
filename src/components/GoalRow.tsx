@@ -14,7 +14,7 @@ export function goalLabel(p: GoalProgress): string {
 
 export function GoalRow({ progress: p, onSave }: { progress: GoalProgress; onSave: () => void }) {
   return (
-    <div className="flex flex-col gap-2 border-b border-fog py-3">
+    <div className="flex flex-col gap-3 border-b border-fog py-5">
       <div className="flex items-center justify-between gap-3">
         <Link to={`/money/goals/${p.goal.id}`} className="min-h-11 min-w-0 flex-1 py-2">
           <div className="truncate font-semibold">{p.goal.name}</div>

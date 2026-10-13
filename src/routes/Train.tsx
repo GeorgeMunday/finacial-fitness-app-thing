@@ -19,7 +19,7 @@ function TrainHome() {
   if (!data) return null
   const start = async (routineId?: string) => navigate(`/train/workout/${await startWorkout(db, routineId)}`)
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <h1 className="font-display text-xl font-semibold">Train</h1>
       {data.last ? <p className="text-slate">Last workout {data.last}</p> : null}
       {data.open[0] ? <Link to={`/train/workout/${data.open[0].id}`} className="flex min-h-11 items-center text-pond">Carry on with your open workout</Link> : null}

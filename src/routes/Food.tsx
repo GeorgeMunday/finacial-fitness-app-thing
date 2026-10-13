@@ -30,7 +30,7 @@ function FoodDay() {
   const hide = settings.hideCalories
   const label = date === localDate() ? 'Today' : new Date(`${date}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <Button variant="quiet" aria-label="Previous day" onClick={() => setDate(addDays(date, -1))}>‹</Button>
         <h1 className="font-display text-xl font-semibold">{label}</h1>
