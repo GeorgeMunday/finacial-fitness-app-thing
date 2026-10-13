@@ -55,6 +55,7 @@ function FoodDay() {
       <div className="flex flex-wrap gap-2">
         <Link to="/food/recipes" className="flex min-h-11 items-center rounded-xl border border-fog bg-surface px-4">Recipes</Link>
         <Link to="/food/plan" className="flex min-h-11 items-center rounded-xl border border-fog bg-surface px-4">Plan my week</Link>
+        <Link to="/progress" className="flex min-h-11 items-center rounded-xl border border-fog bg-surface px-4">Your progress</Link>
       </div>
       {lowIntakeStreak(data.recent, settings.sex) ? <p className="rounded-xl bg-surface p-3">{SUPPORT_MESSAGE}</p> : null}
       {SLOTS.map(({ slot, label: slotLabel }) => {

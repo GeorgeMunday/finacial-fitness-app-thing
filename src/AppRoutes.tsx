@@ -9,6 +9,7 @@ import { postDueRecurring } from './domain/money'
 import { loadSeed, seedAll } from './domain/seed'
 import Food from './routes/Food'
 import Money from './routes/Money'
+import Progress from './routes/Progress'
 import More from './routes/More'
 import Today from './routes/Today'
 import Train from './routes/Train'
@@ -68,6 +69,7 @@ export default function AppRoutes() {
         <Route path="money/*" element={<Money />} />
         <Route path="food/*" element={<Food />} />
         <Route path="train/*" element={<Train />} />
+        <Route path="progress" element={<Progress />} />
         <Route path="you/*" element={<More />} />
         <Route path="more/*" element={<MoreRedirect />} />
       </Route>

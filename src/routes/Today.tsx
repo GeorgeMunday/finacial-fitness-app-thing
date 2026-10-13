@@ -92,6 +92,10 @@ export default function Today() {
         ) : null}
       </TodayCard>
 
+      <TodayCard title="Your progress" to="/progress">
+        <p className="text-slate">See how your spending{s.food ? ', food' : ''}{s.train ? ' and training' : ''} have gone over time.</p>
+      </TodayCard>
+
       <p className="text-sm text-slate">You logged something on {s.loggedDaysLast7} of the last 7 days.</p>
     </div>
   )

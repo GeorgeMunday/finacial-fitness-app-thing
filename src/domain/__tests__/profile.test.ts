@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { freshDb } from '../../../test/renderApp'
 import { createUserFood, deleteLog, logFood } from '../food'
 import { addExpense, addIncome, deleteTransaction } from '../money'
-import { foodProgress, moneyProgress, topLifts, trainingProgress } from '../profile'
+import { foodProgress, liftHistory, moneyProgress, topLifts, trackedLifts, trainingProgress } from '../profile'
 import { contribute, createGoal, deleteContribution } from '../savings'
 import { customExercise, deleteSet, finishWorkout, logSet, startWorkout } from '../training'
 
@@ -111,6 +111,49 @@ describe('trainingProgress and topLifts', () => {
       { exerciseId: a, name: 'Squat', est1rmKg: 116.7, heaviestKg: 100 },
       { exerciseId: c, name: 'Row', est1rmKg: 88.7, heaviestKg: 70 },
       { exerciseId: b, name: 'Bench', est1rmKg: 70, heaviestKg: 60 },
+    ])
+  })
+})
+
+describe('strength over time', () => {
+  async function session(db: Awaited<ReturnType<typeof freshDb>>, logDate: string, exerciseId: string, sets: [number, number][], warmup?: [number, number]) {
+    const w = await workoutOn(db, logDate)
+    if (warmup) await logSet(db, { workoutId: w, exerciseId, reps: warmup[0], weightKg: warmup[1], isWarmup: true })
+    for (const [reps, kg] of sets) await logSet(db, { workoutId: w, exerciseId, reps, weightKg: kg })
+    await finishWorkout(db, w)
+    return w
+  }
+  it('liftHistory gives the best estimated one-rep max per day, oldest first, warm-ups left out', async () => {
+    const db = await freshDb()
+    const squat = await customExercise(db, 'Squat')
+    await session(db, '2026-09-01', squat, [[5, 100], [3, 105]], [20, 200])
+    await session(db, '2026-09-08', squat, [[5, 102.5]])
+    expect(await liftHistory(db, squat, '2026-08-01')).toEqual([
+      { logDate: '2026-09-01', est1rmKg: 116.7, heaviestKg: 105 }, // 100 × (1 + 5/30) beats 105 × (1 + 3/30) = 115.5
+      { logDate: '2026-09-08', est1rmKg: 119.6, heaviestKg: 102.5 },
+    ])
+  })
+  it('liftHistory only covers the range asked for and skips deleted sets', async () => {
+    const db = await freshDb()
+    const squat = await customExercise(db, 'Squat')
+    await session(db, '2026-06-01', squat, [[5, 90]])
+    const w = await workoutOn(db, '2026-09-01')
+    const gone = await logSet(db, { workoutId: w, exerciseId: squat, reps: 5, weightKg: 200 })
+    await deleteSet(db, gone)
+    await logSet(db, { workoutId: w, exerciseId: squat, reps: 5, weightKg: 100 })
+    expect((await liftHistory(db, squat, '2026-08-01')).map((r) => r.heaviestKg)).toEqual([100])
+  })
+  it('trackedLifts lists lifts done on two or more days, most-trained first', async () => {
+    const db = await freshDb()
+    const squat = await customExercise(db, 'Squat')
+    const bench = await customExercise(db, 'Bench')
+    const curl = await customExercise(db, 'Curl')
+    for (const d of ['2026-09-01', '2026-09-03', '2026-09-05']) await session(db, d, squat, [[5, 100]])
+    for (const d of ['2026-09-02', '2026-09-04']) await session(db, d, bench, [[5, 60]])
+    await session(db, '2026-09-02', curl, [[10, 10]])
+    expect(await trackedLifts(db, '2026-08-01')).toEqual([
+      { exerciseId: squat, name: 'Squat', sessions: 3 },
+      { exerciseId: bench, name: 'Bench', sessions: 2 },
     ])
   })
 })

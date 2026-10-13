@@ -96,3 +96,70 @@ describe('progress section', () => {
     expect(within(lifts).getByText(/257.5 lb/)).toBeInTheDocument()
   })
 })
+
+describe('strength over time', () => {
+  async function withLifts() {
+    const db = await freshDb({ onboarded: true, optionalPillars: ['train'] })
+    const squat = await customExercise(db, 'Squat', 'quadriceps')
+    const bench = await customExercise(db, 'Bench', 'chest')
+    const days = [addDays(today, -21), addDays(today, -14), addDays(today, -7)]
+    for (const [i, d] of days.entries()) {
+      const w = await startWorkout(db)
+      await db.run('UPDATE workouts SET log_date = ? WHERE id = ?', [d, w])
+      await logSet(db, { workoutId: w, exerciseId: squat, reps: 5, weightKg: 100 + i * 5 })
+      if (i > 0) await logSet(db, { workoutId: w, exerciseId: bench, reps: 5, weightKg: 60 })
+      await finishWorkout(db, w)
+    }
+    return db
+  }
+  it('charts the most-trained lift and says how much it has moved', async () => {
+    const user = userEvent.setup()
+    renderApp(<ProgressSection />, await withLifts())
+    await user.click(await screen.findByRole('radio', { name: 'Training' }))
+    expect(await screen.findByRole('heading', { name: 'Strength over time' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Squat' })).toHaveAttribute('aria-pressed', 'true')
+    // 100, 105, 110 kg × 5 → estimated one-rep max 116.7, 122.5, 128.3
+    expect(await screen.findByRole('img', { name: /Squat estimated one-rep max over 3 months: 116\.7 kg to 128\.3 kg, up 11\.6 kg across 3 sessions/ })).toBeInTheDocument()
+  })
+  it('switches lift with the chips', async () => {
+    const user = userEvent.setup()
+    renderApp(<ProgressSection />, await withLifts())
+    await user.click(await screen.findByRole('radio', { name: 'Training' }))
+    await user.click(await screen.findByRole('button', { name: 'Bench' }))
+    expect(await screen.findByRole('img', { name: /Bench estimated one-rep max over 3 months: 70 kg to 70 kg, no change across 2 sessions/ })).toBeInTheDocument()
+  })
+  it('has a table view with one row per session', async () => {
+    const user = userEvent.setup()
+    renderApp(<ProgressSection />, await withLifts())
+    await user.click(await screen.findByRole('radio', { name: 'Training' }))
+    const section = (await screen.findByRole('heading', { name: 'Strength over time' })).closest('section')!
+    await within(section).findByRole('img', { name: /Squat estimated/ })
+    await user.click(within(section).getByRole('button', { name: 'Show as table' }))
+    expect(within(section).getAllByRole('row')).toHaveLength(4) // header + 3 sessions
+    expect(within(section).getByText('128.3 kg')).toBeInTheDocument()
+  })
+  it('shows pounds for pound users', async () => {
+    const db = await withLifts()
+    const { updateSettings } = await import('../../state/settings')
+    await updateSettings(db, { weightUnit: 'lb' })
+    const user = userEvent.setup()
+    renderApp(<ProgressSection />, db)
+    await user.click(await screen.findByRole('radio', { name: 'Training' }))
+    expect(await screen.findByRole('img', { name: /Squat estimated one-rep max over 3 months: 257 lb to 283 lb/ })).toBeInTheDocument()
+  })
+  it('without a lift done on two days it explains what to do', async () => {
+    const db = await freshDb({ onboarded: true, optionalPillars: ['train'] })
+    const squat = await customExercise(db, 'Squat', 'quadriceps')
+    for (const d of [addDays(today, -3), addDays(today, -2)]) {
+      const w = await startWorkout(db)
+      await db.run('UPDATE workouts SET log_date = ? WHERE id = ?', [d, w])
+      await logSet(db, { workoutId: w, exerciseId: squat, reps: 5, weightKg: 100 })
+      if (d === addDays(today, -2)) await db.run('UPDATE workout_sets SET exercise_id = ? WHERE workout_id = ?', ['other', w])
+      await finishWorkout(db, w)
+    }
+    const user = userEvent.setup()
+    renderApp(<ProgressSection />, db)
+    await user.click(await screen.findByRole('radio', { name: 'Training' }))
+    expect(await screen.findByText('Log the same lift on two different days to see it here.')).toBeInTheDocument()
+  })
+})

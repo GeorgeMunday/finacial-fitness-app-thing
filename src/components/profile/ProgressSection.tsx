@@ -1,14 +1,16 @@
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { localDate, monthLabel } from '../../domain/dates'
+import { addMonths, localDate, monthLabel } from '../../domain/dates'
 import { formatPence } from '../../domain/money'
-import { foodProgress, moneyProgress, topLifts, trainingProgress } from '../../domain/profile'
+import { foodProgress, liftHistory, moneyProgress, topLifts, trackedLifts, trainingProgress } from '../../domain/profile'
 import { listGoals, yearlySummary } from '../../domain/savings'
-import { fromKg } from '../../domain/units'
+import { fromKg, toKg, type WeightUnit } from '../../domain/units'
 import { useAsync } from '../../hooks/useAsync'
 import { useDb } from '../../state/DbProvider'
 import { useSettings } from '../../state/SettingsProvider'
 import { BarChart } from '../charts/BarChart'
+import { LineChart } from '../charts/LineChart'
+import { Chip } from '../ui/Chip'
 import { Button } from '../ui/Button'
 
 type Tab = 'money' | 'food' | 'train'
@@ -138,6 +140,56 @@ function FoodProgress({ range, controls }: { range: Range; controls: ReactNode }
   )
 }
 
+/** A one-rep-max estimate in the user's unit: kg to 0.1, pounds to the nearest pound. */
+const liftWeight = (kg: number, unit: WeightUnit) => (unit === 'kg' ? Math.round(kg * 10) / 10 : Math.round(kg / toKg(1, 'lb')))
+
+function StrengthOverTime({ range }: { range: Range }) {
+  const db = useDb()
+  const { settings } = useSettings()
+  const unit = settings.weightUnit
+  const from = addMonths(localDate(), -range)
+  const [picked, setPicked] = useState<string | null>(null)
+  const { data: lifts } = useAsync(() => trackedLifts(db, from), [db, from])
+  const current = lifts?.find((l) => l.exerciseId === picked) ?? lifts?.[0]
+  const { data: history } = useAsync(() => (current ? liftHistory(db, current.exerciseId, from) : Promise.resolve([])), [db, current?.exerciseId, from])
+  if (!lifts) return null
+  return (
+    <section className="flex flex-col gap-3">
+      <h3 className="font-semibold">Strength over time</h3>
+      {!current ? (
+        <p className="text-slate">Log the same lift on two different days to see it here.</p>
+      ) : (
+        <>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Lift">
+            {lifts.map((l) => <Chip key={l.exerciseId} selected={l.exerciseId === current.exerciseId} onClick={() => setPicked(l.exerciseId)}>{l.name}</Chip>)}
+          </div>
+          {history && history.length >= 2 ? (() => {
+            const w = history.map((h) => liftWeight(h.est1rmKg, unit))
+            const change = Math.round((w[w.length - 1] - w[0]) * 10) / 10
+            const moved = change === 0 ? 'no change' : `${change > 0 ? 'up' : 'down'} ${Math.abs(change)} ${unit}`
+            return (
+              <LineChart
+                key={current.exerciseId}
+                points={history.map((h, i) => ({ date: h.logDate, value: w[i] }))}
+                formatDate={shortDay}
+                formatTick={(v) => `${Math.round(v)}`}
+                yAxisLabel={`Estimated one-rep max (${unit})`}
+                summary={`${current.name} estimated one-rep max over ${range} months: ${w[0]} ${unit} to ${w[w.length - 1]} ${unit}, ${moved} across ${history.length} sessions.`}
+                describe={(i) => `${shortDay(history[i].logDate)}: ${w[i]} ${unit} estimated one-rep max, heaviest set ${fromKg(history[i].heaviestKg, unit)} ${unit}`}
+                table={{
+                  columns: ['Date', 'Estimated 1RM', 'Heaviest set'],
+                  rows: history.map((h, i) => [shortDay(h.logDate), `${w[i]} ${unit}`, `${fromKg(h.heaviestKg, unit)} ${unit}`]),
+                }}
+              />
+            )
+          })() : null}
+          <p className="text-sm text-slate">Estimated from your best set each day (weight × (1 + reps ÷ 30)).</p>
+        </>
+      )}
+    </section>
+  )
+}
+
 function TrainingProgress({ range, controls }: { range: Range; controls: ReactNode }) {
   const db = useDb()
   const { settings } = useSettings()
@@ -153,6 +205,7 @@ function TrainingProgress({ range, controls }: { range: Range; controls: ReactNo
   return (
     <>
       {controls}
+      <StrengthOverTime range={range} />
       <h3 className="font-semibold">Workouts per week</h3>
       <BarChart
         labels={labels}
@@ -195,7 +248,8 @@ function TrainingProgress({ range, controls }: { range: Range; controls: ReactNo
   )
 }
 
-export function ProgressSection() {
+/** `asPage` makes the title the screen's one top-level heading (the Progress screen); otherwise it is a section of the profile. */
+export function ProgressSection({ asPage = false }: { asPage?: boolean } = {}) {
   const { settings } = useSettings()
   const food = settings.optionalPillars.includes('food')
   const train = settings.optionalPillars.includes('train')
@@ -220,7 +274,9 @@ export function ProgressSection() {
   else body = <TrainingProgress range={range} controls={controls} />
   return (
     <section aria-labelledby="progress" className="flex flex-col gap-4">
-      <h2 id="progress" className="font-display text-lg font-semibold">Your progress</h2>
+      {asPage
+        ? <h1 id="progress" className="font-display text-xl font-semibold">Your progress</h1>
+        : <h2 id="progress" className="font-display text-lg font-semibold">Your progress</h2>}
       {tabs.length > 1 ? <Segmented label="Progress for" options={tabs} value={current} onChange={setTab} /> : null}
       {body}
     </section>

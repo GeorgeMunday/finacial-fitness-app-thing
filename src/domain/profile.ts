@@ -86,3 +86,29 @@ export async function topLifts(db: SqlExecutor, limit = 3): Promise<TopLift[]> {
   return rows.map((r) => ({ exerciseId: r.id, name: r.name, est1rmKg: r1(r.best), heaviestKg: r.heaviest }))
 }
 
+
+export type LiftSession = { logDate: string; est1rmKg: number; heaviestKg: number }
+export type TrackedLift = { exerciseId: string; name: string; sessions: number }
+
+/** Best estimated one-rep max (Epley) and heaviest working set per day since `from`, oldest first. */
+export async function liftHistory(db: SqlExecutor, exerciseId: string, from: string): Promise<LiftSession[]> {
+  const rows = await db.all<{ d: string; best: number; heaviest: number }>(
+    `SELECT w.log_date AS d, MAX(s.weight_kg * (1 + s.reps / 30.0)) AS best, MAX(s.weight_kg) AS heaviest
+     FROM workout_sets s JOIN workouts w ON w.id = s.workout_id
+     WHERE s.exercise_id = ? AND s.deleted_at IS NULL AND s.is_warmup = 0 AND w.deleted_at IS NULL AND w.log_date >= ?
+     GROUP BY w.log_date ORDER BY w.log_date`,
+    [exerciseId, from],
+  )
+  return rows.map((r) => ({ logDate: r.d, est1rmKg: r1(r.best), heaviestKg: r.heaviest }))
+}
+
+/** Lifts with working sets on two or more days since `from` (enough to draw a line), most-trained first. */
+export async function trackedLifts(db: SqlExecutor, from: string, limit = 8): Promise<TrackedLift[]> {
+  return db.all<TrackedLift>(
+    `SELECT e.id AS exerciseId, e.name, COUNT(DISTINCT w.log_date) AS sessions
+     FROM workout_sets s JOIN workouts w ON w.id = s.workout_id JOIN exercises e ON e.id = s.exercise_id
+     WHERE s.deleted_at IS NULL AND s.is_warmup = 0 AND w.deleted_at IS NULL AND w.log_date >= ?
+     GROUP BY e.id HAVING sessions >= 2 ORDER BY sessions DESC, e.name LIMIT ?`,
+    [from, limit],
+  )
+}

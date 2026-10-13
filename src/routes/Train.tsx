@@ -42,6 +42,7 @@ function TrainHome() {
         </Link>
       )}
       {data.last ? <p className="text-slate">Last workout {fmt(data.last)}</p> : null}
+      <Link to="/progress" className="flex min-h-11 items-center self-start text-pond">Your progress</Link>
       {data.open[0] ? <Link to={`/train/workout/${data.open[0].id}`} className="flex min-h-11 items-center text-pond">Carry on with your open workout</Link> : null}
       {data.routines.length === 0 ? <EmptyState message="No routines yet" action={{ label: 'New routine', onClick: () => navigate('/train/routine/new') }} /> : null}
       {data.routines.map((r) => (
