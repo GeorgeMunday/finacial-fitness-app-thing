@@ -7,6 +7,7 @@ import { useAsync } from '../hooks/useAsync'
 import { addDays, localDate } from '../domain/dates'
 import { copyDay, dailyKcal, dayLogsNamed, dayTotals, deleteLog, restoreLog } from '../domain/food'
 import { foodPhotos } from '../domain/photos'
+import { loggingStreak, proteinWeek } from '../domain/targets'
 import { SUPPORT_MESSAGE, lowIntakeStreak } from '../domain/safety'
 import { useDb } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
@@ -20,6 +21,7 @@ import Recipes from './food/Recipes'
 import Scan from './food/Scan'
 import Search from './food/Search'
 import { SLOTS, dayLabel, logDateParam, withDate } from './food/slots'
+import { TargetsCard } from './food/TargetsCard'
 
 function FoodDay() {
   const db = useDb()
@@ -36,8 +38,10 @@ function FoodDay() {
     photos: await foodPhotos(db, [...new Set(logs.map((l) => l.foodId).filter((x): x is string => !!x))]),
     totals: await dayTotals(db, date),
     recent: await dailyKcal(db, addDays(localDate(), -6), localDate()),
+    week: settings.proteinTarget ? await proteinWeek(db, date, settings.proteinTarget) : null,
+    streak: await loggingStreak(db, localDate()),
     }
-  }, [db, date])
+  }, [db, date, settings.proteinTarget])
   if (!data) return null
   const { logs, totals } = data
   const hide = settings.hideCalories
@@ -50,18 +54,7 @@ function FoodDay() {
         <h1 className="font-display text-xl font-semibold">{label}</h1>
         <Button variant="quiet" aria-label="Next day" disabled={date >= localDate()} onClick={() => setDate(addDays(date, 1))}>›</Button>
       </div>
-      <section aria-label="Totals" className="flex gap-6">
-        {hide ? null : (
-          <div>
-            <p className="font-display text-2xl font-semibold tabular">{totals.kcal.toLocaleString('en-GB')}</p>
-            <p className="text-sm text-slate">{settings.kcalTarget ? `of ${settings.kcalTarget.toLocaleString('en-GB')} kcal` : 'kcal'}</p>
-          </div>
-        )}
-        <div>
-          <p className="font-display text-2xl font-semibold tabular">{totals.proteinG} g</p>
-          <p className="text-sm text-slate">{settings.proteinTarget ? `of ${settings.proteinTarget} g protein` : 'protein'}</p>
-        </div>
-      </section>
+      <TargetsCard totals={totals} settings={settings} week={data.week} streak={data.streak} />
       <div className="flex flex-wrap gap-2">
         <Link to="/food/recipes" className="flex min-h-11 items-center rounded-xl border border-fog bg-surface px-4">Recipes</Link>
         <Link to="/food/plan" className="flex min-h-11 items-center rounded-xl border border-fog bg-surface px-4">Plan my week</Link>

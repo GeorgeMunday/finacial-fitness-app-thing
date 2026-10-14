@@ -1,6 +1,7 @@
 import type { SqlExecutor } from '../db/executor'
 import type { Sex } from '../db/types'
 import type { DateFormat } from '../domain/dates'
+import type { Activity, WeightGoal } from '../domain/targets'
 import { daysBetween } from '../domain/dates'
 
 export type Settings = {
@@ -14,6 +15,14 @@ export type Settings = {
   monthlyIncomePence?: number
   kcalTarget?: number
   proteinTarget?: number
+  fibreTarget?: number
+  carbsTarget?: number
+  fatTarget?: number
+  /** What "Work out my targets" was last given; weight lives in body_metrics. */
+  birthYear?: number
+  heightCm?: number
+  activity?: Activity
+  weightGoal?: WeightGoal
   lastBackupAt?: string
   theme?: 'light' | 'dark'
   displayName?: string

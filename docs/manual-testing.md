@@ -121,3 +121,11 @@ On a phone, with Food on:
 - [ ] Back up, delete everything, restore: the photo comes back.
 - [ ] Turn on dark mode: the split bar's three colours are distinct and readable.
 
+## 9. Targets and the game layer
+
+- [ ] Profile → Targets and calories → Work out my targets. Enter a birth year, height, weight, activity and goal: suggested targets appear only once everything is filled, and nothing is saved until Use these targets.
+- [ ] With a weight that's underweight for the height, choose Lose weight: Tally refuses the loss and shows the Beat support message.
+- [ ] Food shows Protein and Fibre rings that fill as you log; one reaching its target turns marigold with a tick. Calories, carbs and fat show a band with "In your range", "N to your range" or "Above your range", and nothing turns red.
+- [ ] Turn on Hide calorie numbers: no calorie range, and the calculator shows no kcal.
+- [ ] Log on several days in a row: the tally marks count the days, and the week dots tick on days the protein target was reached.
+
