@@ -104,3 +104,28 @@ With Food and Train on, on a phone:
 ## Reporting
 
 For each failure, note the device, OS and browser versions, the step, what you saw (a screenshot helps) and what you expected.
+
+## 7. Food logging quick wins
+
+On a phone, with Food on:
+
+- [ ] Food → ‹ to yesterday → Add (Breakfast) → search "bread" → Bread, white. The page says "Adding to <yesterday>". Tap "2 slices (72 g)", Log food: you're back on yesterday and the slices are there; today is empty.
+- [ ] Tap the logged bread: the edit sheet opens. Change 72 to 36 and the meal to Snacks, Save. The row moves to Snacks with half the numbers, and it's still there after closing and reopening the app.
+- [ ] Quick add with a name, calories, carbs and fat. The row shows the name; tap it and change the calories.
+- [ ] Scan a product whose Open Food Facts entry has a serving size: the food page shows serving chips.
+
+## 8. Product photos and nutrition detail
+
+- [ ] Scan a product (or type `3017620422003`): the food page shows the product photo above its name, an energy split bar (Protein / Carbs / Fat with percentages) and a table with sugars, fibre and salt. A nutrient Open Food Facts doesn't have says "Not known".
+- [ ] Log it: the day row shows the photo as a thumbnail. Go offline and reopen the app: the photo is still there.
+- [ ] Back up, delete everything, restore: the photo comes back.
+- [ ] Turn on dark mode: the split bar's three colours are distinct and readable.
+
+## 9. Targets and the game layer
+
+- [ ] Profile → Targets and calories → Work out my targets. Enter a birth year, height, weight, activity and goal: suggested targets appear only once everything is filled, and nothing is saved until Use these targets.
+- [ ] With a weight that's underweight for the height, choose Lose weight: Tally refuses the loss and shows the Beat support message.
+- [ ] Food shows Protein and Fibre rings that fill as you log; one reaching its target turns marigold with a tick. Calories, carbs and fat show a band with "In your range", "N to your range" or "Above your range", and nothing turns red.
+- [ ] Turn on Hide calorie numbers: no calorie range, and the calculator shows no kcal.
+- [ ] Log on several days in a row: the tally marks count the days, and the week dots tick on days the protein target was reached.
+

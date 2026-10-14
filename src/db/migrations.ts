@@ -83,6 +83,20 @@ ALTER TABLE food_logs ADD COLUMN portions REAL;
 CREATE INDEX idx_food_logs_recipe ON food_logs(recipe_id);
 ALTER TABLE product_prices ADD COLUMN source TEXT NOT NULL DEFAULT 'user';
 `,
+  // v4: a quick add can carry a name ("Meal deal") instead of showing as "Quick add".
+  `
+ALTER TABLE food_logs ADD COLUMN name TEXT;
+`,
+  // v5: fibre, sugars and salt (NULL = not known, never 0) and saved Open Food Facts product photos.
+  `
+ALTER TABLE foods ADD COLUMN fibre_100g REAL;
+ALTER TABLE foods ADD COLUMN sugars_100g REAL;
+ALTER TABLE foods ADD COLUMN salt_100g REAL;
+ALTER TABLE food_logs ADD COLUMN fibre_g REAL;
+ALTER TABLE food_logs ADD COLUMN sugars_g REAL;
+ALTER TABLE food_logs ADD COLUMN salt_g REAL;
+CREATE TABLE food_images (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT, food_id TEXT NOT NULL UNIQUE, source_url TEXT NOT NULL, data_url TEXT NOT NULL);
+`,
 ]
 
 /** Applies pending migrations, tracked in PRAGMA user_version. Returns the new version. */

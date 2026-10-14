@@ -3,6 +3,7 @@ import { memoryExecutor } from '../../../test/memoryExecutor'
 import type { SqlExecutor } from '../../db/executor'
 import { migrate } from '../../db/migrations'
 import { lookupBarcode, mapOffProduct } from '../openFoodFacts'
+import { foodPhotos, safePhoto } from '../photos'
 
 const full = {
   status: 1,
@@ -96,5 +97,78 @@ describe('lookupBarcode', () => {
   it('does not cache incomplete products', async () => {
     await lookupBarcode(db, '9', ok({ status: 1, product: { product_name: 'M', nutriments: {} } }))
     expect(await db.all('SELECT * FROM foods')).toHaveLength(0)
+  })
+})
+
+describe('fibre, sugars, salt and photo from Open Food Facts', () => {
+  const rich = { status: 1, product: { ...full.product, image_front_small_url: 'https://images.openfoodfacts.org/images/products/1/front_en.200.jpg', nutriments: { ...full.product.nutriments, fiber_100g: 6.5, sugars_100g: 21, salt_100g: '0.4' } } }
+  it('reads them when present', () => {
+    const r = mapOffProduct(rich, '123')
+    expect(r.status).toBe('found')
+    if (r.status === 'found') expect(r.food).toMatchObject({ fibre100g: 6.5, sugars100g: 21, salt100g: 0.4 })
+  })
+  it('a product without them is still found, with them unknown', () => {
+    const r = mapOffProduct(full, '123')
+    expect(r.status).toBe('found')
+    if (r.status === 'found') expect(r.food).toMatchObject({ fibre100g: null, sugars100g: null, salt100g: null })
+  })
+  it('stores them with the looked-up food', async () => {
+    await lookupBarcode(db, '123', ok(rich))
+    expect(await db.all("SELECT fibre_100g, sugars_100g, salt_100g FROM foods WHERE barcode = '123'")).toEqual([{ fibre_100g: 6.5, sugars_100g: 21, salt_100g: 0.4 }])
+  })
+})
+
+describe('product photos', () => {
+  const IMG = 'https://images.openfoodfacts.org/images/products/123/front_en.3.200.jpg'
+  const product = (url: unknown) => ({ status: 1, product: { ...full.product, image_front_small_url: url } })
+  /** First call answers the product lookup, second the photo download. */
+  const fetches = (json: unknown, photo: { type?: string; bytes?: number; status?: number; fail?: boolean } = {}) => {
+    const calls: string[] = []
+    const fn = vi.fn(async (url: string) => {
+      calls.push(url)
+      if (calls.length === 1) return { ok: true, status: 200, json: async () => json } as Response
+      if (photo.fail) throw new Error('offline')
+      const body = new Uint8Array(photo.bytes ?? 4).fill(65)
+      return new Response(body, { status: photo.status ?? 200, headers: { 'content-type': photo.type ?? 'image/jpeg' } })
+    })
+    return { fn: fn as unknown as typeof fetch, calls }
+  }
+
+  it('saves the small front photo once, as a data URL', async () => {
+    const { fn, calls } = fetches(product(IMG))
+    const r = await lookupBarcode(db, '123', fn)
+    expect(r.status).toBe('found')
+    if (r.status === 'found') await r.photo
+    expect(calls[0]).toContain('image_front_small_url')
+    expect(calls[1]).toBe(IMG)
+    if (r.status !== 'found') return
+    expect((await foodPhotos(db, [r.food.id])).get(r.food.id)).toBe('data:image/jpeg;base64,QUFBQQ==')
+  })
+  it('only fetches from images.openfoodfacts.org over https', async () => {
+    for (const url of ['https://evil.example/x.jpg', 'http://images.openfoodfacts.org/x.jpg', 'https://images.openfoodfacts.org.evil.example/x.jpg', 42]) {
+      const fresh = memoryExecutor()
+      await migrate(fresh)
+      const { fn, calls } = fetches(product(url))
+      const r = await lookupBarcode(fresh, '123', fn)
+      if (r.status === 'found') await r.photo
+      expect(calls).toHaveLength(1)
+    }
+  })
+  it('ignores anything that is not a small jpeg, png or webp, and a failed download', async () => {
+    for (const photo of [{ type: 'text/html' }, { type: 'image/svg+xml' }, { bytes: 200_001 }, { status: 404 }, { fail: true }]) {
+      const fresh = memoryExecutor()
+      await migrate(fresh)
+      const { fn } = fetches(product(IMG), photo)
+      const r = await lookupBarcode(fresh, '123', fn)
+      expect(r.status).toBe('found')
+      if (r.status === 'found') await r.photo
+      expect(await fresh.all('SELECT * FROM food_images')).toEqual([])
+    }
+  })
+  it('safePhoto only lets image data URLs through', () => {
+    expect(safePhoto('data:image/png;base64,AAAA')).toBe('data:image/png;base64,AAAA')
+    expect(safePhoto('data:image/svg+xml;base64,AAAA')).toBeNull()
+    expect(safePhoto('javascript:alert(1)')).toBeNull()
+    expect(safePhoto(null)).toBeNull()
   })
 })

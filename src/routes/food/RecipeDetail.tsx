@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Minus, Plus } from 'lucide-react'
+import { NutritionPanel } from '../../components/NutritionPanel'
 import { Button } from '../../components/ui/Button'
 import { Sheet } from '../../components/ui/Sheet'
 import { useToast } from '../../components/ui/Toast'
@@ -57,6 +58,7 @@ export default function RecipeDetail() {
       <section aria-label="Per portion" className="flex flex-col gap-1">
         <h2 className="font-semibold">Per portion</h2>
         <p>{nutritionLine}</p>
+        <div className="my-2"><NutritionPanel n={n} hideCalories={settings.hideCalories} /></div>
         {cost.complete ? (
           <>
             <p>{`${formatPence(cost.perPortionPence)} a portion · ${formatPence(cost.totalPence)} for the recipe`}</p>

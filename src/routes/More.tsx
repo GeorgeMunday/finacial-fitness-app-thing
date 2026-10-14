@@ -7,6 +7,7 @@ import AppearanceSettings from './more/AppearanceSettings'
 import DataSettings from './more/DataSettings'
 import DateSettings from './more/DateSettings'
 import FoodSettings from './more/FoodSettings'
+import FoodTargets from './more/FoodTargets'
 import IncomeSettings from './more/IncomeSettings'
 import ProfileSettings from './more/ProfileSettings'
 import SectionSettings from './more/SectionSettings'
@@ -33,6 +34,7 @@ export default function More() {
       <Route path="profile" element={<ProfileSettings />} />
       <Route path="income" element={<IncomeSettings />} />
       <Route path="food" element={<FoodSettings />} />
+      <Route path="food/targets" element={<FoodTargets />} />
       <Route path="training" element={<TrainingSettings />} />
       <Route path="dates" element={<DateSettings />} />
       <Route path="appearance" element={<AppearanceSettings />} />

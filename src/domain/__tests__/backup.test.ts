@@ -79,6 +79,17 @@ describe('backup', () => {
     for (const t of ['programmes', 'programme_days', 'programme_day_exercises', 'programme_progress']) delete v2.tables[t]
     await expect(importAll(db, v2)).resolves.toBeTruthy()
   })
+  it('restores a version 4 backup that has no saved photos, and round-trips photos', async () => {
+    const db = await freshDb()
+    const v4 = JSON.parse(JSON.stringify(await exportAll(db)))
+    v4.schemaVersion = 4
+    delete v4.tables.food_images
+    await expect(importAll(db, v4)).resolves.toBeTruthy()
+    await db.run("INSERT INTO food_images (id, created_at, updated_at, food_id, source_url, data_url) VALUES ('i','x','x','f','https://images.openfoodfacts.org/a.jpg','data:image/jpeg;base64,AAAA')")
+    const fresh = await freshDb()
+    await importAll(fresh, JSON.parse(JSON.stringify(await exportAll(db))))
+    expect(await fresh.all('SELECT data_url FROM food_images')).toEqual([{ data_url: 'data:image/jpeg;base64,AAAA' }])
+  })
   it('round-trips programme rows', async () => {
     const db = await freshDb()
     await db.run("INSERT INTO programmes (id, created_at, updated_at, key, name, level, description, progression, days_per_week_options) VALUES ('p1','x','x','k','P','beginner','d','double','[3]')")

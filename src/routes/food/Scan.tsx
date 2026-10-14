@@ -4,12 +4,14 @@ import { Button } from '../../components/ui/Button'
 import { useBarcodeScanner } from '../../hooks/useBarcodeScanner'
 import { lookupBarcode } from '../../domain/openFoodFacts'
 import { useDb } from '../../state/DbProvider'
+import { logDateParam, withDate } from './slots'
 
 export default function Scan() {
   const db = useDb()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const slot = params.get('slot') ?? ''
+  const date = logDateParam(params)
   const video = useRef<HTMLVideoElement>(null)
   const [manual, setManual] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
@@ -28,19 +30,22 @@ export default function Scan() {
     } finally {
       setBusy(null)
     }
-    if (r.status === 'found') return navigate(`/food/${r.food.id}?slot=${slot}`, { replace: true })
-    const q = new URLSearchParams({ barcode: r.draft.barcode, slot })
+    if (r.status === 'found') return navigate(withDate(`/food/${r.food.id}`, date, { slot }), { replace: true })
+    const q: Record<string, string> = { barcode: r.draft.barcode, slot }
     if (r.status === 'incomplete') {
       const d = r.draft
-      if (d.name) q.set('name', d.name)
-      if (d.brand) q.set('brand', d.brand)
-      if (d.kcal100g !== undefined) q.set('kcal', String(d.kcal100g))
-      if (d.protein100g !== undefined) q.set('protein', String(d.protein100g))
-      if (d.carbs100g !== undefined) q.set('carbs', String(d.carbs100g))
-      if (d.fat100g !== undefined) q.set('fat', String(d.fat100g))
-      if (d.servingG) q.set('serving', String(d.servingG))
+      if (d.name) q.name = d.name
+      if (d.brand) q.brand = d.brand
+      if (d.kcal100g !== undefined) q.kcal = String(d.kcal100g)
+      if (d.protein100g !== undefined) q.protein = String(d.protein100g)
+      if (d.carbs100g !== undefined) q.carbs = String(d.carbs100g)
+      if (d.fat100g !== undefined) q.fat = String(d.fat100g)
+      if (d.servingG) q.serving = String(d.servingG)
+      if (d.fibre100g != null) q.fibre = String(d.fibre100g)
+      if (d.sugars100g != null) q.sugars = String(d.sugars100g)
+      if (d.salt100g != null) q.salt = String(d.salt100g)
     }
-    navigate(`/food/new?${q}`, { replace: true })
+    navigate(withDate('/food/new', date, q), { replace: true })
   }
 
   const scanner = useBarcodeScanner(video, (c) => void handle(c))

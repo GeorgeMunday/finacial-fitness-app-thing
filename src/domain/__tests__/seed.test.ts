@@ -51,6 +51,39 @@ describe('seed', () => {
     expect(await db.all('SELECT * FROM foods')).toHaveLength(4)
     expect((await seedAll(db, more)).foods).toBe(0)
   })
+  it('fills a missing serving size on bundled foods, never a serving someone already has', async () => {
+    await seedAll(db, data)
+    await db.run("UPDATE foods SET serving_g = 50, serving_label = 'scoop' WHERE name = 'Oats, rolled'")
+    const withServings = { ...data, starter: data.starter.map((f) => ({ ...f, serving_g: 40, serving_label: 'bowl' })) }
+    await seedAll(db, withServings)
+    expect(await db.all('SELECT name, serving_g, serving_label FROM foods ORDER BY name')).toEqual([
+      { name: 'Banana', serving_g: 40, serving_label: 'bowl' },
+      { name: 'Oatcakes', serving_g: 40, serving_label: 'bowl' },
+      { name: 'Oats, rolled', serving_g: 50, serving_label: 'scoop' },
+    ])
+  })
+  it('the bundled starter list has a sensible serving for everyday single items', () => {
+    const starter: SeedFood[] = JSON.parse(readFileSync(resolve(__dirname, '../../../public/seed/starter.json'), 'utf8'))
+    const by = (n: string) => starter.find((f) => f.name === n)
+    expect(by('Bread, white')).toMatchObject({ serving_label: 'slice' })
+    expect(by('Egg, boiled')).toMatchObject({ serving_label: 'egg' })
+    for (const f of starter) if (f.serving_g != null) expect(f.serving_g).toBeGreaterThan(0)
+  })
+  it('fills missing fibre, sugars and salt on bundled foods, never values already there', async () => {
+    await seedAll(db, data)
+    await db.run("UPDATE foods SET fibre_100g = 9 WHERE name = 'Banana'")
+    const withNutrients = { ...data, starter: data.starter.map((f) => ({ ...f, fibre_100g: 1, sugars_100g: 2, salt_100g: 0 })) }
+    await seedAll(db, withNutrients)
+    expect(await db.all("SELECT fibre_100g, sugars_100g, salt_100g FROM foods WHERE name = 'Banana'")).toEqual([{ fibre_100g: 9, sugars_100g: 2, salt_100g: 0 }])
+    expect(await db.all("SELECT fibre_100g FROM foods WHERE name = 'Oatcakes'")).toEqual([{ fibre_100g: 1 }])
+  })
+  it('every bundled starter food has fibre, sugars and salt', () => {
+    const starter: SeedFood[] = JSON.parse(readFileSync(resolve(__dirname, '../../../public/seed/starter.json'), 'utf8'))
+    for (const f of starter) {
+      for (const k of ['fibre_100g', 'sugars_100g', 'salt_100g'] as const) expect(f[k], `${f.name} ${k}`).toBeTypeOf('number')
+      expect(f.sugars_100g!, f.name).toBeLessThanOrEqual(f.carbs_100g + 0.01)
+    }
+  })
   it('adds new exercises by name and never changes or removes existing rows', async () => {
     await seedAll(db, data)
     await db.run("UPDATE foods SET kcal_100g = 1 WHERE name = 'Banana'")

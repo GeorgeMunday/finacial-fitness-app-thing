@@ -25,6 +25,10 @@ type Tables = Record<string, Record<string, unknown>[]>
 
 /** Row changes that mirror each migration, keyed by the version a backup is upgraded *from*. */
 const UPGRADES: Record<number, (t: Tables) => void> = {
+  4: (t) => {
+    // Migration 5 added saved product photos.
+    t.food_images ??= []
+  },
   2: (t) => {
     // Migration 3 added the programme tables; older backups simply have none.
     for (const n of ['programmes', 'programme_days', 'programme_day_exercises', 'programme_progress']) t[n] ??= []

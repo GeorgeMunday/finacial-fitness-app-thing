@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { memoryExecutor } from '../../../test/memoryExecutor'
 import type { SqlExecutor } from '../../db/executor'
 import { migrate } from '../../db/migrations'
-import { copyDay, createUserFood, dayLogs, dayTotals, deleteLog, lastGrams, logFood, quickAdd, recentFoods } from '../food'
+import { copyDay, createUserFood, dayLogs, dayLogsNamed, dayTotals, deleteLog, editLog, lastGrams, logFood, quickAdd, recentFoods, servingOptions } from '../food'
 
 let db: SqlExecutor
 let oats: string
@@ -26,7 +26,7 @@ describe('food logging', () => {
     await logFood(db, { foodId: oats, grams: 100, slot: 'snack', logDate: '2026-10-12' })
     expect((await dayTotals(db, '2026-10-12')).kcal).toBe(570)
     await db.run('UPDATE foods SET kcal_100g = 500, deleted_at = ? WHERE id = ?', ['x', oats])
-    expect(await dayTotals(db, '2026-10-12')).toEqual({ kcal: 570, proteinG: 18, carbsG: 90, fatG: 12 })
+    expect(await dayTotals(db, '2026-10-12')).toMatchObject({ kcal: 570, proteinG: 18, carbsG: 90, fatG: 12 })
   })
   it('deleteLog removes it from totals', async () => {
     const id = await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: '2026-10-12' })
@@ -62,5 +62,90 @@ describe('food logging', () => {
     expect((await recentFoods(db)).map((f) => f.name)).toEqual(['Banana', 'Oats'])
     expect(await lastGrams(db, oats)).toBe(45)
     expect(await lastGrams(db, 'nope')).toBeNull()
+  })
+})
+
+describe('editing a log', () => {
+  it('rescales a food log from its own snapshot when the portion changes', async () => {
+    const id = await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: '2026-10-12' })
+    await db.run('UPDATE foods SET kcal_100g = 999 WHERE id = ?', [oats])
+    await editLog(db, id, { slot: 'snack', grams: 100 })
+    const [log] = await dayLogs(db, '2026-10-12')
+    expect(log).toMatchObject({ grams: 100, slot: 'snack', kcal: 380, proteinG: 12, carbsG: 60, fatG: 8, logDate: '2026-10-12' })
+  })
+  it('rescales a recipe log by portions', async () => {
+    await db.run("INSERT INTO food_logs (id, created_at, updated_at, log_date, slot, kcal, protein_g, carbs_g, fat_g, recipe_id, portions) VALUES ('r','x','x','2026-10-12','dinner',500,40,50,10,'r1',1)")
+    await editLog(db, 'r', { slot: 'dinner', portions: 1.5 })
+    const [log] = await dayLogs(db, '2026-10-12')
+    expect(log).toMatchObject({ portions: 1.5, kcal: 750, proteinG: 60, carbsG: 75, fatG: 15 })
+  })
+  it('sets a quick add directly, name included', async () => {
+    const id = await quickAdd(db, { kcal: 300, slot: 'lunch', logDate: '2026-10-12' })
+    await editLog(db, id, { slot: 'lunch', name: ' Meal deal ', kcal: 550, proteinG: 25, carbsG: 60, fatG: 20 })
+    expect((await dayLogsNamed(db, '2026-10-12'))[0]).toMatchObject({ name: 'Meal deal', kcal: 550, proteinG: 25, carbsG: 60, fatG: 20 })
+  })
+  it('refuses a portion of zero and edits to deleted logs', async () => {
+    const id = await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: '2026-10-12' })
+    await expect(editLog(db, id, { slot: 'breakfast', grams: 0 })).rejects.toThrow()
+    await deleteLog(db, id)
+    await expect(editLog(db, id, { slot: 'breakfast', grams: 60 })).rejects.toThrow()
+  })
+})
+
+describe('quick add', () => {
+  it('keeps a name, carbs and fat, and copyDay carries the name', async () => {
+    await quickAdd(db, { name: 'Canteen curry', kcal: 650, proteinG: 30, carbsG: 80, fatG: 22, slot: 'lunch', logDate: '2026-10-12' })
+    await copyDay(db, '2026-10-12', '2026-10-13')
+    expect((await dayLogsNamed(db, '2026-10-13'))[0]).toMatchObject({ name: 'Canteen curry', carbsG: 80, fatG: 22 })
+  })
+  it('a nameless quick add is still called Quick add', async () => {
+    await quickAdd(db, { name: '  ', kcal: 100, slot: 'snack', logDate: '2026-10-12' })
+    expect((await dayLogsNamed(db, '2026-10-12'))[0].name).toBe('Quick add')
+  })
+})
+
+describe('servingOptions', () => {
+  it('offers one and two servings when a food has a serving size', () => {
+    expect(servingOptions({ servingG: 36, servingLabel: 'slice' })).toEqual([
+      { label: '1 slice (36 g)', grams: 36 }, { label: '2 slices (72 g)', grams: 72 },
+    ])
+    expect(servingOptions({ servingG: 40, servingLabel: null })).toEqual([
+      { label: '1 serving (40 g)', grams: 40 }, { label: '2 servings (80 g)', grams: 80 },
+    ])
+  })
+  it('uses an Open Food Facts label as-is for one serving', () => {
+    expect(servingOptions({ servingG: 30, servingLabel: '30 g' })).toEqual([
+      { label: '1 serving (30 g)', grams: 30 }, { label: '2 servings (60 g)', grams: 60 },
+    ])
+  })
+  it('offers nothing without a serving size', () => {
+    expect(servingOptions({ servingG: null, servingLabel: null })).toEqual([])
+  })
+})
+
+describe('fibre, sugars and salt', () => {
+  const beans = () => createUserFood(db, {
+    createdAt: '', updatedAt: '', deletedAt: null, barcode: null, name: 'Beans', brand: null,
+    kcal100g: 80, protein100g: 5, carbs100g: 13, fat100g: 0.5, servingG: null, servingLabel: null,
+    fibre100g: 4, sugars100g: 5, salt100g: 0.6,
+  })
+  it('snapshots them when the food knows them, and leaves them unknown when it does not', async () => {
+    await logFood(db, { foodId: await beans(), grams: 200, slot: 'lunch', logDate: '2026-10-12' })
+    await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: '2026-10-12' })
+    const logs = await dayLogs(db, '2026-10-12')
+    expect(logs.find((l) => l.foodId === oats)).toMatchObject({ fibreG: null, sugarsG: null, saltG: null })
+    expect(logs.find((l) => l.foodId !== oats)).toMatchObject({ fibreG: 8, sugarsG: 10, saltG: 1.2 })
+  })
+  it('day totals add the known values and count the entries that have none', async () => {
+    await logFood(db, { foodId: await beans(), grams: 200, slot: 'lunch', logDate: '2026-10-12' })
+    await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: '2026-10-12' })
+    await quickAdd(db, { kcal: 100, slot: 'snack', logDate: '2026-10-12' })
+    expect(await dayTotals(db, '2026-10-12')).toMatchObject({ fibreG: 8, sugarsG: 10, saltG: 1.2, fibreUnknown: 2 })
+  })
+  it('editing a portion rescales them; copyDay carries them', async () => {
+    const id = await logFood(db, { foodId: await beans(), grams: 200, slot: 'lunch', logDate: '2026-10-12' })
+    await editLog(db, id, { slot: 'lunch', grams: 100 })
+    await copyDay(db, '2026-10-12', '2026-10-13')
+    expect((await dayLogs(db, '2026-10-13'))[0]).toMatchObject({ fibreG: 4, sugarsG: 5, saltG: 0.6 })
   })
 })
