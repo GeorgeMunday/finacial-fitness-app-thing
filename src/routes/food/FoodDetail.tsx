@@ -6,10 +6,11 @@ import { Chip } from '../../components/ui/Chip'
 import { useToast } from '../../components/ui/Toast'
 import type { Slot } from '../../db/types'
 import { useAsync } from '../../hooks/useAsync'
-import { deleteLog, getFood, lastGrams, logFood } from '../../domain/food'
+import { deleteLog, getFood, lastGrams, logFood, servingOptions } from '../../domain/food'
 import { useDb } from '../../state/DbProvider'
 import { useSettings } from '../../state/SettingsProvider'
-import { SLOTS, slotFor } from './slots'
+import { localDate } from '../../domain/dates'
+import { SLOTS, dayLabel, logDateParam, slotFor, withDate } from './slots'
 
 export default function FoodDetail() {
   const { foodId = '' } = useParams()
@@ -21,6 +22,7 @@ export default function FoodDetail() {
   const { data } = useAsync(async () => ({ food: await getFood(db, foodId), last: await lastGrams(db, foodId) }), [db, foodId])
   const [grams, setGrams] = useState('')
   const [slot, setSlot] = useState<Slot>((params.get('slot') as Slot | null) ?? slotFor(new Date()))
+  const date = logDateParam(params)
   useEffect(() => {
     if (data?.food) setGrams(String(data.last ?? data.food.servingG ?? 100))
   }, [data])
@@ -35,11 +37,19 @@ export default function FoodDetail() {
       <div>
         <h1 className="font-display text-xl font-semibold">{food.name}</h1>
         {food.brand ? <p className="text-slate">{food.brand}</p> : null}
+        {date !== localDate() ? <p className="text-slate">Adding to {dayLabel(date)}</p> : null}
       </div>
       <label className="flex flex-col gap-1">
         Portion (g)
         <input className="min-h-11 rounded-xl border border-fog bg-surface px-3" inputMode="decimal" value={grams} onChange={(e) => setGrams(e.target.value)} />
       </label>
+      {servingOptions(food).length ? (
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Servings">
+          {servingOptions(food).map((s) => (
+            <Chip key={s.label} selected={valid && g === s.grams} onClick={() => setGrams(String(s.grams))}>{s.label}</Chip>
+          ))}
+        </div>
+      ) : null}
       {!valid && grams !== '' ? <p className="text-amber-ink">Enter a portion in grams, like 40.</p> : null}
       <p className="text-slate">
         {settings.hideCalories ? null : <>{Math.round((food.kcal100g * (valid ? g : 0)) / 100)} kcal, </>}
@@ -51,9 +61,9 @@ export default function FoodDetail() {
       <Button
         disabled={!valid}
         onClick={async () => {
-          const id = await logFood(db, { foodId, grams: g, slot })
+          const id = await logFood(db, { foodId, grams: g, slot, logDate: date })
           toast.show('Food logged', { undo: () => void deleteLog(db, id) })
-          navigate('/food')
+          navigate(withDate('/food', date))
         }}
       >
         Log food

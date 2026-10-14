@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, Route, Routes, useSearchParams } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
-import { ListRow } from '../components/ui/ListRow'
 import { useToast } from '../components/ui/Toast'
 import { useAsync } from '../hooks/useAsync'
 import { addDays, localDate } from '../domain/dates'
@@ -9,6 +8,7 @@ import { copyDay, dailyKcal, dayLogsNamed, dayTotals, deleteLog, restoreLog } fr
 import { SUPPORT_MESSAGE, lowIntakeStreak } from '../domain/safety'
 import { useDb } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
+import { EditLogSheet } from './food/EditLogSheet'
 import FoodDetail from './food/FoodDetail'
 import NewFood from './food/NewFood'
 import PlanWeek from './food/PlanWeek'
@@ -17,13 +17,16 @@ import RecipeEdit from './food/RecipeEdit'
 import Recipes from './food/Recipes'
 import Scan from './food/Scan'
 import Search from './food/Search'
-import { SLOTS } from './food/slots'
+import { SLOTS, dayLabel, logDateParam, withDate } from './food/slots'
 
 function FoodDay() {
   const db = useDb()
   const toast = useToast()
   const { settings } = useSettings()
-  const [date, setDate] = useState(localDate())
+  const [params, setParams] = useSearchParams()
+  const date = logDateParam(params)
+  const setDate = (d: string) => setParams(d === localDate() ? {} : { date: d }, { replace: true })
+  const [editing, setEditing] = useState<string | null>(null)
   const { data, reload } = useAsync(async () => ({
     logs: await dayLogsNamed(db, date),
     totals: await dayTotals(db, date),
@@ -32,7 +35,8 @@ function FoodDay() {
   if (!data) return null
   const { logs, totals } = data
   const hide = settings.hideCalories
-  const label = date === localDate() ? 'Today' : new Date(`${date}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+  const label = date === localDate() ? 'Today' : dayLabel(date)
+  const editLog = logs.find((l) => l.id === editing)
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -75,30 +79,42 @@ function FoodDay() {
                 >
                   Copy yesterday
                 </Button>
-                <Link to={`/food/search?slot=${slot}`} aria-label={`Add to ${slotLabel}`} className="flex min-h-11 min-w-11 items-center justify-center text-pond">Add</Link>
+                <Link to={withDate('/food/search', date, { slot })} aria-label={`Add to ${slotLabel}`} className="flex min-h-11 min-w-11 items-center justify-center text-pond">Add</Link>
               </div>
             </div>
             {items.map((l) => (
-              <ListRow
-                key={l.id} title={l.name}
-                detail={[l.grams ? `${l.grams} g` : null, hide ? null : `${l.kcal} kcal`, `${l.proteinG} g protein`].filter(Boolean).join(', ')}
-                trailing={
-                  <Button
-                    variant="quiet" aria-label={`Delete ${l.name}`}
-                    onClick={async () => {
-                      await deleteLog(db, l.id)
-                      reload()
-                      toast.show('Deleted', { undo: () => void restoreLog(db, l.id).then(reload) })
-                    }}
-                  >
-                    Delete
-                  </Button>
-                }
-              />
+              <div key={l.id} className="flex min-h-16 items-center gap-3 border-b border-fog">
+                <button type="button" aria-label={`Edit ${l.name}`} className="min-w-0 flex-1 py-3 text-left" onClick={() => setEditing(l.id)}>
+                  <div className="truncate">{l.name}</div>
+                  <div className="mt-0.5 text-sm text-slate">
+                    {[l.grams ? `${l.grams} g` : null, hide ? null : `${l.kcal} kcal`, `${l.proteinG} g protein`].filter(Boolean).join(', ')}
+                  </div>
+                </button>
+                <Button
+                  variant="quiet" aria-label={`Delete ${l.name}`}
+                  onClick={async () => {
+                    await deleteLog(db, l.id)
+                    reload()
+                    toast.show('Deleted', { undo: () => void restoreLog(db, l.id).then(reload) })
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
             ))}
           </section>
         )
       })}
+      {editLog ? (
+        <EditLogSheet
+          log={editLog} onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null)
+            reload()
+            toast.show('Saved')
+          }}
+        />
+      ) : null}
     </div>
   )
 }

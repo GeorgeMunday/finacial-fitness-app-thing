@@ -104,3 +104,12 @@ With Food and Train on, on a phone:
 ## Reporting
 
 For each failure, note the device, OS and browser versions, the step, what you saw (a screenshot helps) and what you expected.
+
+## 7. Food logging quick wins
+
+On a phone, with Food on:
+
+- [ ] Food → ‹ to yesterday → Add (Breakfast) → search "bread" → Bread, white. The page says "Adding to <yesterday>". Tap "2 slices (72 g)", Log food: you're back on yesterday and the slices are there; today is empty.
+- [ ] Tap the logged bread: the edit sheet opens. Change 72 to 36 and the meal to Snacks, Save. The row moves to Snacks with half the numbers, and it's still there after closing and reopening the app.
+- [ ] Quick add with a name, calories, carbs and fat. The row shows the name; tap it and change the calories.
+- [ ] Scan a product whose Open Food Facts entry has a serving size: the food page shows serving chips.

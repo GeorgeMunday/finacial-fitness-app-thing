@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/Button'
 import { useToast } from '../../components/ui/Toast'
 import { createUserFood } from '../../domain/food'
 import { useDb } from '../../state/DbProvider'
+import { logDateParam, withDate } from './slots'
 
 const input = 'min-h-11 w-full rounded-xl border border-fog bg-surface px-3'
 const n = (s: string) => {
@@ -48,7 +49,7 @@ export default function NewFood() {
             kcal100g: kcal!, protein100g: protein!, carbs100g: carbs!, fat100g: fat!, servingG: serving, servingLabel: null,
           })
           toast.show('Food saved')
-          navigate(`/food/${id}${params.get('slot') ? `?slot=${params.get('slot')}` : ''}`, { replace: true })
+          navigate(withDate(`/food/${id}`, logDateParam(params), { slot: params.get('slot') ?? '' }), { replace: true })
         }}
       >
         Save food

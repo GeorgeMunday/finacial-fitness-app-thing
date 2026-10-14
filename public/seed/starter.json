@@ -4,7 +4,9 @@
   "kcal_100g": 372.0,
   "protein_100g": 11.0,
   "carbs_100g": 60.0,
-  "fat_100g": 8.0
+  "fat_100g": 8.0,
+  "serving_g": 40.0,
+  "serving_label": "bowl"
  },
  {
   "name": "Porridge, made with water",
@@ -18,49 +20,63 @@
   "kcal_100g": 235.0,
   "protein_100g": 8.0,
   "carbs_100g": 46.0,
-  "fat_100g": 1.6
+  "fat_100g": 1.6,
+  "serving_g": 36.0,
+  "serving_label": "slice"
  },
  {
   "name": "Bread, wholemeal",
   "kcal_100g": 225.0,
   "protein_100g": 9.5,
   "carbs_100g": 40.0,
-  "fat_100g": 2.9
+  "fat_100g": 2.9,
+  "serving_g": 38.0,
+  "serving_label": "slice"
  },
  {
   "name": "Cornflakes",
   "kcal_100g": 370.0,
   "protein_100g": 7.0,
   "carbs_100g": 84.0,
-  "fat_100g": 1.0
+  "fat_100g": 1.0,
+  "serving_g": 30.0,
+  "serving_label": "bowl"
  },
  {
   "name": "Wheat biscuit cereal",
   "kcal_100g": 360.0,
   "protein_100g": 11.0,
   "carbs_100g": 69.0,
-  "fat_100g": 2.0
+  "fat_100g": 2.0,
+  "serving_g": 19.0,
+  "serving_label": "biscuit"
  },
  {
   "name": "Banana",
   "kcal_100g": 95.0,
   "protein_100g": 1.2,
   "carbs_100g": 23.0,
-  "fat_100g": 0.3
+  "fat_100g": 0.3,
+  "serving_g": 100.0,
+  "serving_label": "medium banana"
  },
  {
   "name": "Apple",
   "kcal_100g": 52.0,
   "protein_100g": 0.4,
   "carbs_100g": 12.0,
-  "fat_100g": 0.1
+  "fat_100g": 0.1,
+  "serving_g": 150.0,
+  "serving_label": "medium apple"
  },
  {
   "name": "Orange",
   "kcal_100g": 37.0,
   "protein_100g": 1.1,
   "carbs_100g": 8.5,
-  "fat_100g": 0.1
+  "fat_100g": 0.1,
+  "serving_g": 130.0,
+  "serving_label": "orange"
  },
  {
   "name": "Strawberries",
@@ -95,7 +111,9 @@
   "kcal_100g": 18.0,
   "protein_100g": 0.9,
   "carbs_100g": 3.1,
-  "fat_100g": 0.2
+  "fat_100g": 0.2,
+  "serving_g": 85.0,
+  "serving_label": "tomato"
  },
  {
   "name": "Cucumber",
@@ -109,7 +127,9 @@
   "kcal_100g": 35.0,
   "protein_100g": 0.6,
   "carbs_100g": 7.9,
-  "fat_100g": 0.3
+  "fat_100g": 0.3,
+  "serving_g": 80.0,
+  "serving_label": "carrot"
  },
  {
   "name": "Broccoli, boiled",
@@ -130,7 +150,9 @@
   "kcal_100g": 36.0,
   "protein_100g": 1.2,
   "carbs_100g": 7.9,
-  "fat_100g": 0.2
+  "fat_100g": 0.2,
+  "serving_g": 150.0,
+  "serving_label": "onion"
  },
  {
   "name": "Potato, boiled",
@@ -165,35 +187,45 @@
   "kcal_100g": 155.0,
   "protein_100g": 12.6,
   "carbs_100g": 1.1,
-  "fat_100g": 10.6
+  "fat_100g": 10.6,
+  "serving_g": 50.0,
+  "serving_label": "egg"
  },
  {
   "name": "Milk, whole",
   "kcal_100g": 63.0,
   "protein_100g": 3.4,
   "carbs_100g": 4.5,
-  "fat_100g": 3.6
+  "fat_100g": 3.6,
+  "serving_g": 200.0,
+  "serving_label": "glass"
  },
  {
   "name": "Milk, semi-skimmed",
   "kcal_100g": 47.0,
   "protein_100g": 3.6,
   "carbs_100g": 4.7,
-  "fat_100g": 1.7
+  "fat_100g": 1.7,
+  "serving_g": 200.0,
+  "serving_label": "glass"
  },
  {
   "name": "Milk, skimmed",
   "kcal_100g": 34.0,
   "protein_100g": 3.5,
   "carbs_100g": 4.7,
-  "fat_100g": 0.1
+  "fat_100g": 0.1,
+  "serving_g": 200.0,
+  "serving_label": "glass"
  },
  {
   "name": "Cheddar cheese",
   "kcal_100g": 416.0,
   "protein_100g": 25.4,
   "carbs_100g": 0.1,
-  "fat_100g": 34.9
+  "fat_100g": 34.9,
+  "serving_g": 30.0,
+  "serving_label": "portion"
  },
  {
   "name": "Greek yoghurt, 0% fat",
@@ -207,7 +239,9 @@
   "kcal_100g": 79.0,
   "protein_100g": 5.7,
   "carbs_100g": 7.8,
-  "fat_100g": 3.0
+  "fat_100g": 3.0,
+  "serving_g": 125.0,
+  "serving_label": "pot"
  },
  {
   "name": "Butter",
@@ -221,7 +255,9 @@
   "kcal_100g": 899.0,
   "protein_100g": 0.0,
   "carbs_100g": 0.0,
-  "fat_100g": 99.9
+  "fat_100g": 99.9,
+  "serving_g": 14.0,
+  "serving_label": "tbsp"
  },
  {
   "name": "Chicken breast, raw",
@@ -270,7 +306,9 @@
   "kcal_100g": 116.0,
   "protein_100g": 26.0,
   "carbs_100g": 0.0,
-  "fat_100g": 1.0
+  "fat_100g": 1.0,
+  "serving_g": 112.0,
+  "serving_label": "can"
  },
  {
   "name": "Baked beans",
@@ -305,14 +343,18 @@
   "kcal_100g": 620.0,
   "protein_100g": 24.0,
   "carbs_100g": 10.0,
-  "fat_100g": 51.0
+  "fat_100g": 51.0,
+  "serving_g": 15.0,
+  "serving_label": "tbsp"
  },
  {
   "name": "Almonds",
   "kcal_100g": 612.0,
   "protein_100g": 21.0,
   "carbs_100g": 6.9,
-  "fat_100g": 55.8
+  "fat_100g": 55.8,
+  "serving_g": 30.0,
+  "serving_label": "handful"
  },
  {
   "name": "Hummus",
@@ -326,21 +368,27 @@
   "kcal_100g": 480.0,
   "protein_100g": 6.5,
   "carbs_100g": 62.0,
-  "fat_100g": 22.0
+  "fat_100g": 22.0,
+  "serving_g": 15.0,
+  "serving_label": "biscuit"
  },
  {
   "name": "Milk chocolate",
   "kcal_100g": 530.0,
   "protein_100g": 7.5,
   "carbs_100g": 57.0,
-  "fat_100g": 30.0
+  "fat_100g": 30.0,
+  "serving_g": 45.0,
+  "serving_label": "bar"
  },
  {
   "name": "Crisps, ready salted",
   "kcal_100g": 530.0,
   "protein_100g": 6.0,
   "carbs_100g": 50.0,
-  "fat_100g": 33.0
+  "fat_100g": 33.0,
+  "serving_g": 25.0,
+  "serving_label": "bag"
  },
  {
   "name": "Pizza, margherita",
@@ -361,28 +409,36 @@
   "kcal_100g": 42.0,
   "protein_100g": 0.0,
   "carbs_100g": 10.6,
-  "fat_100g": 0.0
+  "fat_100g": 0.0,
+  "serving_g": 330.0,
+  "serving_label": "can"
  },
  {
   "name": "Orange juice",
   "kcal_100g": 40.0,
   "protein_100g": 0.6,
   "carbs_100g": 9.0,
-  "fat_100g": 0.1
+  "fat_100g": 0.1,
+  "serving_g": 150.0,
+  "serving_label": "glass"
  },
  {
   "name": "Lager",
   "kcal_100g": 43.0,
   "protein_100g": 0.3,
   "carbs_100g": 3.0,
-  "fat_100g": 0.0
+  "fat_100g": 0.0,
+  "serving_g": 568.0,
+  "serving_label": "pint"
  },
  {
   "name": "Whey protein powder",
   "kcal_100g": 400.0,
   "protein_100g": 80.0,
   "carbs_100g": 7.0,
-  "fat_100g": 6.0
+  "fat_100g": 6.0,
+  "serving_g": 30.0,
+  "serving_label": "scoop"
  },
  {
   "name": "Chicken thigh fillet, raw",
@@ -424,7 +480,9 @@
   "kcal_100g": 140.0,
   "protein_100g": 3.0,
   "carbs_100g": 30.0,
-  "fat_100g": 0.8
+  "fat_100g": 0.8,
+  "serving_g": 250.0,
+  "serving_label": "pouch"
  },
  {
   "name": "Pasta, dry",
@@ -445,14 +503,18 @@
   "kcal_100g": 143.0,
   "protein_100g": 12.5,
   "carbs_100g": 0.7,
-  "fat_100g": 9.5
+  "fat_100g": 9.5,
+  "serving_g": 50.0,
+  "serving_label": "egg"
  },
  {
   "name": "Ham, cooked",
   "kcal_100g": 107.0,
   "protein_100g": 17.5,
   "carbs_100g": 1.0,
-  "fat_100g": 3.5
+  "fat_100g": 3.5,
+  "serving_g": 20.0,
+  "serving_label": "slice"
  },
  {
   "name": "Spinach, frozen",
@@ -466,7 +528,9 @@
   "kcal_100g": 77.0,
   "protein_100g": 2.0,
   "carbs_100g": 17.0,
-  "fat_100g": 0.1
+  "fat_100g": 0.1,
+  "serving_g": 220.0,
+  "serving_label": "potato"
  },
  {
   "name": "Sweetcorn, canned",
@@ -487,14 +551,18 @@
   "kcal_100g": 31.0,
   "protein_100g": 1.0,
   "carbs_100g": 6.0,
-  "fat_100g": 0.3
+  "fat_100g": 0.3,
+  "serving_g": 160.0,
+  "serving_label": "pepper"
  },
  {
   "name": "Garlic",
   "kcal_100g": 149.0,
   "protein_100g": 6.4,
   "carbs_100g": 33.0,
-  "fat_100g": 0.5
+  "fat_100g": 0.5,
+  "serving_g": 3.0,
+  "serving_label": "clove"
  },
  {
   "name": "Mixed spices",
@@ -515,7 +583,9 @@
   "kcal_100g": 55.0,
   "protein_100g": 6.5,
   "carbs_100g": 4.5,
-  "fat_100g": 0.1
+  "fat_100g": 0.1,
+  "serving_g": 15.0,
+  "serving_label": "tbsp"
  },
  {
   "name": "Frozen mixed vegetables",
@@ -529,7 +599,9 @@
   "kcal_100g": 300.0,
   "protein_100g": 8.5,
   "carbs_100g": 50.0,
-  "fat_100g": 7.0
+  "fat_100g": 7.0,
+  "serving_g": 62.0,
+  "serving_label": "wrap"
  },
  {
   "name": "Frozen peas",

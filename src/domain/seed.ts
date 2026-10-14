@@ -5,7 +5,7 @@ import { seedProgrammes } from './programmes/seedProgrammes'
 import type { SeedProgramme } from './programmes/types'
 import { seedRecipes, type RecipeSeedFile } from './recipes/seedRecipes'
 
-export type SeedFood = { name: string; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number }
+export type SeedFood = { name: string; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number; serving_g?: number | null; serving_label?: string | null }
 export type SeedExercise = { name: string; primary_muscle: string; equipment: string }
 /** `starter` is Tally's own short list of typical values, not CoFID; `cofid` is the real dataset once it is bundled. */
 export type SeedData = { starter: SeedFood[]; cofid: SeedFood[]; exercises: SeedExercise[]; programmes: unknown[]; recipes: unknown | null }
@@ -13,7 +13,8 @@ export type SeedData = { starter: SeedFood[]; cofid: SeedFood[]; exercises: Seed
 /**
  * Adds bundled foods, exercises, programmes and recipes that aren't there yet. Additive: rows are matched by
  * (source, name) for foods, name for exercises and key for programmes and recipes; existing rows are never
- * updated or removed, so people who already seeded get new content without duplicates.
+ * updated or removed, so people who already seeded get new content without duplicates. The one exception: a
+ * bundled food with no serving size gains the bundled one (a serving it already has is left alone).
  */
 export async function seedAll(db: SqlExecutor, data: SeedData): Promise<{ foods: number; exercises: number; programmes: number; recipes: number }> {
   const out = { foods: 0, exercises: 0, programmes: 0, recipes: 0 }
@@ -22,12 +23,19 @@ export async function seedAll(db: SqlExecutor, data: SeedData): Promise<{ foods:
     for (const source of ['starter', 'cofid'] as const) {
       const have = new Set((await tx.all<{ name: string }>('SELECT name FROM foods WHERE source = ?', [source])).map((r) => r.name))
       for (const x of data[source]) {
-        if (have.has(x.name)) continue
+        if (have.has(x.name)) {
+          if (x.serving_g)
+            await tx.run(
+              'UPDATE foods SET serving_g = ?, serving_label = ?, updated_at = ? WHERE source = ? AND name = ? AND serving_g IS NULL',
+              [x.serving_g, x.serving_label ?? null, now, source, x.name],
+            )
+          continue
+        }
         have.add(x.name)
         await tx.run(
-          `INSERT INTO foods (id, created_at, updated_at, source, name, kcal_100g, protein_100g, carbs_100g, fat_100g)
-           VALUES (?,?,?,?,?,?,?,?,?)`,
-          [newId(), now, now, source, x.name, x.kcal_100g, x.protein_100g, x.carbs_100g, x.fat_100g],
+          `INSERT INTO foods (id, created_at, updated_at, source, name, kcal_100g, protein_100g, carbs_100g, fat_100g, serving_g, serving_label)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+          [newId(), now, now, source, x.name, x.kcal_100g, x.protein_100g, x.carbs_100g, x.fat_100g, x.serving_g ?? null, x.serving_label ?? null],
         )
         out.foods++
       }

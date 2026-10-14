@@ -83,6 +83,10 @@ ALTER TABLE food_logs ADD COLUMN portions REAL;
 CREATE INDEX idx_food_logs_recipe ON food_logs(recipe_id);
 ALTER TABLE product_prices ADD COLUMN source TEXT NOT NULL DEFAULT 'user';
 `,
+  // v4: a quick add can carry a name ("Meal deal") instead of showing as "Quick add".
+  `
+ALTER TABLE food_logs ADD COLUMN name TEXT;
+`,
 ]
 
 /** Applies pending migrations, tracked in PRAGMA user_version. Returns the new version. */

@@ -27,4 +27,6 @@ export type FoodLog = Base & {
   logDate: string; slot: Slot; foodId: string | null; grams: number | null
   kcal: number; proteinG: number; carbsG: number; fatG: number
   recipeId: string | null; portions: number | null
+  /** Only quick adds have one; foods and recipes are named by what they point at. */
+  name: string | null
 }

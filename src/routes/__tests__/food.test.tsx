@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { freshDb, renderApp } from '../../../test/renderApp'
 import { localDate } from '../../domain/dates'
-import { createUserFood, logFood } from '../../domain/food'
+import { createUserFood, logFood, quickAdd } from '../../domain/food'
 import { getSettings } from '../../state/settings'
 import Food from '../Food'
 import { lookupBarcode } from '../../domain/openFoodFacts'
@@ -21,6 +21,78 @@ const app = () => (
   </Routes>
 )
 const food = { createdAt: '', updatedAt: '', deletedAt: null, barcode: null, brand: null, servingG: null, servingLabel: null }
+
+describe('food quick wins', () => {
+  const on = { onboarded: true, optionalPillars: ['food'] as ('food' | 'train')[], healthConsent: true }
+  const rows = (db: Awaited<ReturnType<typeof freshDb>>) => db.all<Record<string, unknown>>('SELECT * FROM food_logs WHERE deleted_at IS NULL')
+
+  it('adding from a past day logs to that day and goes back to it', async () => {
+    const db = await freshDb(on)
+    await createUserFood(db, { ...food, name: 'Oats', kcal100g: 380, protein100g: 12, carbs100g: 60, fat100g: 8 })
+    const user = userEvent.setup()
+    renderApp(app(), db, '/food?date=2026-10-01')
+    expect(await screen.findByRole('heading', { name: /1 October/ })).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: 'Add to Lunch' }))
+    expect(await screen.findByText(/Adding to Thursday 1 October/)).toBeInTheDocument()
+    await user.type(screen.getByLabelText('Search foods'), 'Oats')
+    await user.click(await screen.findByRole('link', { name: /Oats/ }))
+    await user.click(await screen.findByRole('button', { name: 'Log food' }))
+    expect(await screen.findByRole('heading', { name: /1 October/ })).toBeInTheDocument()
+    expect(await rows(db)).toEqual([expect.objectContaining({ log_date: '2026-10-01', slot: 'lunch' })])
+  })
+
+  it('a quick add on a past day keeps its name, carbs and fat', async () => {
+    const db = await freshDb(on)
+    const user = userEvent.setup()
+    renderApp(app(), db, '/food/search?slot=dinner&date=2026-10-01')
+    await user.click(await screen.findByRole('button', { name: 'Quick add' }))
+    await user.type(screen.getByLabelText('Name (optional)'), 'Meal deal')
+    await user.type(screen.getByLabelText('Calories'), '600')
+    await user.type(screen.getByLabelText('Carbs (g, optional)'), '70')
+    await user.type(screen.getByLabelText('Fat (g, optional)'), '20')
+    await user.click(screen.getByRole('button', { name: 'Log food' }))
+    await waitFor(async () => expect(await rows(db)).toEqual([expect.objectContaining({ log_date: '2026-10-01', name: 'Meal deal', kcal: 600, carbs_g: 70, fat_g: 20 })]))
+  })
+
+  it('tapping a logged food lets you change its portion and meal', async () => {
+    const db = await freshDb(on)
+    const oats = await createUserFood(db, { ...food, name: 'Oats', kcal100g: 380, protein100g: 12, carbs100g: 60, fat100g: 8 })
+    await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: localDate() })
+    const user = userEvent.setup()
+    renderApp(app(), db, '/food')
+    await user.click(await screen.findByRole('button', { name: 'Edit Oats' }))
+    const grams = await screen.findByLabelText('Portion (g)')
+    await user.clear(grams)
+    await user.type(grams, '100')
+    await user.click(screen.getByRole('button', { name: 'Snacks' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(async () => expect(await rows(db)).toEqual([expect.objectContaining({ grams: 100, kcal: 380, slot: 'snack' })]))
+    expect(await screen.findByText(/100 g, 380 kcal/)).toBeInTheDocument()
+  })
+
+  it('tapping a quick add lets you change its numbers', async () => {
+    const db = await freshDb(on)
+    await quickAdd(db, { kcal: 300, slot: 'lunch', logDate: localDate() })
+    const user = userEvent.setup()
+    renderApp(app(), db, '/food')
+    await user.click(await screen.findByRole('button', { name: 'Edit Quick add' }))
+    const kcal = await screen.findByLabelText('Calories')
+    await user.clear(kcal)
+    await user.type(kcal, '450')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(async () => expect(await rows(db)).toEqual([expect.objectContaining({ kcal: 450 })]))
+  })
+
+  it('serving chips fill the portion', async () => {
+    const db = await freshDb(on)
+    const id = await createUserFood(db, { ...food, name: 'Toast', kcal100g: 250, protein100g: 9, carbs100g: 45, fat100g: 3, servingG: 36, servingLabel: 'slice' })
+    const user = userEvent.setup()
+    renderApp(app(), db, `/food/${id}`)
+    await user.click(await screen.findByRole('button', { name: '2 slices (72 g)' }))
+    expect(screen.getByLabelText('Portion (g)')).toHaveValue('72')
+    expect(screen.getByRole('button', { name: '2 slices (72 g)' })).toHaveAttribute('aria-pressed', 'true')
+  })
+})
 
 describe('food screens', () => {
   it('hides calorie numbers when asked', async () => {
