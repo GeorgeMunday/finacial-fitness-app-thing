@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, Route, Routes, useSearchParams } from 'react-router-dom'
+import { FoodTile } from '../components/FoodTile'
 import { Button } from '../components/ui/Button'
 import { useToast } from '../components/ui/Toast'
 import { useAsync } from '../hooks/useAsync'
 import { addDays, localDate } from '../domain/dates'
 import { copyDay, dailyKcal, dayLogsNamed, dayTotals, deleteLog, restoreLog } from '../domain/food'
+import { foodPhotos } from '../domain/photos'
 import { SUPPORT_MESSAGE, lowIntakeStreak } from '../domain/safety'
 import { useDb } from '../state/DbProvider'
 import { useSettings } from '../state/SettingsProvider'
@@ -27,11 +29,15 @@ function FoodDay() {
   const date = logDateParam(params)
   const setDate = (d: string) => setParams(d === localDate() ? {} : { date: d }, { replace: true })
   const [editing, setEditing] = useState<string | null>(null)
-  const { data, reload } = useAsync(async () => ({
-    logs: await dayLogsNamed(db, date),
+  const { data, reload } = useAsync(async () => {
+    const logs = await dayLogsNamed(db, date)
+    return {
+    logs,
+    photos: await foodPhotos(db, [...new Set(logs.map((l) => l.foodId).filter((x): x is string => !!x))]),
     totals: await dayTotals(db, date),
     recent: await dailyKcal(db, addDays(localDate(), -6), localDate()),
-  }), [db, date])
+    }
+  }, [db, date])
   if (!data) return null
   const { logs, totals } = data
   const hide = settings.hideCalories
@@ -84,11 +90,14 @@ function FoodDay() {
             </div>
             {items.map((l) => (
               <div key={l.id} className="flex min-h-16 items-center gap-3 border-b border-fog">
-                <button type="button" aria-label={`Edit ${l.name}`} className="min-w-0 flex-1 py-3 text-left" onClick={() => setEditing(l.id)}>
-                  <div className="truncate">{l.name}</div>
-                  <div className="mt-0.5 text-sm text-slate">
-                    {[l.grams ? `${l.grams} g` : null, hide ? null : `${l.kcal} kcal`, `${l.proteinG} g protein`].filter(Boolean).join(', ')}
-                  </div>
+                <button type="button" aria-label={`Edit ${l.name}`} className="flex min-w-0 flex-1 items-center gap-3 py-3 text-left" onClick={() => setEditing(l.id)}>
+                  <FoodTile name={l.name} photo={l.foodId ? data.photos.get(l.foodId) : null} />
+                  <span className="min-w-0">
+                    <span className="block truncate">{l.name}</span>
+                    <span className="mt-0.5 block text-sm text-slate">
+                      {[l.grams ? `${l.grams} g` : null, hide ? null : `${l.kcal} kcal`, `${l.proteinG} g protein`].filter(Boolean).join(', ')}
+                    </span>
+                  </span>
                 </button>
                 <Button
                   variant="quiet" aria-label={`Delete ${l.name}`}

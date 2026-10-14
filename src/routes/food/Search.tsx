@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { FoodTile } from '../../components/FoodTile'
 import { OffAttribution } from '../../components/OffAttribution'
 import { Button } from '../../components/ui/Button'
 import { Sheet } from '../../components/ui/Sheet'
@@ -8,6 +9,7 @@ import type { Food, Slot } from '../../db/types'
 import { useAsync } from '../../hooks/useAsync'
 import { localDate } from '../../domain/dates'
 import { deleteLog, quickAdd, recentFoods } from '../../domain/food'
+import { foodPhotos } from '../../domain/photos'
 import { searchFoods } from '../../domain/seed'
 import { useDb } from '../../state/DbProvider'
 import { useSettings } from '../../state/SettingsProvider'
@@ -21,7 +23,11 @@ export default function Search() {
   const slot = (params.get('slot') as Slot | null) ?? slotFor(new Date())
   const date = logDateParam(params)
   const [q, setQ] = useState('')
-  const { data: foods } = useAsync(() => (q.trim() ? searchFoods(db, q.trim()) : recentFoods(db, 15)), [db, q])
+  const { data } = useAsync(async () => {
+    const list = q.trim() ? await searchFoods(db, q.trim()) : await recentFoods(db, 15)
+    return { list, photos: await foodPhotos(db, list.map((f) => f.id)) }
+  }, [db, q])
+  const foods = data?.list
   const [quick, setQuick] = useState(false)
   const [name, setName] = useState('')
   const [kcal, setKcal] = useState('')
@@ -52,9 +58,12 @@ export default function Search() {
         {!q ? <h2 className="text-sm text-slate">Recent</h2> : null}
         {foods?.length === 0 ? <p className="py-3 text-slate">{q ? 'No foods match. Create it instead.' : 'Foods you log will show here.'}</p> : null}
         {foods?.map((f) => (
-          <Link key={f.id} to={withDate(`/food/${f.id}`, date, { slot })} className="flex min-h-14 flex-col justify-center border-b border-fog py-2">
-            <span>{f.name}</span>
-            <span className="text-sm text-slate">{line(f)}</span>
+          <Link key={f.id} to={withDate(`/food/${f.id}`, date, { slot })} className="flex min-h-14 items-center gap-3 border-b border-fog py-2">
+            <FoodTile name={f.name} photo={data?.photos.get(f.id)} />
+            <span className="flex min-w-0 flex-col">
+              <span>{f.name}</span>
+              <span className="text-sm text-slate">{line(f)}</span>
+            </span>
           </Link>
         ))}
       </section>

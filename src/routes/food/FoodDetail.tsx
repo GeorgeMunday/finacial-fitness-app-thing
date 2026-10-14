@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { FoodTile } from '../../components/FoodTile'
 import { NutritionPanel } from '../../components/NutritionPanel'
 import { OffAttribution } from '../../components/OffAttribution'
 import { Button } from '../../components/ui/Button'
@@ -8,6 +9,7 @@ import { useToast } from '../../components/ui/Toast'
 import type { Slot } from '../../db/types'
 import { useAsync } from '../../hooks/useAsync'
 import { deleteLog, getFood, lastGrams, logFood, servingOptions } from '../../domain/food'
+import { foodPhotos } from '../../domain/photos'
 import { useDb } from '../../state/DbProvider'
 import { useSettings } from '../../state/SettingsProvider'
 import { localDate } from '../../domain/dates'
@@ -20,7 +22,10 @@ export default function FoodDetail() {
   const navigate = useNavigate()
   const toast = useToast()
   const { settings } = useSettings()
-  const { data } = useAsync(async () => ({ food: await getFood(db, foodId), last: await lastGrams(db, foodId) }), [db, foodId])
+  const { data } = useAsync(
+    async () => ({ food: await getFood(db, foodId), last: await lastGrams(db, foodId), photo: (await foodPhotos(db, [foodId])).get(foodId) ?? null }),
+    [db, foodId],
+  )
   const [grams, setGrams] = useState('')
   const [slot, setSlot] = useState<Slot>((params.get('slot') as Slot | null) ?? slotFor(new Date()))
   const date = logDateParam(params)
@@ -36,6 +41,7 @@ export default function FoodDetail() {
   const perKnown = (v: number | null | undefined) => (v == null ? null : per(v))
   return (
     <div className="flex flex-col gap-4">
+      {data.photo ? <FoodTile name={food.name} photo={data.photo} size="lg" /> : null}
       <div>
         <h1 className="font-display text-xl font-semibold">{food.name}</h1>
         {food.brand ? <p className="text-slate">{food.brand}</p> : null}

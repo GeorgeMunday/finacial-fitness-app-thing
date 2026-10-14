@@ -4,7 +4,7 @@ import type { Food } from '../db/types'
 import { toFood } from './seed'
 
 export type BarcodeResult =
-  | { status: 'found'; food: Food }
+  | { status: 'found'; food: Food; imageUrl?: string | null; photo?: Promise<void> }
   | { status: 'incomplete'; draft: Partial<Food> & { barcode: string } }
   | { status: 'not_found' | 'offline'; draft: { barcode: string } }
 
@@ -45,6 +45,7 @@ export function mapOffProduct(json: unknown, barcode: string): BarcodeResult {
         kcal100g: kcal, protein100g: protein, carbs100g: carbs, fat100g: fat, servingG, servingLabel,
         fibre100g: fibre, sugars100g: sugars, salt100g: salt,
       },
+      imageUrl: typeof product.image_front_small_url === 'string' ? product.image_front_small_url : null,
     }
   }
   const draft: Partial<Food> & { barcode: string } = { barcode }
@@ -72,7 +73,7 @@ export async function lookupBarcode(db: SqlExecutor, barcode: string, fetchFn: t
 
   const url =
     `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json` +
-    `?fields=product_name,brands,nutriments,serving_quantity,serving_size&app_name=Tally&app_version=0.1`
+    `?fields=product_name,brands,nutriments,serving_quantity,serving_size,image_front_small_url&app_name=Tally&app_version=0.1`
   // A weak signal or captive portal can leave a request hanging for minutes; give up and let the user type it in.
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), LOOKUP_TIMEOUT_MS)
@@ -102,6 +103,37 @@ export async function lookupBarcode(db: SqlExecutor, barcode: string, fetchFn: t
       [f.id, f.createdAt, f.updatedAt, barcode, f.name, f.brand, f.kcal100g, f.protein100g, f.carbs100g, f.fat100g, f.servingG, f.servingLabel,
         f.fibre100g ?? null, f.sugars100g ?? null, f.salt100g ?? null],
     )
+    // In the background: the lookup has already answered, and a missing photo changes nothing.
+    if (result.imageUrl) result.photo = saveProductPhoto(db, f.id, result.imageUrl, fetchFn).catch(() => {})
   }
   return result
+}
+
+const PHOTO_HOST = 'https://images.openfoodfacts.org/'
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+export const MAX_PHOTO_BYTES = 200_000
+
+/** Downloads a product's small front photo from Open Food Facts once and keeps it on the device. Anything unexpected is skipped. */
+export async function saveProductPhoto(db: SqlExecutor, foodId: string, url: string, fetchFn: typeof fetch = fetch): Promise<void> {
+  if (!url.startsWith(PHOTO_HOST)) return
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), LOOKUP_TIMEOUT_MS)
+  let bytes: Uint8Array
+  let type: string
+  try {
+    const res = await fetchFn(url, { signal: controller.signal })
+    type = (res.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase()
+    if (!res.ok || !PHOTO_TYPES.includes(type)) return
+    bytes = new Uint8Array(await res.arrayBuffer())
+  } finally {
+    clearTimeout(timer)
+  }
+  if (bytes.length === 0 || bytes.length > MAX_PHOTO_BYTES) return
+  let bin = ''
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+  const now = nowIso()
+  await db.run(
+    'INSERT OR IGNORE INTO food_images (id, created_at, updated_at, food_id, source_url, data_url) VALUES (?,?,?,?,?,?)',
+    [newId(), now, now, foodId, url, `data:${type};base64,${btoa(bin)}`],
+  )
 }

@@ -83,6 +83,21 @@ describe('food quick wins', () => {
     await waitFor(async () => expect(await rows(db)).toEqual([expect.objectContaining({ kcal: 450 })]))
   })
 
+  it('shows a saved product photo on the food page and in search, and a letter tile otherwise', async () => {
+    const db = await freshDb(on)
+    const id = await createUserFood(db, { ...food, name: 'Granola', kcal100g: 450, protein100g: 9, carbs100g: 60, fat100g: 17 })
+    await createUserFood(db, { ...food, name: 'Grapes', kcal100g: 69, protein100g: 0.7, carbs100g: 18, fat100g: 0.1 })
+    await db.run("INSERT INTO food_images (id, created_at, updated_at, food_id, source_url, data_url) VALUES ('i','x','x',?,'u','data:image/jpeg;base64,QUFB')", [id])
+    const user = userEvent.setup()
+    const first = renderApp(app(), db, '/food/search')
+    await user.type(await screen.findByLabelText('Search foods'), 'Gra')
+    await screen.findByRole('link', { name: /Grapes/ })
+    expect(document.querySelectorAll('img[src^="data:image/jpeg"]')).toHaveLength(1)
+    first.unmount()
+    renderApp(app(), db, `/food/${id}`)
+    await screen.findByRole('button', { name: 'Log food' })
+    expect(document.querySelector('img[src^="data:image/jpeg"]')).not.toBeNull()
+  })
   it('serving chips fill the portion', async () => {
     const db = await freshDb(on)
     const id = await createUserFood(db, { ...food, name: 'Toast', kcal100g: 250, protein100g: 9, carbs100g: 45, fat100g: 3, servingG: 36, servingLabel: 'slice' })

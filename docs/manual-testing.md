@@ -113,3 +113,11 @@ On a phone, with Food on:
 - [ ] Tap the logged bread: the edit sheet opens. Change 72 to 36 and the meal to Snacks, Save. The row moves to Snacks with half the numbers, and it's still there after closing and reopening the app.
 - [ ] Quick add with a name, calories, carbs and fat. The row shows the name; tap it and change the calories.
 - [ ] Scan a product whose Open Food Facts entry has a serving size: the food page shows serving chips.
+
+## 8. Product photos and nutrition detail
+
+- [ ] Scan a product (or type `3017620422003`): the food page shows the product photo above its name, an energy split bar (Protein / Carbs / Fat with percentages) and a table with sugars, fibre and salt. A nutrient Open Food Facts doesn't have says "Not known".
+- [ ] Log it: the day row shows the photo as a thumbnail. Go offline and reopen the app: the photo is still there.
+- [ ] Back up, delete everything, restore: the photo comes back.
+- [ ] Turn on dark mode: the split bar's three colours are distinct and readable.
+
