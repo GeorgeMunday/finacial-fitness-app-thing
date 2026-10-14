@@ -98,3 +98,21 @@ describe('lookupBarcode', () => {
     expect(await db.all('SELECT * FROM foods')).toHaveLength(0)
   })
 })
+
+describe('fibre, sugars, salt and photo from Open Food Facts', () => {
+  const rich = { status: 1, product: { ...full.product, image_front_small_url: 'https://images.openfoodfacts.org/images/products/1/front_en.200.jpg', nutriments: { ...full.product.nutriments, fiber_100g: 6.5, sugars_100g: 21, salt_100g: '0.4' } } }
+  it('reads them when present', () => {
+    const r = mapOffProduct(rich, '123')
+    expect(r.status).toBe('found')
+    if (r.status === 'found') expect(r.food).toMatchObject({ fibre100g: 6.5, sugars100g: 21, salt100g: 0.4 })
+  })
+  it('a product without them is still found, with them unknown', () => {
+    const r = mapOffProduct(full, '123')
+    expect(r.status).toBe('found')
+    if (r.status === 'found') expect(r.food).toMatchObject({ fibre100g: null, sugars100g: null, salt100g: null })
+  })
+  it('stores them with the looked-up food', async () => {
+    await lookupBarcode(db, '123', ok(rich))
+    expect(await db.all("SELECT fibre_100g, sugars_100g, salt_100g FROM foods WHERE barcode = '123'")).toEqual([{ fibre_100g: 6.5, sugars_100g: 21, salt_100g: 0.4 }])
+  })
+})

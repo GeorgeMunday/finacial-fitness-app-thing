@@ -22,11 +22,14 @@ export type Food = Base & {
   source: FoodSource; barcode: string | null; name: string; brand: string | null
   kcal100g: number; protein100g: number; carbs100g: number; fat100g: number
   servingG: number | null; servingLabel: string | null
+  /** Per 100 g; null (or absent on input) when not known — never 0 for "unknown". */
+  fibre100g?: number | null; sugars100g?: number | null; salt100g?: number | null
 }
 export type FoodLog = Base & {
   logDate: string; slot: Slot; foodId: string | null; grams: number | null
   kcal: number; proteinG: number; carbsG: number; fatG: number
   recipeId: string | null; portions: number | null
+  fibreG: number | null; sugarsG: number | null; saltG: number | null
   /** Only quick adds have one; foods and recipes are named by what they point at. */
   name: string | null
 }

@@ -5,7 +5,10 @@ import { seedProgrammes } from './programmes/seedProgrammes'
 import type { SeedProgramme } from './programmes/types'
 import { seedRecipes, type RecipeSeedFile } from './recipes/seedRecipes'
 
-export type SeedFood = { name: string; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number; serving_g?: number | null; serving_label?: string | null }
+export type SeedFood = {
+  name: string; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number
+  serving_g?: number | null; serving_label?: string | null; fibre_100g?: number | null; sugars_100g?: number | null; salt_100g?: number | null
+}
 export type SeedExercise = { name: string; primary_muscle: string; equipment: string }
 /** `starter` is Tally's own short list of typical values, not CoFID; `cofid` is the real dataset once it is bundled. */
 export type SeedData = { starter: SeedFood[]; cofid: SeedFood[]; exercises: SeedExercise[]; programmes: unknown[]; recipes: unknown | null }
@@ -14,7 +17,7 @@ export type SeedData = { starter: SeedFood[]; cofid: SeedFood[]; exercises: Seed
  * Adds bundled foods, exercises, programmes and recipes that aren't there yet. Additive: rows are matched by
  * (source, name) for foods, name for exercises and key for programmes and recipes; existing rows are never
  * updated or removed, so people who already seeded get new content without duplicates. The one exception: a
- * bundled food with no serving size gains the bundled one (a serving it already has is left alone).
+ * bundled food gains the bundled serving size, fibre, sugars and salt where it has none (values it has are left alone).
  */
 export async function seedAll(db: SqlExecutor, data: SeedData): Promise<{ foods: number; exercises: number; programmes: number; recipes: number }> {
   const out = { foods: 0, exercises: 0, programmes: 0, recipes: 0 }
@@ -29,13 +32,16 @@ export async function seedAll(db: SqlExecutor, data: SeedData): Promise<{ foods:
               'UPDATE foods SET serving_g = ?, serving_label = ?, updated_at = ? WHERE source = ? AND name = ? AND serving_g IS NULL',
               [x.serving_g, x.serving_label ?? null, now, source, x.name],
             )
+          for (const col of ['fibre_100g', 'sugars_100g', 'salt_100g'] as const)
+            if (x[col] != null)
+              await tx.run(`UPDATE foods SET ${col} = ?, updated_at = ? WHERE source = ? AND name = ? AND ${col} IS NULL`, [x[col], now, source, x.name])
           continue
         }
         have.add(x.name)
         await tx.run(
-          `INSERT INTO foods (id, created_at, updated_at, source, name, kcal_100g, protein_100g, carbs_100g, fat_100g, serving_g, serving_label)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-          [newId(), now, now, source, x.name, x.kcal_100g, x.protein_100g, x.carbs_100g, x.fat_100g, x.serving_g ?? null, x.serving_label ?? null],
+          `INSERT INTO foods (id, created_at, updated_at, source, name, kcal_100g, protein_100g, carbs_100g, fat_100g, serving_g, serving_label, fibre_100g, sugars_100g, salt_100g)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          [newId(), now, now, source, x.name, x.kcal_100g, x.protein_100g, x.carbs_100g, x.fat_100g, x.serving_g ?? null, x.serving_label ?? null, x.fibre_100g ?? null, x.sugars_100g ?? null, x.salt_100g ?? null],
         )
         out.foods++
       }
@@ -84,11 +90,13 @@ type FoodRow = {
   id: string; created_at: string; updated_at: string; deleted_at: string | null; source: Food['source']; barcode: string | null
   name: string; brand: string | null; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number
   serving_g: number | null; serving_label: string | null
+  fibre_100g: number | null; sugars_100g: number | null; salt_100g: number | null
 }
 export const toFood = (r: FoodRow): Food => ({
   id: r.id, createdAt: r.created_at, updatedAt: r.updated_at, deletedAt: r.deleted_at, source: r.source, barcode: r.barcode,
   name: r.name, brand: r.brand, kcal100g: r.kcal_100g, protein100g: r.protein_100g, carbs100g: r.carbs_100g, fat100g: r.fat_100g,
   servingG: r.serving_g, servingLabel: r.serving_label,
+  fibre100g: r.fibre_100g ?? null, sugars100g: r.sugars_100g ?? null, salt100g: r.salt_100g ?? null,
 })
 
 /** Recently logged foods first, then user > off > cofid > starter, then by name. */

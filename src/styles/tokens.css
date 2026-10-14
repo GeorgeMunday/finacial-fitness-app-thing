@@ -5,6 +5,8 @@
   --pond: #0F6E6A; --on-pond: #FFFFFF; --marigold: #E9A23B; --on-marigold: #1B2A2F; --amber-ink: #7A4B00; --danger: #A3261E;
   /* Chart series, checked with the dataviz palette validator (lightness band, chroma, CVD, contrast) for each mode. */
   --chart-spent: #159A92; --chart-saved: #E9A23B;
+  /* Energy split (protein, carbs, fat), validated the same way; carbs is < 3:1 in light, so every segment is labelled in text. */
+  --macro-protein: #159A92; --macro-carbs: #E9A23B; --macro-fat: #4A3AA7;
   --font-display: 'Bricolage Grotesque Variable', 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
   --font-body: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
   color-scheme: light;
@@ -14,6 +16,7 @@
     --chalk: #0F1A1D; --surface: #172427; --ink: #E6EEEC; --slate: #9DB0B4; --fog: #2A3A3E;
     --pond: #3FB8AE; --on-pond: #0F1A1D; --marigold: #F0B85A; --on-marigold: #0F1A1D; --amber-ink: #F5C77A; --danger: #F2867D;
     --chart-spent: #159A92; --chart-saved: #C48426;
+    --macro-protein: #159A92; --macro-carbs: #C48426; --macro-fat: #9085E9;
     color-scheme: dark;
   }
 }
@@ -21,6 +24,7 @@
   --chalk: #0F1A1D; --surface: #172427; --ink: #E6EEEC; --slate: #9DB0B4; --fog: #2A3A3E;
   --pond: #3FB8AE; --on-pond: #0F1A1D; --marigold: #F0B85A; --on-marigold: #0F1A1D; --amber-ink: #F5C77A; --danger: #F2867D;
   --chart-spent: #159A92; --chart-saved: #C48426;
+  --macro-protein: #159A92; --macro-carbs: #C48426; --macro-fat: #9085E9;
   color-scheme: dark;
 }
 

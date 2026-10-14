@@ -26,7 +26,7 @@ describe('food logging', () => {
     await logFood(db, { foodId: oats, grams: 100, slot: 'snack', logDate: '2026-10-12' })
     expect((await dayTotals(db, '2026-10-12')).kcal).toBe(570)
     await db.run('UPDATE foods SET kcal_100g = 500, deleted_at = ? WHERE id = ?', ['x', oats])
-    expect(await dayTotals(db, '2026-10-12')).toEqual({ kcal: 570, proteinG: 18, carbsG: 90, fatG: 12 })
+    expect(await dayTotals(db, '2026-10-12')).toMatchObject({ kcal: 570, proteinG: 18, carbsG: 90, fatG: 12 })
   })
   it('deleteLog removes it from totals', async () => {
     const id = await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: '2026-10-12' })
@@ -120,5 +120,32 @@ describe('servingOptions', () => {
   })
   it('offers nothing without a serving size', () => {
     expect(servingOptions({ servingG: null, servingLabel: null })).toEqual([])
+  })
+})
+
+describe('fibre, sugars and salt', () => {
+  const beans = () => createUserFood(db, {
+    createdAt: '', updatedAt: '', deletedAt: null, barcode: null, name: 'Beans', brand: null,
+    kcal100g: 80, protein100g: 5, carbs100g: 13, fat100g: 0.5, servingG: null, servingLabel: null,
+    fibre100g: 4, sugars100g: 5, salt100g: 0.6,
+  })
+  it('snapshots them when the food knows them, and leaves them unknown when it does not', async () => {
+    await logFood(db, { foodId: await beans(), grams: 200, slot: 'lunch', logDate: '2026-10-12' })
+    await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: '2026-10-12' })
+    const logs = await dayLogs(db, '2026-10-12')
+    expect(logs.find((l) => l.foodId === oats)).toMatchObject({ fibreG: null, sugarsG: null, saltG: null })
+    expect(logs.find((l) => l.foodId !== oats)).toMatchObject({ fibreG: 8, sugarsG: 10, saltG: 1.2 })
+  })
+  it('day totals add the known values and count the entries that have none', async () => {
+    await logFood(db, { foodId: await beans(), grams: 200, slot: 'lunch', logDate: '2026-10-12' })
+    await logFood(db, { foodId: oats, grams: 50, slot: 'breakfast', logDate: '2026-10-12' })
+    await quickAdd(db, { kcal: 100, slot: 'snack', logDate: '2026-10-12' })
+    expect(await dayTotals(db, '2026-10-12')).toMatchObject({ fibreG: 8, sugarsG: 10, saltG: 1.2, fibreUnknown: 2 })
+  })
+  it('editing a portion rescales them; copyDay carries them', async () => {
+    const id = await logFood(db, { foodId: await beans(), grams: 200, slot: 'lunch', logDate: '2026-10-12' })
+    await editLog(db, id, { slot: 'lunch', grams: 100 })
+    await copyDay(db, '2026-10-12', '2026-10-13')
+    expect((await dayLogs(db, '2026-10-13'))[0]).toMatchObject({ fibreG: 4, sugarsG: 5, saltG: 0.6 })
   })
 })

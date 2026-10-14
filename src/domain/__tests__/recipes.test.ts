@@ -15,7 +15,7 @@ describe('recipeNutrition', () => {
   it('divides the ingredients by the number of portions', async () => {
     const { id } = await chickenRice(db)
     // (4 × 100 + 2 × 350) kcal / 4, (4 × 20 + 2 × 7) g protein / 4
-    expect(await recipeNutrition(db, id)).toEqual({ kcal: 275, proteinG: 23.5, carbsG: 39, fatG: 2.5 })
+    expect(await recipeNutrition(db, id)).toMatchObject({ kcal: 275, proteinG: 23.5, carbsG: 39, fatG: 2.5 })
   })
   it('changes with the number of portions', async () => {
     const { id } = await chickenRice(db, { servings: 2 })
@@ -31,6 +31,20 @@ describe('recipeNutrition', () => {
     await db.run('DELETE FROM foods WHERE id = ?', [rice])
     expect(await recipeNutrition(db, id)).toMatchObject({ kcal: 100, proteinG: 20 })
     expect((await getRecipe(db, id))!.items).toHaveLength(2)
+  })
+  it('sums fibre, sugars and salt, and leaves one unknown if any ingredient does not know it', async () => {
+    const { id, chicken, rice } = await chickenRice(db)
+    await db.run('UPDATE foods SET fibre_100g = 0, sugars_100g = 0, salt_100g = 0.2 WHERE id = ?', [chicken])
+    await db.run('UPDATE foods SET fibre_100g = 2, sugars_100g = 0.5 WHERE id = ?', [rice])
+    // per portion: fibre 200 g × 2 / 100 / 4 = 1; sugars 200 × 0.5 / 100 / 4 = 0.25 → 0.3; salt unknown for rice
+    expect(await recipeNutrition(db, id)).toMatchObject({ fibreG: 1, sugarsG: 0.3, saltG: null })
+  })
+  it('a recipe log snapshots them per portion', async () => {
+    const { id, chicken, rice } = await chickenRice(db)
+    await db.run('UPDATE foods SET fibre_100g = 0, sugars_100g = 0, salt_100g = 0.2 WHERE id = ?', [chicken])
+    await db.run('UPDATE foods SET fibre_100g = 2, sugars_100g = 0.5, salt_100g = 0 WHERE id = ?', [rice])
+    await logRecipe(db, id, 2, 'dinner', DAY)
+    expect((await dayLogs(db, DAY))[0]).toMatchObject({ fibreG: 2, saltG: 0.4 })
   })
   it('throws for a recipe that does not exist', async () => {
     await expect(recipeNutrition(db, 'nope')).rejects.toThrow('Recipe not found')

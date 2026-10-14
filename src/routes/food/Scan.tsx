@@ -41,6 +41,9 @@ export default function Scan() {
       if (d.carbs100g !== undefined) q.carbs = String(d.carbs100g)
       if (d.fat100g !== undefined) q.fat = String(d.fat100g)
       if (d.servingG) q.serving = String(d.servingG)
+      if (d.fibre100g != null) q.fibre = String(d.fibre100g)
+      if (d.sugars100g != null) q.sugars = String(d.sugars100g)
+      if (d.salt100g != null) q.salt = String(d.salt100g)
     }
     navigate(withDate('/food/new', date, q), { replace: true })
   }

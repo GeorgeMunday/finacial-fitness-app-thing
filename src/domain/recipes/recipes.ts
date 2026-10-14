@@ -111,16 +111,21 @@ export async function copyRecipe(db: SqlExecutor, id: string): Promise<string> {
 export async function recipeNutrition(db: SqlExecutor, recipeId: string): Promise<Nutrition> {
   const r = await getRecipe(db, recipeId)
   if (!r) throw new Error('Recipe not found')
-  const rows = await db.all<{ kcal: number | null; p: number | null; c: number | null; f: number | null }>(
+  type Sums = { kcal: number | null; p: number | null; c: number | null; f: number | null; fi: number | null; su: number | null; sa: number | null; nofi: number; nosu: number; nosa: number }
+  const rows = await db.all<Sums>(
     `SELECT SUM(f.kcal_100g * i.grams / 100.0) AS kcal, SUM(f.protein_100g * i.grams / 100.0) AS p,
-            SUM(f.carbs_100g * i.grams / 100.0) AS c, SUM(f.fat_100g * i.grams / 100.0) AS f
+            SUM(f.carbs_100g * i.grams / 100.0) AS c, SUM(f.fat_100g * i.grams / 100.0) AS f,
+            SUM(f.fibre_100g * i.grams / 100.0) AS fi, SUM(f.sugars_100g * i.grams / 100.0) AS su, SUM(f.salt_100g * i.grams / 100.0) AS sa,
+            COALESCE(SUM(f.fibre_100g IS NULL), 0) AS nofi, COALESCE(SUM(f.sugars_100g IS NULL), 0) AS nosu, COALESCE(SUM(f.salt_100g IS NULL), 0) AS nosa
      FROM meal_items i JOIN foods f ON f.id = i.food_id WHERE i.meal_id = ? AND i.deleted_at IS NULL`,
     [recipeId],
   )
   const t = rows[0]
+  const known = (sum: number | null, unknown: number) => (unknown > 0 ? null : r1((sum ?? 0) / r.servings))
   return {
     kcal: Math.round((t?.kcal ?? 0) / r.servings), proteinG: r1((t?.p ?? 0) / r.servings),
     carbsG: r1((t?.c ?? 0) / r.servings), fatG: r1((t?.f ?? 0) / r.servings),
+    fibreG: known(t?.fi ?? null, t?.nofi ?? 0), sugarsG: known(t?.su ?? null, t?.nosu ?? 0), saltG: known(t?.sa ?? null, t?.nosa ?? 0),
   }
 }
 
@@ -156,6 +161,8 @@ export async function logRecipe(db: SqlExecutor, recipeId: string, portions: num
   return insertLog(db, {
     logDate, slot, foodId: null, grams: null, recipeId, portions,
     kcal: Math.round(n.kcal * portions), proteinG: r1(n.proteinG * portions), carbsG: r1(n.carbsG * portions), fatG: r1(n.fatG * portions),
+    fibreG: n.fibreG === null ? null : r1(n.fibreG * portions), sugarsG: n.sugarsG === null ? null : r1(n.sugarsG * portions),
+    saltG: n.saltG === null ? null : r1(n.saltG * portions),
   })
 }
 

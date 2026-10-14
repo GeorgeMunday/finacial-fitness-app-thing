@@ -1,7 +1,11 @@
 export type RecipeTag = 'batch' | 'quick' | 'breakfast' | 'lunch' | 'dinner' | 'freezer-friendly'
 export const RECIPE_TAGS: RecipeTag[] = ['batch', 'quick', 'breakfast', 'lunch', 'dinner', 'freezer-friendly']
 
-export type Nutrition = { kcal: number; proteinG: number; carbsG: number; fatG: number }
+export type Nutrition = {
+  kcal: number; proteinG: number; carbsG: number; fatG: number
+  /** null when any ingredient doesn't know it */
+  fibreG: number | null; sugarsG: number | null; saltG: number | null
+}
 
 export type RecipeItem = { foodId: string; name: string; grams: number }
 

@@ -31,6 +31,10 @@ export function mapOffProduct(json: unknown, barcode: string): BarcodeResult {
   const brand = typeof product.brands === 'string' && product.brands ? product.brands.split(',')[0].trim() : null
   const servingG = num(product.serving_quantity) ?? null
   const servingLabel = typeof product.serving_size === 'string' ? product.serving_size : null
+  // Optional: a product without them is still complete, with them unknown.
+  const fibre = num(n.fiber_100g) ?? null
+  const sugars = num(n.sugars_100g) ?? null
+  const salt = num(n.salt_100g) ?? null
 
   if (name && kcal !== undefined && protein !== undefined && carbs !== undefined && fat !== undefined) {
     const now = nowIso()
@@ -39,6 +43,7 @@ export function mapOffProduct(json: unknown, barcode: string): BarcodeResult {
       food: {
         id: newId(), createdAt: now, updatedAt: now, deletedAt: null, source: 'off', barcode, name, brand,
         kcal100g: kcal, protein100g: protein, carbs100g: carbs, fat100g: fat, servingG, servingLabel,
+        fibre100g: fibre, sugars100g: sugars, salt100g: salt,
       },
     }
   }
@@ -50,6 +55,9 @@ export function mapOffProduct(json: unknown, barcode: string): BarcodeResult {
   if (carbs !== undefined) draft.carbs100g = carbs
   if (fat !== undefined) draft.fat100g = fat
   if (servingG !== null) draft.servingG = servingG
+  if (fibre !== null) draft.fibre100g = fibre
+  if (sugars !== null) draft.sugars100g = sugars
+  if (salt !== null) draft.salt100g = salt
   return { status: 'incomplete', draft }
 }
 
@@ -88,9 +96,11 @@ export async function lookupBarcode(db: SqlExecutor, barcode: string, fetchFn: t
   if (result.status === 'found') {
     const f = result.food
     await db.run(
-      `INSERT INTO foods (id, created_at, updated_at, source, barcode, name, brand, kcal_100g, protein_100g, carbs_100g, fat_100g, serving_g, serving_label)
-       VALUES (?,?,?,'off',?,?,?,?,?,?,?,?,?)`,
-      [f.id, f.createdAt, f.updatedAt, barcode, f.name, f.brand, f.kcal100g, f.protein100g, f.carbs100g, f.fat100g, f.servingG, f.servingLabel],
+      `INSERT INTO foods (id, created_at, updated_at, source, barcode, name, brand, kcal_100g, protein_100g, carbs_100g, fat_100g, serving_g, serving_label,
+                          fibre_100g, sugars_100g, salt_100g)
+       VALUES (?,?,?,'off',?,?,?,?,?,?,?,?,?,?,?,?)`,
+      [f.id, f.createdAt, f.updatedAt, barcode, f.name, f.brand, f.kcal100g, f.protein100g, f.carbs100g, f.fat100g, f.servingG, f.servingLabel,
+        f.fibre100g ?? null, f.sugars100g ?? null, f.salt100g ?? null],
     )
   }
   return result
